@@ -71,10 +71,10 @@ export function MainHero() {
             >
               <button
                 onClick={scrollToCustomizer}
-                className="w-full sm:w-auto px-8 h-14 rounded-lg bg-[--accent] hover:bg-[--accent-hover] text-white font-jakarta font-semibold text-base transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-[--accent]/20"
+                className="w-full sm:w-auto px-8 h-14 rounded-lg bg-white hover:bg-[#FAF8F5] text-black border-2 border-black font-jakarta font-bold text-base transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm cursor-pointer"
               >
-                Design Your Canvas
-                <ArrowRight size={18} />
+                <span className="text-black font-bold">Design Your Canvas</span>
+                <ArrowRight size={18} className="text-black stroke-[2.5]" />
               </button>
               <p className="text-sm font-jakarta text-[--text-secondary]">
                 Takes less than 2 minutes

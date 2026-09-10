@@ -239,8 +239,8 @@ export function HeroCustomizer() {
                   className={cn(
                     "w-full h-14 rounded-lg font-semibold font-jakarta text-[15px] flex items-center justify-center gap-2 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent] focus-visible:ring-offset-2",
                     isValid || !hasTriedSubmit
-                      ? "bg-[--accent] hover:bg-[--accent-hover] text-white cursor-pointer active:scale-[0.98]"
-                      : "bg-[--border-default] text-[--text-secondary] cursor-not-allowed opacity-70"
+                      ? "bg-[#B88A58] hover:bg-[#A67A49] text-white cursor-pointer active:scale-[0.98]"
+                      : "bg-[#EBE6DE] text-[#6B6156] cursor-not-allowed opacity-70"
                   )}
                   aria-disabled={hasTriedSubmit && !isValid}
                 >

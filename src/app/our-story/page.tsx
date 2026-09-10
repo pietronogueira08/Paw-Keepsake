@@ -205,7 +205,7 @@ export default function OurStoryPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/#hero-customizer-section"
-                  className="w-full sm:w-auto px-8 h-14 rounded-lg bg-[--accent] hover:bg-[--accent-hover] text-white font-jakarta font-semibold text-base transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95"
+                  className="w-full sm:w-auto px-8 h-14 rounded-lg bg-[#B88A58] hover:bg-[#A67A49] text-white font-jakarta font-semibold text-base transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95"
                 >
                   Create Custom Canvas
                   <ArrowRight size={18} />
