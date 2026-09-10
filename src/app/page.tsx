@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { MainHero } from '@/components/sections/MainHero';
 import { HeroCustomizer } from '@/components/sections/HeroCustomizer';
 import { FeaturedCollection } from '@/components/sections/FeaturedCollection';
 import { CraftsmanshipStory } from '@/components/sections/CraftsmanshipStory';
@@ -64,6 +65,7 @@ export default function HomePage() {
       />
 
       <main id="main-content">
+        <MainHero />
         <HeroCustomizer />
         <CraftsmanshipStory />
         <FeaturedCollection />

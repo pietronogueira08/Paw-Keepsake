@@ -74,7 +74,7 @@ export function HeroCustomizer() {
   const springDefault = { type: "spring" as const, stiffness: 350, damping: 25 };
 
   return (
-    <section className="w-full bg-[--bg-page] py-10 lg:py-20" aria-label="Memorial Art Customizer">
+    <section id="hero-customizer-section" className="w-full bg-[--bg-page] py-10 lg:py-20" aria-label="Memorial Art Customizer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-start">
 

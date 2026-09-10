@@ -82,19 +82,44 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 <motion.div
                   key={breed.id}
                   animate={previewLoading ? { opacity: 0.6 } : previewSync}
-                  className="flex flex-col items-center justify-center w-full"
+                  className="flex flex-col items-center justify-center w-full relative"
+                  style={{ height: '140px' }}
                 >
-                  <svg
-                    viewBox="0 0 200 200"
-                    width="140"
-                    height="140"
-                    style={{ filter: 'drop-shadow(0 2px 8px rgba(184,138,88,0.25))' }}
+                  {/* Primary silhouette using CSS mask to colorize any external SVG */}
+                  <div 
+                    className="w-[140px] h-[140px] bg-[--accent]"
+                    style={{
+                      WebkitMaskImage: `url(/breeds/${breed.slug}.svg)`,
+                      WebkitMaskSize: 'contain',
+                      WebkitMaskPosition: 'center',
+                      WebkitMaskRepeat: 'no-repeat',
+                      maskImage: `url(/breeds/${breed.slug}.svg)`,
+                      maskSize: 'contain',
+                      maskPosition: 'center',
+                      maskRepeat: 'no-repeat',
+                      opacity: 0.85,
+                      filter: 'drop-shadow(0 2px 8px rgba(184,138,88,0.25))'
+                    }}
                     aria-label={`${breed.name} silhouette`}
-                  >
-                    <path d={breed.svgPath} fill="var(--accent)" opacity="0.85" />
-                    {/* Subtle watercolor inner fill */}
-                    <path d={breed.svgPath} fill="#D4A96A" opacity="0.3" transform="scale(0.94) translate(6,6)" />
-                  </svg>
+                  />
+                  
+                  {/* Subtle watercolor inner fill offset */}
+                  <div 
+                    className="absolute w-[140px] h-[140px] bg-[#D4A96A] pointer-events-none"
+                    style={{
+                      WebkitMaskImage: `url(/breeds/${breed.slug}.svg)`,
+                      WebkitMaskSize: 'contain',
+                      WebkitMaskPosition: 'center',
+                      WebkitMaskRepeat: 'no-repeat',
+                      maskImage: `url(/breeds/${breed.slug}.svg)`,
+                      maskSize: 'contain',
+                      maskPosition: 'center',
+                      maskRepeat: 'no-repeat',
+                      opacity: 0.3,
+                      transform: 'scale(0.94) translate(6px, 6px)'
+                    }}
+                    aria-hidden="true"
+                  />
                 </motion.div>
               ) : (
                 <motion.div
