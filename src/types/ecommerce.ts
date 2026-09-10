@@ -3,10 +3,14 @@
 // ============================================================
 
 export type ProductType = 'museum-canvas' | 'framed-print';
+export type ApparelProductType = 'memorial-crewneck' | 'memorial-tshirt';
+export type AnyProductType = ProductType | ApparelProductType;
 
 export type CanvasSize = '8x10' | '12x16' | '18x24' | '24x36';
+export type ApparelSize = 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
 
 export type FrameStyle = 'none' | 'natural-oak' | 'black-walnut' | 'white-gallery';
+export type ApparelColor = 'sand' | 'off-white' | 'heather-grey';
 
 export interface Breed {
   id: string;
@@ -27,6 +31,8 @@ export interface SizeVariant {
   size: CanvasSize;
   label: string;
   popularityLabel?: string;
+  /** CRO badge shown on the size card (e.g. "Most Loved by Families") */
+  croBadge?: string;
   prices: {
     'museum-canvas': number;
     'framed-print': number;
@@ -47,15 +53,24 @@ export interface CustomizerState {
   unitPrice: number;
 }
 
+// ─── Unified CartItem (canvas + apparel) ─────────────────────────────────────
+
 export interface CartItem {
   id: string;
-  productType: ProductType;
-  breed: Breed;
+  /** Human-readable product name for cart display */
+  productTitle: string;
+  productType: AnyProductType;
+  /** null for off-the-shelf apparel without breed personalization */
+  breed: Breed | null;
   petName: string;
   dateRange: string;
   quote: string;
-  size: CanvasSize;
-  frameStyle: FrameStyle;
+  /** CanvasSize for wall art; ApparelSize for apparel */
+  size: CanvasSize | ApparelSize;
+  /** null for apparel */
+  frameStyle: FrameStyle | null;
+  /** Apparel color — undefined for wall art */
+  color?: ApparelColor;
   quantity: number;
   unitPrice: number;
 }
@@ -108,6 +123,25 @@ export interface ReviewPhoto {
   datePosted: string;
 }
 
+// ─── Catalog Product ──────────────────────────────────────────────────────────
+
+export interface Product {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  basePrice: number;
+  /** Relative paths — replace with real CDN URLs before launch */
+  images: string[];
+  category: 'wall-art' | 'apparel';
+  badge: string;
+  description: string;
+  features: string[];
+  isCustomizable: boolean;
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
 export type AnalyticsEventName =
   | 'ViewContent'
   | 'CustomizeProduct'
@@ -118,7 +152,7 @@ export type AnalyticsEventName =
 
 export interface AnalyticsEventProperties {
   breed?: string;
-  productType?: ProductType;
+  productType?: AnyProductType;
   petName?: string;
   value?: number;
   currency?: 'USD';

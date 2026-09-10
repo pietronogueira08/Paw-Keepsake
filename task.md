@@ -1,0 +1,11 @@
+- [x] Create expanded type system for multi-product support (`src/types/ecommerce.ts`).
+- [x] Create centralized product catalog (`src/lib/products-data.ts`).
+- [x] Build Animated FAQ Accordion (`src/components/sections/FaqAccordion.tsx`).
+- [x] Update Size & Material Selector with CRO anchoring (`src/components/customizer/SizeMaterialSelector.tsx`).
+- [x] Build Global Header with utility bar and animated cart badge (`src/components/layout/Header.tsx`).
+- [x] Build Featured Collection for the Home Page (`src/components/sections/FeaturedCollection.tsx`).
+- [x] Extract Footer from Home Page and move to Global Layout (`src/app/layout.tsx`).
+- [x] Build Shop Catalog Route with filtering (`src/app/shop/page.tsx`).
+- [x] Build Dynamic Product Detail Page branching (`src/app/product/[slug]/page.tsx`).
+- [x] Fix TypeScript type safety across the entire codebase (`Checkout API`, `CartSlideOver`, `HeroCustomizer`, etc.).
+- [x] Run production build (`next build`).

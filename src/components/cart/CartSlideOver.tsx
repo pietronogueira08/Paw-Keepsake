@@ -87,9 +87,9 @@ function CartItemRow({ item }: CartItemRowProps) {
       {/* Breed silhouette */}
       <div
         className="flex-shrink-0 h-8 w-8 rounded-md bg-surface-subtle border border-border overflow-hidden flex items-center justify-center"
-        aria-label={`${item.breed.name} silhouette`}
+        aria-label={item.breed ? `${item.breed.name} silhouette` : 'memorial item'}
       >
-        {item.breed.svgPath ? (
+        {item.breed?.svgPath ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.breed.svgPath}
@@ -106,10 +106,10 @@ function CartItemRow({ item }: CartItemRowProps) {
       {/* Item details */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground font-jakarta truncate">
-          {item.petName}&apos;s {productLabel}
+          {item.petName ? `${item.petName}'s ` : ''}{item.productTitle ?? productLabel}
         </p>
         <p className="text-xs text-muted font-jakarta mt-0.5">
-          {item.size} · {item.breed.name}
+          {item.size}{item.breed ? ` · ${item.breed.name}` : item.color ? ` · ${item.color}` : ''}
         </p>
 
         {/* Quantity controls */}

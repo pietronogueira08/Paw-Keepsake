@@ -6,14 +6,17 @@ import { z } from 'zod';
 export const runtime = 'nodejs';
 
 const CartItemSchema = z.object({
+  id: z.string(),
+  productTitle: z.string(),
   productType: z.string(),
-  breed: z.object({ name: z.string(), id: z.string() }),
+  breed: z.object({ name: z.string(), id: z.string() }).nullable(),
   petName: z.string(),
   dateRange: z.string(),
   quote: z.string(),
   size: z.string(),
-  frameStyle: z.string(),
-  quantity: z.number().min(1).max(10),
+  frameStyle: z.string().nullable(),
+  color: z.string().optional(),
+  quantity: z.number().min(1).max(20),
   unitPrice: z.number().positive(),
 });
 
@@ -30,27 +33,38 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const validated = CheckoutRequestSchema.parse(body);
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
-      validated.items.map((item) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: `Custom ${item.productType === 'museum-canvas' ? 'Museum Canvas' : 'Framed Fine Art Print'} — ${item.petName || item.breed.name}`,
-            description: `${item.breed.name} · ${item.size.replace('x', '×')}" · ${item.dateRange}`,
-            metadata: {
-              breed_id: item.breed.id,
-              breed_name: item.breed.name,
-              pet_name: item.petName,
-              date_range: item.dateRange,
-              quote: item.quote.slice(0, 500),
-              size: item.size,
-              frame_style: item.frameStyle,
-              product_type: item.productType,
+      validated.items.map((item) => {
+        // Build a nice description for the Stripe invoice
+        const features = [];
+        if (item.breed) features.push(item.breed.name);
+        features.push(`Size: ${item.size}`);
+        if (item.color) features.push(`Color: ${item.color}`);
+        if (item.dateRange) features.push(item.dateRange);
+
+        return {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${item.petName ? item.petName + "'s " : ''}${item.productTitle}`,
+              description: features.join(' · '),
+              metadata: {
+                cart_item_id: item.id,
+                product_type: item.productType,
+                breed_id: item.breed?.id || '',
+                breed_name: item.breed?.name || '',
+                pet_name: item.petName,
+                date_range: item.dateRange,
+                quote: item.quote.slice(0, 500),
+                size: item.size,
+                frame_style: item.frameStyle || '',
+                color: item.color || '',
+              },
             },
+            unit_amount: Math.round(item.unitPrice * 100),
           },
-          unit_amount: Math.round(item.unitPrice * 100),
-        },
-        quantity: item.quantity,
-      }));
+          quantity: item.quantity,
+        };
+      });
 
     if (validated.hasOrderBump) {
       lineItems.push({
@@ -79,7 +93,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       phone_number_collection: { enabled: true },
       custom_text: {
         submit: {
-          message: 'Your memorial will be printed and shipped within 1 business day.',
+          message: 'Your memorial will be carefully crafted and shipped within 1-2 business days.',
         },
       },
       metadata: {

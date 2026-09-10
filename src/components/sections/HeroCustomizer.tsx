@@ -96,6 +96,7 @@ function CheckoutBlock() {
 
     const item: CartItem = {
       id: generateId(),
+      productTitle: `${store.productType === 'framed-print' ? 'Framed Fine Art Print' : 'Museum Canvas'}`,
       productType: store.productType,
       breed: store.breed,
       petName: store.petName,

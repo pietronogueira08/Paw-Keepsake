@@ -8,8 +8,8 @@ export type CustomizerStep = 1 | 2 | 3 | 4 | 5;
 
 // Price table: productType → size → dollars
 const PRICE_TABLE: Record<ProductType, Record<CanvasSize, number>> = {
-  'museum-canvas':  { '8x10': 48, '12x16': 68, '18x24': 98, '24x36': 148 },
-  'framed-print':   { '8x10': 65, '12x16': 89, '18x24': 125, '24x36': 185 },
+  'museum-canvas':  { '8x10': 38, '12x16': 48, '18x24': 68, '24x36': 148 },
+  'framed-print':   { '8x10': 52, '12x16': 65, '18x24': 89, '24x36': 185 },
 };
 
 function derivePrice(type: ProductType, size: CanvasSize): number {
