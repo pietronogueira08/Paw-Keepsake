@@ -41,7 +41,7 @@ const SIZE_CONFIG: SizeConfig[] = [
     label: '18×24"',
     dimensionsCm: '45 × 60 cm',
     prices: { 'museum-canvas': 68, 'framed-print': 89 },
-    croBadge: 'Most Loved by Families',
+    croBadge: 'Most Loved',
     subLabel: 'Best Value',
   },
   {
@@ -64,13 +64,13 @@ export function SizeMaterialSelector() {
   const { productType, setProductType, size, setSize } = useCustomizerStore();
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {/* Product type tabs */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta mb-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block">
           Print Style
-        </p>
-        <div className="flex rounded-card border border-border overflow-hidden bg-surface-subtle p-1 gap-1">
+        </label>
+        <div className="flex rounded-xl border border-[#EBE6DE] overflow-hidden bg-white p-1 gap-1">
           {PRODUCT_TABS.map((tab) => {
             const isActive = productType === tab.id;
             return (
@@ -78,13 +78,13 @@ export function SizeMaterialSelector() {
                 key={tab.id}
                 type="button"
                 onClick={() => setProductType(tab.id)}
-                className="relative flex-1 rounded-[8px] px-3 py-2.5 text-center transition-all duration-200 font-jakarta"
+                className="relative flex-1 rounded-[10px] px-3 py-3 text-center transition-all duration-200 font-jakarta"
                 aria-pressed={isActive}
               >
                 {isActive && (
                   <motion.div
                     layoutId="productTypeIndicator"
-                    className="absolute inset-0 bg-accent rounded-[8px]"
+                    className="absolute inset-0 bg-[#B88A58] rounded-[10px]"
                     transition={{ type: 'spring', stiffness: 300, damping: 28 }}
                   />
                 )}
@@ -102,10 +102,10 @@ export function SizeMaterialSelector() {
 
       {/* Size selection — CRO anchored grid */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta mb-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block">
           Size
-        </p>
-        <div className="grid grid-cols-2 gap-2">
+        </label>
+        <div className="grid grid-cols-2 gap-3 mt-4">
           {SIZE_CONFIG.map((variant) => {
             const isSelected = size === variant.size;
             const price = variant.prices[productType];
@@ -119,61 +119,43 @@ export function SizeMaterialSelector() {
                 whileHover={{ y: -2, transition: { type: 'spring', stiffness: 300, damping: 28 } }}
                 whileTap={{ scale: 0.97, transition: { type: 'spring', stiffness: 450, damping: 18 } }}
                 className={cn(
-                  'relative flex flex-col items-start gap-0.5 rounded-card border px-3 py-3 text-left',
-                  'transition-colors duration-200',
+                  'relative p-4 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-200 mt-2',
                   isSelected
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border bg-surface hover:border-accent/40',
+                    ? 'border-[#B88A58] bg-white ring-2 ring-[#B88A58]/20'
+                    : 'border-[#EBE6DE] bg-white hover:border-[#B88A58]/40',
                 )}
-                style={isSelected ? { boxShadow: '0 0 0 3px rgba(184,138,88,0.25)' } : undefined}
                 aria-pressed={isSelected}
               >
-                {/* CRO badge — "Most Loved by Families" */}
+                {/* CRO badge — Cleanly placed above without overlap */}
                 {variant.croBadge && (
-                  <span className={cn(
-                    'absolute -top-2.5 left-3',
-                    'bg-accent text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full font-jakarta',
-                    'shadow-sm',
-                  )}>
+                  <span className="absolute -top-3 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-[#B88A58] text-white">
                     {variant.croBadge}
                   </span>
                 )}
 
-                {/* Check mark when selected */}
-                {isSelected && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 18 }}
-                    className="absolute top-2 right-2 text-accent"
-                  >
-                    <Check size={12} strokeWidth={2.5} aria-hidden="true" />
-                  </motion.span>
-                )}
-
                 {/* Size label */}
                 <span className={cn(
-                  'text-sm font-semibold font-jakarta',
-                  isMostLoved && !isSelected ? 'text-accent' : isSelected ? 'text-accent' : 'text-foreground',
+                  'text-sm font-semibold font-jakarta mt-1',
+                  isMostLoved && !isSelected ? 'text-[#B88A58]' : isSelected ? 'text-[#B88A58]' : 'text-foreground',
                 )}>
                   {variant.label}
                 </span>
 
                 {/* Dimensions */}
-                <span className="text-[10px] text-muted font-jakarta">{variant.dimensionsCm}</span>
+                <span className="text-[10px] text-muted font-jakarta mt-0.5">{variant.dimensionsCm}</span>
 
                 {/* Sub-label */}
                 {variant.subLabel && (
                   <span className={cn(
-                    'text-[10px] font-jakarta font-medium',
-                    isMostLoved ? 'text-accent/80' : 'text-muted/70',
+                    'text-[10px] font-jakarta font-medium mt-1',
+                    isMostLoved ? 'text-[#B88A58]/80' : 'text-muted/70',
                   )}>
                     {variant.subLabel}
                   </span>
                 )}
 
                 {/* Price */}
-                <span className={cn('text-base font-semibold font-jakarta mt-0.5', isSelected ? 'text-accent' : 'text-foreground')}>
+                <span className={cn('text-base font-semibold font-jakarta mt-2', isSelected ? 'text-[#B88A58]' : 'text-foreground')}>
                   {formatPrice(price)}
                 </span>
               </motion.button>

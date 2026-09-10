@@ -42,27 +42,15 @@ const REVIEWS: ReviewPhoto[] = [
     petName: 'Charlie', breed: 'Labrador Retriever', productType: 'framed-print', size: '18x24',
     verifiedPurchase: true, datePosted: 'May 2026',
   },
-  {
-    id: 'r7', authorName: 'Amanda T.', location: 'Nashville, TN', rating: 5,
-    body: 'Ordered 3 — one for me and one for each of my sisters who also loved our childhood dog. Cheaper than therapy and infinitely more meaningful. 10/10 would recommend.',
-    petName: 'Biscuit', breed: 'Dachshund', productType: 'museum-canvas', size: '12x16',
-    verifiedPurchase: true, datePosted: 'August 2026',
-  },
-  {
-    id: 'r8', authorName: 'Robert K.', location: 'Chicago, IL', rating: 5,
-    body: 'The breed selection was perfect — they had my rare Irish Setter. Amazing attention to detail on the silhouette. The warm colors are exactly right. 100% recommend.',
-    petName: 'Finn', breed: 'Irish Setter', productType: 'framed-print', size: '18x24',
-    verifiedPurchase: true, datePosted: 'June 2026',
-  },
 ];
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+    <div className="flex items-center gap-1" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          size={12}
+          size={14}
           fill={i < rating ? '#B88A58' : 'none'}
           stroke={i < rating ? '#B88A58' : '#EBE6DE'}
           strokeWidth={1.5}
@@ -86,33 +74,34 @@ function ReviewCard({ review, index }: { review: ReviewPhoto; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-      className="bg-surface rounded-card border border-border p-5 shadow-card break-inside-avoid mb-4"
+      className="p-6 md:p-8 rounded-2xl bg-white border border-[#EBE6DE] shadow-sm flex flex-col justify-between h-full"
     >
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div>
-          <p className="font-semibold text-sm text-foreground font-jakarta">{review.authorName}</p>
-          <p className="text-[11px] text-muted font-jakarta">{review.location}</p>
+      <div>
+        <div className="flex items-start justify-between gap-2 mb-4">
+          <div>
+            <p className="font-semibold text-base text-foreground font-jakarta">{review.authorName}</p>
+            <p className="text-xs text-muted font-jakarta mt-0.5">{review.location}</p>
+          </div>
+          <StarRating rating={review.rating} />
         </div>
-        <StarRating rating={review.rating} />
+
+        <p className="text-base text-foreground font-jakarta leading-relaxed mb-6">
+          "{review.body}"
+        </p>
       </div>
 
-      <p className="text-sm text-foreground font-jakarta leading-relaxed mb-3">
-        "{review.body}"
-      </p>
-
-      <div className="flex items-center justify-between pt-2 border-t border-border">
+      <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-muted font-jakarta">
+          <span className="text-xs text-muted font-jakarta font-medium">
             {review.breed} · {review.size.replace('x', '×')}"
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {review.verifiedPurchase && (
-            <span className="text-[9px] font-semibold text-trust uppercase tracking-wider font-jakarta bg-trust/10 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-trust uppercase tracking-wider font-jakarta bg-trust/10 px-2 py-1 rounded-full">
               ✓ Verified
             </span>
           )}
-          <span className="text-[10px] text-muted/60 font-jakarta">{review.datePosted}</span>
         </div>
       </div>
     </motion.div>
@@ -121,7 +110,7 @@ function ReviewCard({ review, index }: { review: ReviewPhoto; index: number }) {
 
 export function EmotionalReviewsWall() {
   return (
-    <section className="w-full bg-surface-subtle py-20 lg:py-28" aria-labelledby="reviews-heading">
+    <section className="w-full bg-[#F5F1EB] py-16 md:py-24" aria-labelledby="reviews-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <motion.div
@@ -129,23 +118,23 @@ export function EmotionalReviewsWall() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <div className="flex items-center justify-center gap-1.5 mb-3">
+          <div className="flex items-center justify-center gap-2 mb-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} size={20} fill="#B88A58" stroke="#B88A58" aria-hidden="true" />
+              <Star key={i} size={24} fill="#B88A58" stroke="#B88A58" aria-hidden="true" />
             ))}
           </div>
-          <h2 id="reviews-heading" className="font-fraunces text-3xl lg:text-4xl text-foreground font-light italic mb-3">
+          <h2 id="reviews-heading" className="font-fraunces text-3xl md:text-4xl lg:text-5xl text-foreground font-light italic mb-4">
             1,400+ Families Have Honored Their Dogs' Legacies
           </h2>
-          <p className="text-muted font-jakarta text-sm">
-            Average rating: <strong className="text-accent">4.9 / 5</strong> from verified purchases
+          <p className="text-muted font-jakarta text-lg">
+            Average rating: <strong className="text-[#B88A58]">4.9 / 5</strong> from verified purchases
           </p>
         </motion.div>
 
-        {/* Masonry grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {REVIEWS.map((review, index) => (
             <ReviewCard key={review.id} review={review} index={index} />
           ))}
@@ -156,7 +145,7 @@ export function EmotionalReviewsWall() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center text-sm text-muted font-jakarta mt-10"
+          className="text-center text-base text-muted font-jakarta mt-12 font-medium"
         >
           Join 1,400+ families who chose to preserve their dog's memory forever.
         </motion.p>

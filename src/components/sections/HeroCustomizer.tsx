@@ -207,7 +207,7 @@ export function HeroCustomizer() {
 
   return (
     <section className="w-full bg-background" aria-label="Memorial Art Customizer">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
 
           {/* ── Left column: Live preview ────────────────────────────── */}

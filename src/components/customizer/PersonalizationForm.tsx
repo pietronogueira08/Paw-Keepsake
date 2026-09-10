@@ -18,10 +18,10 @@ export function PersonalizationForm() {
   const visibleQuotes = showAllQuotes ? MEMORIAL_QUOTES : MEMORIAL_QUOTES.slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {/* Pet Name */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta" htmlFor="petName">
+      <div>
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block" htmlFor="petName">
           Pet's Name
         </label>
         <input
@@ -31,18 +31,14 @@ export function PersonalizationForm() {
           onChange={(e) => setPetName(e.target.value)}
           placeholder="Cooper"
           maxLength={30}
-          className={cn(
-            'w-full px-4 py-3 rounded-card border border-border bg-surface',
-            'text-sm font-jakarta text-foreground placeholder:text-muted/60',
-            'focus:outline-none focus:border-accent focus:shadow-accent-ring transition-all duration-150',
-          )}
+          className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
           aria-label="Pet's name"
         />
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta" htmlFor="dateRange">
+      <div>
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block" htmlFor="dateRange">
           Years or Dates
         </label>
         <input
@@ -52,20 +48,16 @@ export function PersonalizationForm() {
           onChange={(e) => setDateRange(e.target.value)}
           placeholder="2014 — 2025"
           maxLength={40}
-          className={cn(
-            'w-full px-4 py-3 rounded-card border border-border bg-surface',
-            'text-sm font-jakarta text-foreground placeholder:text-muted/60',
-            'focus:outline-none focus:border-accent focus:shadow-accent-ring transition-all duration-150',
-          )}
+          className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
           aria-label="Pet's years or dates"
         />
       </div>
 
       {/* Memorial Quote */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta">
+      <div>
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block">
           Memorial Tribute
-        </p>
+        </label>
 
         <div className="flex flex-col gap-2">
           <AnimatePresence initial={false}>
@@ -80,10 +72,10 @@ export function PersonalizationForm() {
                 transition={{ duration: 0.15 }}
                 onClick={() => setQuote(quote.id)}
                 className={cn(
-                  'text-left rounded-card border px-4 py-3 transition-all duration-150 relative',
+                  'text-left rounded-xl border px-4 py-3 transition-all duration-150 relative',
                   selectedQuoteId === quote.id
-                    ? 'border-accent bg-accent/5 shadow-accent-ring'
-                    : 'border-border bg-surface hover:border-accent/40',
+                    ? 'border-[#B88A58] bg-[#B88A58]/5 ring-2 ring-[#B88A58]/20'
+                    : 'border-[#EBE6DE] bg-white hover:border-[#B88A58]/40',
                 )}
                 aria-pressed={selectedQuoteId === quote.id}
               >
@@ -91,7 +83,7 @@ export function PersonalizationForm() {
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute top-2 right-2 w-4 h-4 rounded-full bg-accent flex items-center justify-center"
+                    className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#B88A58] flex items-center justify-center"
                   >
                     <Check size={10} strokeWidth={3} className="text-white" />
                   </motion.span>
@@ -111,7 +103,7 @@ export function PersonalizationForm() {
             <button
               type="button"
               onClick={() => setShowAllQuotes(true)}
-              className="flex items-center gap-1 text-xs text-accent hover:text-accent-hover font-jakarta transition-colors mt-1"
+              className="flex items-center gap-1 text-xs text-[#B88A58] hover:text-[#A37747] font-jakarta transition-colors mt-1"
             >
               <ChevronDown size={13} aria-hidden="true" />
               Show more tributes
@@ -124,10 +116,10 @@ export function PersonalizationForm() {
             layout
             onClick={() => setQuote('custom')}
             className={cn(
-              'text-left rounded-card border px-4 py-3 transition-all duration-150',
+              'text-left rounded-xl border px-4 py-3 transition-all duration-150 mt-1',
               selectedQuoteId === 'custom'
-                ? 'border-accent bg-accent/5 shadow-accent-ring'
-                : 'border-dashed border-border bg-surface hover:border-accent/40',
+                ? 'border-[#B88A58] bg-[#B88A58]/5 ring-2 ring-[#B88A58]/20'
+                : 'border-dashed border-[#EBE6DE] bg-white hover:border-[#B88A58]/40',
             )}
             aria-pressed={selectedQuoteId === 'custom'}
           >
@@ -142,6 +134,7 @@ export function PersonalizationForm() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
+                className="mt-1"
               >
                 <textarea
                   value={customQuote}
@@ -149,11 +142,7 @@ export function PersonalizationForm() {
                   placeholder="Write a personal tribute for your beloved companion…"
                   maxLength={120}
                   rows={3}
-                  className={cn(
-                    'w-full px-4 py-3 rounded-card border border-accent/40 bg-surface',
-                    'text-sm font-fraunces italic text-foreground placeholder:text-muted/60 resize-none',
-                    'focus:outline-none focus:border-accent focus:shadow-accent-ring transition-all duration-150',
-                  )}
+                  className="w-full p-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-fraunces italic text-foreground placeholder:text-muted/60 resize-none focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
                   aria-label="Custom memorial tribute"
                 />
                 <p className="text-[10px] text-muted/60 text-right font-jakarta mt-1">

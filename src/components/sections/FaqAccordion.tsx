@@ -65,7 +65,7 @@ function AccordionItem({ item, index }: { item: FaqItem; index: number }) {
       viewport={{ once: true, margin: '-40px' }}
       transition={{ delay: index * 0.08, type: 'spring', stiffness: 280, damping: 28 }}
       className={cn(
-        'border rounded-card transition-colors duration-200',
+        'border rounded-2xl transition-colors duration-200',
         isOpen ? 'border-accent/30 bg-accent/3' : 'border-border bg-surface',
       )}
     >
@@ -107,8 +107,8 @@ function AccordionItem({ item, index }: { item: FaqItem; index: number }) {
 
 export function FaqAccordion() {
   return (
-    <section className="py-16 sm:py-20 bg-surface-subtle" aria-labelledby="faq-heading">
-      <div className="section-container">
+    <section className="w-full bg-surface-subtle py-16 md:py-24" aria-labelledby="faq-heading">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

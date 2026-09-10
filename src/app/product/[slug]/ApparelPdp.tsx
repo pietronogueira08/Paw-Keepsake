@@ -56,8 +56,9 @@ export function ApparelPdp({ product }: Props) {
 
   return (
     <>
-      <section className="section-container py-12 sm:py-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+      <section className="w-full bg-background py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
 
           {/* ── Left: Illustration ── */}
           <motion.div
@@ -179,7 +180,7 @@ export function ApparelPdp({ product }: Props) {
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
                   maxLength={30}
-                  className="w-full rounded-card border border-border bg-surface px-4 py-3 text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent transition-colors"
+                  className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
                 />
                 <input
                   type="text"
@@ -187,7 +188,7 @@ export function ApparelPdp({ product }: Props) {
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
                   maxLength={30}
-                  className="w-full rounded-card border border-border bg-surface px-4 py-3 text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent transition-colors"
+                  className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
                 />
               </div>
             </div>
@@ -259,6 +260,7 @@ export function ApparelPdp({ product }: Props) {
               ))}
             </ul>
           </motion.div>
+          </div>
         </div>
       </section>
 

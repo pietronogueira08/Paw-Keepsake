@@ -56,10 +56,10 @@ export function FeaturedCollection() {
 
   return (
     <section
-      className="py-16 sm:py-24 bg-background"
+      className="w-full bg-background py-16 md:py-24"
       aria-labelledby="featured-collection-heading"
     >
-      <div className="section-container">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

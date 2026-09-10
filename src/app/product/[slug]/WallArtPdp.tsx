@@ -14,8 +14,9 @@ export function WallArtPdp({ product }: Props) {
   return (
     <>
       {/* Hero */}
-      <section className="section-container py-12 sm:py-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="w-full bg-background py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Illustration */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -107,6 +108,7 @@ export function WallArtPdp({ product }: Props) {
               100% Lifetime Memory Guarantee · Free insured shipping on $50+
             </p>
           </motion.div>
+          </div>
         </div>
       </section>
 
