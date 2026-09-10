@@ -71,6 +71,7 @@ function Footer() {
             <h4 className="text-xs uppercase tracking-widest text-white/40 font-jakarta mb-3">Shop</h4>
             <ul className="flex flex-col gap-2 text-sm font-jakarta">
               <li><a href="/shop" className="hover:text-white transition-colors">All Keepsakes</a></li>
+              <li><a href="/our-story" className="hover:text-white transition-colors">Our Story</a></li>
               <li><a href="/product/museum-canvas" className="hover:text-white transition-colors">Museum Canvas</a></li>
               <li><a href="/product/framed-print" className="hover:text-white transition-colors">Framed Print</a></li>
               <li><a href="/product/memorial-crewneck" className="hover:text-white transition-colors">Memorial Apparel</a></li>
