@@ -86,6 +86,19 @@ export function Header() {
   const [scrolled, setScrolled]     = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
+  const [mobileMessageIndex, setMobileMessageIndex] = useState(0);
+  const MOBILE_MESSAGES = [
+    'Free Insured US Shipping on Orders $50+',
+    'Lifetime Memory Guarantee',
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMobileMessageIndex((i) => (i + 1) % MOBILE_MESSAGES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [MOBILE_MESSAGES.length]);
+
   // Scroll shadow
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -109,13 +122,27 @@ export function Header() {
       )}
     >
       {/* ── Utility top bar ── */}
-      <div className="hidden sm:flex items-center justify-center gap-6 bg-foreground px-4 py-2">
-        <p className="text-[11px] text-white/70 font-jakarta tracking-wide">
-          Free Insured US Shipping on Orders{' '}
-          <span className="text-white font-semibold">$50+</span>
-          {' '}·{' '}
-          <span className="text-white font-semibold">Lifetime Memory Guarantee</span>
+      <div className="flex h-10 items-center justify-center bg-[#2B241D] px-4 overflow-hidden relative">
+        {/* Desktop text */}
+        <p className="hidden sm:block text-xs font-medium text-[#FAF8F5] font-jakarta tracking-wide">
+          Free Insured US Shipping on Orders $50+ <span className="mx-2 opacity-50">•</span> Lifetime Memory Guarantee
         </p>
+        
+        {/* Mobile text (rotative) */}
+        <div className="block sm:hidden relative w-full h-full">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={mobileMessageIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 flex items-center justify-center text-[11px] font-medium text-[#FAF8F5] font-jakarta tracking-wide whitespace-nowrap"
+            >
+              {MOBILE_MESSAGES[mobileMessageIndex]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* ── Main nav bar ── */}

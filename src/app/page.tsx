@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { TrustHeroStrip } from '@/components/sections/TrustHeroStrip';
 import { HeroCustomizer } from '@/components/sections/HeroCustomizer';
 import { FeaturedCollection } from '@/components/sections/FeaturedCollection';
 import { CraftsmanshipStory } from '@/components/sections/CraftsmanshipStory';
@@ -64,11 +63,10 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(speculationRules) }}
       />
 
-      <TrustHeroStrip />
       <main id="main-content">
         <HeroCustomizer />
-        <FeaturedCollection />
         <CraftsmanshipStory />
+        <FeaturedCollection />
         <EmotionalReviewsWall />
         <FaqAccordion />
       </main>

@@ -32,19 +32,19 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
-function ChevronIcon({ isOpen }: { isOpen: boolean }) {
+function PlusIcon({ isOpen }: { isOpen: boolean }) {
   return (
     <motion.svg
-      width="18"
-      height="18"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
-      animate={{ rotate: isOpen ? 180 : 0 }}
+      animate={{ rotate: isOpen ? 45 : 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
     >
       <path
-        d="M6 9l6 6 6-6"
+        d="M12 5v14M5 12h14"
         stroke="currentColor"
         strokeWidth="1.75"
         strokeLinecap="round"
@@ -55,7 +55,7 @@ function ChevronIcon({ isOpen }: { isOpen: boolean }) {
 }
 
 function AccordionItem({ item, index }: { item: FaqItem; index: number }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(index === 0);
   const answerId = useId();
 
   return (
@@ -79,8 +79,8 @@ function AccordionItem({ item, index }: { item: FaqItem; index: number }) {
         <span className="font-fraunces text-base sm:text-lg font-normal text-foreground leading-snug">
           {item.question}
         </span>
-        <span className={cn('mt-0.5 shrink-0 transition-colors', isOpen ? 'text-accent' : 'text-muted')}>
-          <ChevronIcon isOpen={isOpen} />
+        <span className={cn('mt-0.5 shrink-0 transition-colors', isOpen ? 'text-[--accent]' : 'text-[--text-secondary]')}>
+          <PlusIcon isOpen={isOpen} />
         </span>
       </button>
 

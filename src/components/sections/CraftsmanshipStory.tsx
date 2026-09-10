@@ -68,7 +68,7 @@ export function CraftsmanshipStory() {
               transition={{ duration: 0.5, delay: index * 0.12 }}
               className="flex flex-col"
             >
-              <div className="w-14 h-14 rounded-2xl bg-surface shadow-sm border border-border flex items-center justify-center text-2xl mb-4" aria-hidden="true">
+              <div className="w-14 h-14 rounded-full bg-[--bg-page] flex items-center justify-center text-2xl mb-4 border border-[--border-default]" aria-hidden="true">
                 {step.emoji}
               </div>
               <div>

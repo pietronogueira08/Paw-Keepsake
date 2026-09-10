@@ -1,60 +1,60 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ShoppingBag, Search, Check, Lock, Package, Quote } from 'lucide-react';
+import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, ShoppingBag } from 'lucide-react';
 import { LivePreviewCanvas } from '@/components/customizer/LivePreviewCanvas';
-import { SizeMaterialSelector } from '@/components/customizer/SizeMaterialSelector';
+import { PackageSelector } from '@/components/customizer/PackageSelector';
 import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraftModal';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { trackAddToCart } from '@/lib/analytics';
 import { generateId, formatPrice, cn } from '@/lib/utils';
 import type { CartItem } from '@/types/ecommerce';
-import { BREEDS, MEMORIAL_QUOTES } from '@/lib/breeds-data';
+import { BREEDS } from '@/lib/breeds-data';
 
 export function HeroCustomizer() {
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [breedSearch, setBreedSearch] = useState('');
-  const [showQuotes, setShowQuotes] = useState(false);
+  
+  // Validation state
+  const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
+  const step1Ref = useRef<HTMLDivElement>(null);
+  const step2Ref = useRef<HTMLDivElement>(null);
 
-  // Filtered breeds based on search
   const filteredBreeds = useMemo(() => {
     const q = breedSearch.trim().toLowerCase();
     if (!q) return BREEDS;
     return BREEDS.filter((b) => b.name.toLowerCase().includes(q));
   }, [breedSearch]);
 
-  const activeQuote =
-    store.selectedQuoteId === 'custom'
-      ? store.customQuote
-      : MEMORIAL_QUOTES.find((q) => q.id === store.selectedQuoteId)?.text ?? '';
+  const isValid = store.breed !== null && store.petName.trim().length > 0;
 
   const handleAddToCart = () => {
+    setHasTriedSubmit(true);
+
     if (!store.breed) {
-      toast.error("Please choose your dog's breed first 🐾", {
-        description: 'Select your breed from Step 1 above.',
-      });
-      // Scroll to Step 1 smoothly
-      document.getElementById('step-1-breed')?.scrollIntoView({ behavior: 'smooth' });
+      step1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (store.petName.trim().length === 0) {
+      step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    const petDisplayName = store.petName.trim() || store.breed.name;
-
     const item: CartItem = {
       id: generateId(),
-      productTitle: `${store.productType === 'framed-print' ? 'Framed Fine Art Print' : 'Museum Canvas'}`,
-      productType: store.productType,
+      productTitle: `Memorial Canvas - ${store.selectedPackage.charAt(0).toUpperCase() + store.selectedPackage.slice(1)}`,
+      productType: 'museum-canvas',
       breed: store.breed,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
-      quote: activeQuote,
-      size: store.size,
-      frameStyle: store.frameStyle,
+      quote: '', // Kept for type compatibility
+      size: store.selectedPackage === 'entry' ? '12x16' : '18x24',
+      frameStyle: 'none',
       quantity: 1,
       unitPrice: store.unitPrice,
     };
@@ -66,267 +66,221 @@ export function HeroCustomizer() {
       currency: 'USD',
       items: [{ id: item.id, name: `${store.breed.name} Memorial Canvas`, price: store.unitPrice, quantity: 1 }],
     });
-    toast.success('Added to your order 🐾', {
-      description: `${petDisplayName} • ${store.size.replace('x', '×')}" ${store.productType === 'museum-canvas' ? 'Canvas' : 'Framed Print'}`,
-    });
+    
+    // Success UX
+    setHasTriedSubmit(false);
   };
 
+  const springDefault = { type: "spring" as const, stiffness: 350, damping: 25 };
+
   return (
-    <section className="w-full bg-[#FAF8F5] py-12 md:py-20" aria-label="Memorial Art Customizer">
+    <section className="w-full bg-[--bg-page] py-10 lg:py-20" aria-label="Memorial Art Customizer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-start">
 
           {/* ── Left Column: Live Preview (Sticky on Desktop) ────────── */}
           <div className="lg:col-span-5 lg:sticky lg:top-24 flex flex-col items-center gap-6">
-            <div className="text-center">
-              <p className="text-xs font-jakarta uppercase tracking-widest text-[#736E65] mb-1.5 font-semibold">
-                Your memorial, museum-quality
-              </p>
-              <h2 className="font-fraunces text-2xl lg:text-3xl text-[#242424] font-light italic">
-                See it come to life
-              </h2>
-            </div>
-
             <LivePreviewCanvas onEmailPreview={() => setIsDraftModalOpen(true)} />
-
-            {/* Quality trust strip */}
-            <div className="flex flex-wrap gap-x-5 gap-y-1.5 justify-center">
-              {['300 DPI Archival Print', 'Gallery UV Coating', 'Solid Wood Frame'].map((feat) => (
-                <span key={feat} className="text-xs text-[#879788] font-jakarta flex items-center gap-1 font-medium">
-                  ✓ {feat}
-                </span>
-              ))}
-            </div>
           </div>
 
           {/* ── Right Column: Single-Column Customization Panel ────── */}
-          <div className="lg:col-span-7 flex flex-col bg-white rounded-2xl border border-[#EBE6DE] p-6 sm:p-8 shadow-xs">
+          <div className="lg:col-span-7 flex flex-col">
             
-            {/* Header with fixed font collision */}
-            <div className="mb-8 pt-1">
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#B88A58] font-jakarta mb-2">
-                Personalized Memorial Studio
-              </p>
-              <h1 className="font-fraunces text-3xl sm:text-4xl lg:text-[42px] text-[#242424] font-normal leading-[1.3] tracking-normal pt-1 mb-2">
+            {/* Editorial Heading */}
+            <div className="mb-10 lg:mb-12">
+              <h1 className="font-fraunces text-3xl sm:text-4xl lg:text-5xl text-[--text-primary] font-normal leading-[1.25] tracking-tight mb-4">
                 Create Their{' '}
-                <span className="italic font-normal text-[#B88A58] inline-block ml-1">
+                <span className="italic font-normal text-[--accent] inline-block ml-1">
                   Forever Portrait
                 </span>
               </h1>
-              <p className="text-sm sm:text-base text-[#736E65] font-jakarta leading-relaxed">
-                Handcrafted watercolor art personalized for your beloved companion. Museum-grade archival quality, printed &amp; assembled in the USA.
+              <p className="text-base text-[--text-secondary] font-jakarta leading-relaxed max-w-xl">
+                Handcrafted watercolor art personalized for your beloved companion. Museum-grade quality, made in the USA.
               </p>
             </div>
 
-            {/* Step 1: Choose Your Dog's Breed */}
-            <div id="step-1-breed" className="pb-7">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-[#B88A58] text-white text-xs font-bold font-jakarta flex items-center justify-center shrink-0">
+            {/* Customizer Panel */}
+            <div className="bg-white rounded-2xl border border-[--border-default] p-5 sm:p-8 shadow-sm">
+              
+              {/* Step 1: Choose Your Dog's Breed */}
+              <div id="step-1-breed" ref={step1Ref} className="pb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-5 h-5 rounded-full bg-[--accent] text-white text-[11px] font-bold font-jakarta flex items-center justify-center shrink-0">
                     1
                   </span>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#242424] font-jakarta">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-[--text-primary] font-jakarta">
                     Choose Your Dog's Breed
-                  </h3>
+                  </h2>
                 </div>
-                {store.breed && (
-                  <span className="text-xs text-[#879788] font-bold font-jakarta flex items-center gap-1">
-                    <Check size={13} strokeWidth={3} /> {store.breed.name}
-                  </span>
+
+                <div className="relative mb-4">
+                  <Search
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[--text-secondary] pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search breeds (e.g. Golden Retriever)..."
+                    value={breedSearch}
+                    onChange={(e) => setBreedSearch(e.target.value)}
+                    className={cn(
+                      "w-full h-12 pl-10 pr-4 rounded-lg border bg-white text-sm font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/70 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent]/30",
+                      hasTriedSubmit && !store.breed ? "border-[--error]" : "border-[--border-default] focus:border-[--accent]"
+                    )}
+                    aria-label="Search dog breeds"
+                  />
+                </div>
+
+                {hasTriedSubmit && !store.breed && (
+                  <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-[--error] font-jakarta flex items-center gap-1.5 mb-3">
+                    <AlertCircle size={14} /> Please select your dog's breed
+                  </motion.p>
+                )}
+
+                <div className="flex flex-wrap gap-2 max-h-56 overflow-y-auto pr-2 custom-scrollbar" role="radiogroup" aria-label="Select breed">
+                  {filteredBreeds.map((b) => {
+                    const isSelected = store.breed?.id === b.id;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => store.setBreed(b)}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium font-jakarta transition-all cursor-pointer border outline-none focus-visible:ring-2 focus-visible:ring-[--accent]',
+                          isSelected
+                            ? 'bg-[--bg-page] text-[--text-primary] border-2 border-[--accent]'
+                            : 'bg-white text-[--text-secondary] border-[--border-default] hover:border-[--accent]/60 hover:text-[--text-primary]'
+                        )}
+                      >
+                        {isSelected && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={springDefault}>
+                            <Check size={14} strokeWidth={2.5} className="text-[--accent]" />
+                          </motion.div>
+                        )}
+                        <span>{b.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {filteredBreeds.length === 0 && (
+                  <p className="text-sm text-[--text-secondary] py-3 font-jakarta border border-dashed border-[--border-default] rounded-lg text-center mt-2">
+                    Mixed breed / Not sure? Choose the closest match.
+                  </p>
                 )}
               </div>
 
-              {/* Search Bar */}
-              <div className="relative mb-3">
-                <Search
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#736E65] pointer-events-none"
-                  aria-hidden="true"
-                />
-                <input
-                  type="text"
-                  placeholder="Search breeds (e.g. Golden Retriever, Labrador, Beagle)..."
-                  value={breedSearch}
-                  onChange={(e) => setBreedSearch(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-[#242424] placeholder:text-[#736E65]/60 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
-                  aria-label="Search dog breeds"
-                />
-              </div>
-
-              {/* Scrollable Breed Pill / Tag Grid */}
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
-                {filteredBreeds.map((b) => {
-                  const isSelected = store.breed?.id === b.id;
-                  return (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => store.setBreed(b)}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium font-jakarta transition-all cursor-pointer border',
-                        isSelected
-                          ? 'bg-[#B88A58] text-white border-[#B88A58] shadow-xs'
-                          : 'bg-white text-[#242424] border-[#EBE6DE] hover:border-[#B88A58]/60 hover:bg-[#FAF8F5]'
-                      )}
-                      aria-pressed={isSelected}
-                    >
-                      <svg viewBox="0 0 200 200" className="w-3.5 h-3.5 shrink-0" fill="none">
-                        <path d={b.svgPath} fill={isSelected ? '#ffffff' : '#736E65'} />
-                      </svg>
-                      <span>{b.name}</span>
-                      {isSelected && <Check size={12} strokeWidth={3} className="ml-0.5" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {filteredBreeds.length === 0 && (
-                <p className="text-xs text-[#736E65] py-2 font-jakarta">
-                  No breed found matching "{breedSearch}". Try searching another name or reset search.
-                </p>
-              )}
-            </div>
-
-            {/* Step 2: Pet Details */}
-            <div className="pt-7 pb-7 border-t border-[#EBE6DE]">
-              <div className="flex items-center gap-2.5 mb-3.5">
-                <span className="w-6 h-6 rounded-full bg-[#B88A58] text-white text-xs font-bold font-jakarta flex items-center justify-center shrink-0">
-                  2
-                </span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#242424] font-jakarta">
-                  Pet Details
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block font-jakarta">
-                    Pet's Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Cooper"
-                    value={store.petName}
-                    onChange={(e) => store.setPetName(e.target.value)}
-                    maxLength={30}
-                    className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-[#242424] placeholder:text-[#736E65]/50 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
-                  />
+              {/* Step 2: Pet Details */}
+              <div id="step-2-details" ref={step2Ref} className="pt-7 pb-8 border-t border-[--border-default]">
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="w-5 h-5 rounded-full bg-[--accent] text-white text-[11px] font-bold font-jakarta flex items-center justify-center shrink-0">
+                    2
+                  </span>
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-[--text-primary] font-jakarta">
+                    Personalize Details
+                  </h2>
                 </div>
 
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#736E65] mb-2 block font-jakarta">
-                    Years of Life / Memorial Dates
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 2014 — 2024"
-                    value={store.dateRange}
-                    onChange={(e) => store.setDateRange(e.target.value)}
-                    maxLength={30}
-                    className="w-full h-12 px-4 rounded-xl border border-[#EBE6DE] bg-white text-sm font-jakarta text-[#242424] placeholder:text-[#736E65]/50 focus:outline-none focus:ring-2 focus:ring-[#B88A58]/20 focus:border-[#B88A58] transition-all"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="pet-name" className="text-[13px] font-medium uppercase tracking-[0.06em] text-[--text-secondary] mb-2 block font-jakarta">
+                      Pet's Name
+                    </label>
+                    <motion.div animate={hasTriedSubmit && !store.petName.trim() ? { x: [-2, 2, -2, 2, 0] } : {}} transition={{ duration: 0.3 }}>
+                      <input
+                        id="pet-name"
+                        type="text"
+                        placeholder="e.g. Cooper"
+                        value={store.petName}
+                        onChange={(e) => store.setPetName(e.target.value)}
+                        maxLength={20}
+                        className={cn(
+                          "w-full h-12 px-4 rounded-lg border bg-white text-base font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/60 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent]/30",
+                          hasTriedSubmit && !store.petName.trim() ? "border-[--error]" : "border-[--border-default] focus:border-[--accent]"
+                        )}
+                      />
+                    </motion.div>
+                    {hasTriedSubmit && !store.petName.trim() && (
+                      <p className="text-sm text-[--error] font-jakarta mt-1.5 flex items-center gap-1.5">
+                        <AlertCircle size={14} /> Please enter a name
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="pet-dates" className="text-[13px] font-medium uppercase tracking-[0.06em] text-[--text-secondary] mb-2 block font-jakarta">
+                      Years / Dates
+                    </label>
+                    <input
+                      id="pet-dates"
+                      type="text"
+                      placeholder="e.g. 2014 — 2024"
+                      value={store.dateRange}
+                      onChange={(e) => store.setDateRange(e.target.value)}
+                      maxLength={30}
+                      className="w-full h-12 px-4 rounded-lg border border-[--border-default] bg-white text-base font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/60 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent]/30 focus:border-[--accent]"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Optional Tribute Quote Selector Accordion */}
-              <div className="mt-3.5">
+              {/* Step 3: Packages */}
+              <PackageSelector />
+
+              {/* Step 4: Primary Action & Trust */}
+              <div className="pt-8 border-t border-[--border-default] flex flex-col gap-4">
                 <button
                   type="button"
-                  onClick={() => setShowQuotes(!showQuotes)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B88A58] hover:text-[#A37747] font-jakarta transition-colors cursor-pointer"
+                  onClick={handleAddToCart}
+                  disabled={hasTriedSubmit && !isValid}
+                  className={cn(
+                    "w-full h-14 rounded-lg font-semibold font-jakarta text-[15px] flex items-center justify-center gap-2 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent] focus-visible:ring-offset-2",
+                    isValid || !hasTriedSubmit
+                      ? "bg-[--accent] hover:bg-[--accent-hover] text-white cursor-pointer active:scale-[0.98]"
+                      : "bg-[--border-default] text-[--text-secondary] cursor-not-allowed opacity-70"
+                  )}
+                  aria-disabled={hasTriedSubmit && !isValid}
                 >
-                  <Quote size={12} />
-                  {showQuotes ? 'Hide tribute quotes' : 'Choose or edit tribute quote (optional)'}
+                  <ShoppingBag size={18} aria-hidden="true" />
+                  Add to Cart • 
+                  <AnimatePresence mode="popLayout">
+                    <motion.span
+                      key={store.unitPrice}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="inline-block min-w-[2.5rem] text-left"
+                    >
+                      {formatPrice(store.unitPrice)}
+                    </motion.span>
+                  </AnimatePresence>
                 </button>
 
-                <AnimatePresence>
-                  {showQuotes && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="flex flex-col gap-2 mt-3 pt-3 border-t border-[#EBE6DE]"
-                    >
-                      {MEMORIAL_QUOTES.slice(0, 4).map((q) => (
-                        <button
-                          key={q.id}
-                          type="button"
-                          onClick={() => store.setQuote(q.id)}
-                          className={cn(
-                            'text-left p-3 rounded-xl border text-xs font-fraunces italic transition-all cursor-pointer',
-                            store.selectedQuoteId === q.id
-                              ? 'border-[#B88A58] bg-[#FAF8F5] text-[#242424] ring-1 ring-[#B88A58]'
-                              : 'border-[#EBE6DE] bg-white text-[#736E65] hover:border-[#B88A58]/50'
-                          )}
-                        >
-                          "{q.text}"
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
+                {/* Sentinel for mobile sticky cta */}
+                <div id="hero-cta-sentinel" className="sr-only" aria-hidden="true" />
 
-            {/* Step 3: Print Format & Size */}
-            <div className="pt-7 pb-7 border-t border-[#EBE6DE]">
-              <div className="flex items-center gap-2.5 mb-3.5">
-                <span className="w-6 h-6 rounded-full bg-[#B88A58] text-white text-xs font-bold font-jakarta flex items-center justify-center shrink-0">
-                  3
-                </span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#242424] font-jakarta">
-                  Print Format &amp; Size
-                </h3>
-              </div>
-
-              <SizeMaterialSelector />
-            </div>
-
-            {/* Step 4: Primary Action */}
-            <div className="pt-7 border-t border-[#EBE6DE] flex flex-col gap-3.5">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                className="w-full h-14 rounded-xl bg-[#B88A58] hover:bg-[#A37747] text-white font-medium font-jakarta text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
-              >
-                <ShoppingBag size={18} aria-hidden="true" />
-                Add to Cart • {formatPrice(store.unitPrice)}
-              </button>
-
-              {/* Sentinel element for mobile sticky bar */}
-              <div id="hero-cta-sentinel" className="sr-only" aria-hidden="true" />
-
-              {/* Express checkout indicators */}
-              <div className="flex items-center gap-2 pt-1">
-                <div className="h-px flex-1 bg-[#EBE6DE]" />
-                <span className="text-[10px] text-[#736E65] font-jakarta uppercase tracking-wider">or express checkout with</span>
-                <div className="h-px flex-1 bg-[#EBE6DE]" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-[#EBE6DE] bg-white text-xs font-semibold font-jakarta text-[#242424]">
-                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M17.5 12.5c0-1.9-1.6-3.5-3.5-3.5H8V19h2v-3h4c1.9 0 3.5-1.6 3.5-3.5zM10 14v-3h4c.8 0 1.5.7 1.5 1.5S14.8 14 14 14h-4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="currentColor"/></svg>
-                  Apple Pay
-                </div>
-                <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-[#EBE6DE] bg-white text-xs font-semibold font-jakarta text-[#242424]">
-                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="currentColor"/></svg>
-                  Google Pay
+                {/* Trust Line */}
+                <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-[--border-default]/50">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center text-xs text-[--text-secondary] font-jakarta">
+                    <MapPin size={16} strokeWidth={1.5} />
+                    <span>Made in USA</span>
+                  </div>
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center text-xs text-[--text-secondary] font-jakarta">
+                    <PackageCheck size={16} strokeWidth={1.5} />
+                    <span>Ready to Hang</span>
+                  </div>
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center text-xs text-[--text-secondary] font-jakarta">
+                    <ShieldCheck size={16} strokeWidth={1.5} />
+                    <span>Free Replacement</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Trust micro-copy */}
-              <div className="flex flex-col gap-1.5 pt-2">
-                <p className="text-[11px] text-[#736E65] font-jakarta flex items-center gap-1.5 justify-center">
-                  <Package size={12} aria-hidden="true" />
-                  🇺🇸 Printed &amp; Assembled in the USA · Arrives in 4-6 business days
-                </p>
-                <p className="text-[11px] text-[#736E65] font-jakarta flex items-center gap-1.5 justify-center">
-                  <Lock size={12} aria-hidden="true" />
-                  100% Lifetime Memory Guarantee · 256-bit Encrypted Checkout
-                </p>
-              </div>
             </div>
-
           </div>
         </div>
       </div>

@@ -1,21 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, CheckCircle, Loader2 } from 'lucide-react';
-import { Dialog } from '@/components/ui/Dialog';
+import { X, Mail, CheckCircle2 } from 'lucide-react';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
-import { cn } from '@/lib/utils';
-import type { SaveDraftRequest } from '@/types/ecommerce';
-import { MEMORIAL_QUOTES } from '@/lib/breeds-data';
-
-const DraftSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-type DraftFormValues = z.infer<typeof DraftSchema>;
 
 interface SaveMemorialDraftModalProps {
   isOpen: boolean;
@@ -23,168 +11,122 @@ interface SaveMemorialDraftModalProps {
 }
 
 export function SaveMemorialDraftModal({ isOpen, onClose }: SaveMemorialDraftModalProps) {
+  const store = useCustomizerStore();
+  const [email, setEmail] = useState('');
+  const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const { breed, petName, dateRange, selectedQuoteId, customQuote, size, productType, setDraftEmail } =
-    useCustomizerStore();
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !store.breed) return;
 
-  const activeQuote =
-    selectedQuoteId === 'custom'
-      ? customQuote
-      : MEMORIAL_QUOTES.find((q) => q.id === selectedQuoteId)?.text ?? '';
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<DraftFormValues>({ resolver: zodResolver(DraftSchema) });
-
-  const onSubmit = async (data: DraftFormValues) => {
-    setIsLoading(true);
-    setDraftEmail(data.email);
-
-    const payload: SaveDraftRequest = {
-      email: data.email,
-      petName: petName || 'My Pet',
-      breedName: breed?.name ?? 'Mixed Breed',
-      dateRange,
-      quote: activeQuote,
-      size,
-      productType,
-    };
-
+    setSaving(true);
     try {
+      const payload = {
+        email,
+        customizerState: {
+          breedId: store.breed.id,
+          petName: store.petName,
+          dateRange: store.dateRange,
+          selectedPackage: store.selectedPackage,
+        },
+      };
+
       await fetch('/api/save-draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       setSubmitted(true);
-    } catch {
-      // Still show success to avoid frustrating UX on network hiccups
-      setSubmitted(true);
+    } catch (error) {
+      console.error('Failed to save draft:', error);
     } finally {
-      setIsLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleClose = () => {
-    reset();
-    setSubmitted(false);
-    onClose();
-  };
-
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Save Your Memorial Design">
-      <AnimatePresence mode="wait">
-        {submitted ? (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center gap-4 py-6 text-center"
-          >
-            <div className="w-16 h-16 rounded-full bg-trust/10 flex items-center justify-center">
-              <CheckCircle size={32} className="text-trust" />
-            </div>
-            <div>
-              <h3 className="font-fraunces text-xl text-foreground mb-1">Preview Sent!</h3>
-              <p className="text-sm text-muted font-jakarta leading-relaxed max-w-xs mx-auto">
-                Check your inbox — we've emailed you a link to{' '}
-                {petName ? `${petName}'s` : "your pet's"} memorial design so you can revisit or share it
-                with family anytime.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="mt-2 px-6 py-2.5 rounded-full bg-accent text-white text-sm font-semibold font-jakarta hover:bg-accent-hover transition-colors duration-150"
-            >
-              Done
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="form"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col gap-5"
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-[#2B241D]/60 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6 md:p-8"
+            role="dialog"
+            aria-labelledby="draft-modal-title"
           >
-            {/* Preview summary */}
-            {breed && (
-              <div className="flex items-center gap-3 p-3 rounded-card bg-surface-subtle border border-border">
-                <svg viewBox="0 0 200 200" width="40" height="40" className="flex-shrink-0" aria-hidden="true">
-                  <path d={breed.svgPath} fill="#B88A58" opacity="0.8" />
-                </svg>
-                <div>
-                  <p className="text-sm font-semibold text-foreground font-jakarta">
-                    {petName || breed.name} Memorial
-                  </p>
-                  <p className="text-xs text-muted font-jakarta">{breed.name} · {size.replace('x', '×')}" {productType === 'museum-canvas' ? 'Canvas' : 'Framed Print'}</p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 rounded-full text-[--text-secondary] hover:bg-[--bg-page] transition-colors"
+              aria-label="Close modal"
+            >
+              <X size={20} />
+            </button>
+
+            {submitted ? (
+              <div className="flex flex-col items-center text-center py-6">
+                <CheckCircle2 size={48} className="text-[--success] mb-4" />
+                <h3 className="font-fraunces text-2xl text-[--text-primary] mb-2">Saved to your inbox</h3>
+                <p className="text-[--text-secondary] font-jakarta">
+                  We've sent the preview link to <span className="font-medium text-[--text-primary]">{email}</span>.
+                </p>
+                <button
+                  onClick={onClose}
+                  className="mt-6 w-full h-12 bg-[--bg-page] text-[--text-primary] border border-[--border-default] rounded-lg font-jakarta font-semibold hover:bg-white transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="flex justify-center mb-4 text-[--accent]">
+                  <Mail size={32} strokeWidth={1.5} />
                 </div>
+                <h2 id="draft-modal-title" className="font-fraunces text-2xl text-[--text-primary] text-center mb-2">
+                  Save your preview
+                </h2>
+                <p className="text-[--text-secondary] font-jakarta text-center text-sm mb-6">
+                  Not ready to order? Enter your email to save a link to this design.
+                </p>
+
+                <form onSubmit={handleSave} className="flex flex-col gap-4">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Your email address"
+                    className="w-full h-12 px-4 rounded-lg border border-[--border-default] bg-white text-base font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/60 focus-visible:ring-2 focus-visible:ring-[--accent]/30 focus:border-[--accent] outline-none transition-all"
+                  />
+                  <button
+                    type="submit"
+                    disabled={saving || !email}
+                    className="w-full h-12 bg-[--accent] text-white rounded-lg font-jakarta font-semibold hover:bg-[--accent-hover] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+                  >
+                    {saving ? 'Saving...' : 'Send Preview Link'}
+                  </button>
+                </form>
               </div>
             )}
-
-            <p className="text-sm text-muted font-jakarta leading-relaxed">
-              We'll email you a link to your personalized preview so you can share it with family or
-              revisit it anytime — no account required.
-            </p>
-
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="draftEmail" className="text-xs font-semibold uppercase tracking-widest text-muted font-jakarta">
-                  Your Email Address
-                </label>
-                <div className="relative">
-                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" aria-hidden="true" />
-                  <input
-                    id="draftEmail"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    {...register('email')}
-                    className={cn(
-                      'w-full pl-9 pr-4 py-3 rounded-card border bg-surface font-jakarta text-sm text-foreground',
-                      'placeholder:text-muted/60 focus:outline-none transition-all duration-150',
-                      errors.email
-                        ? 'border-red-400 focus:border-red-400'
-                        : 'border-border focus:border-accent focus:shadow-accent-ring',
-                    )}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-xs text-red-500 font-jakarta">{errors.email.message}</p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={cn(
-                  'w-full py-3 rounded-full bg-accent text-white font-semibold font-jakarta text-sm',
-                  'hover:bg-accent-hover transition-colors duration-150 flex items-center justify-center gap-2',
-                  isLoading && 'opacity-70 cursor-not-allowed',
-                )}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" aria-hidden="true" />
-                    Sending…
-                  </>
-                ) : (
-                  'Send My Preview'
-                )}
-              </button>
-
-              <p className="text-[10px] text-muted/60 text-center font-jakarta">
-                We respect your privacy. No spam, ever.
-              </p>
-            </form>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </Dialog>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

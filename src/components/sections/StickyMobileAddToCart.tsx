@@ -16,11 +16,6 @@ export function StickyMobileAddToCart() {
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
 
-  const activeQuote =
-    store.selectedQuoteId === 'custom'
-      ? store.customQuote
-      : MEMORIAL_QUOTES.find((q) => q.id === store.selectedQuoteId)?.text ?? '';
-
   useEffect(() => {
     const sentinel = document.getElementById('hero-cta-sentinel');
     if (!sentinel) return;
@@ -35,17 +30,18 @@ export function StickyMobileAddToCart() {
 
   const handleAddToCart = () => {
     if (!store.breed) return;
+    if (store.petName.trim().length === 0) return;
 
     const item: CartItem = {
       id: generateId(),
-      productTitle: `${store.productType === 'framed-print' ? 'Framed Fine Art Print' : 'Museum Canvas'}`,
-      productType: store.productType,
+      productTitle: `Memorial Canvas - ${store.selectedPackage.charAt(0).toUpperCase() + store.selectedPackage.slice(1)}`,
+      productType: 'museum-canvas',
       breed: store.breed,
-      petName: store.petName,
-      dateRange: store.dateRange,
-      quote: activeQuote,
-      size: store.size,
-      frameStyle: store.frameStyle,
+      petName: store.petName.trim(),
+      dateRange: store.dateRange.trim(),
+      quote: '',
+      size: store.selectedPackage === 'entry' ? '12x16' : '18x24',
+      frameStyle: 'none',
       quantity: 1,
       unitPrice: store.unitPrice,
     };
@@ -69,8 +65,8 @@ export function StickyMobileAddToCart() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 1 }}
-            className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-surface border-t border-border px-4 py-3 flex items-center gap-3"
-            style={{ boxShadow: '0 -4px 24px rgba(36,36,36,0.1)' }}
+            className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-[--border-default] px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] flex items-center gap-3"
+            style={{ boxShadow: '0 -4px 12px rgba(0,0,0,0.08)' }}
             role="complementary"
             aria-label="Quick add to cart"
           >
@@ -93,7 +89,7 @@ export function StickyMobileAddToCart() {
                 {store.petName || (store.breed?.name ?? 'Your Memorial Canvas')}
               </p>
               <p className="text-[10px] text-muted font-jakarta">
-                {store.size.replace('x', '×')}" · {store.productType === 'museum-canvas' ? 'Canvas' : 'Framed Print'}
+                {store.selectedPackage === 'entry' ? '12×16"' : '18×24"'} · Canvas
               </p>
             </div>
 
@@ -102,19 +98,19 @@ export function StickyMobileAddToCart() {
               <span className="font-bold text-foreground font-jakarta text-sm">
                 {formatPrice(store.unitPrice)}
               </span>
-              <motion.button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={!store.breed}
-                whileTap={{ scale: 0.96 }}
-                className={cn(
-                  'px-4 py-2 rounded-full text-xs font-bold font-jakarta flex items-center gap-1.5 transition-colors duration-150',
-                  store.breed
-                    ? 'bg-accent text-white hover:bg-accent-hover'
-                    : 'bg-border text-muted cursor-not-allowed',
-                )}
-                aria-label="Add to cart"
-              >
+                <motion.button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!store.breed || store.petName.trim().length === 0}
+                  whileTap={{ scale: 0.96 }}
+                  className={cn(
+                    'px-4 py-2 rounded-full text-xs font-bold font-jakarta flex items-center gap-1.5 transition-colors duration-150',
+                    store.breed && store.petName.trim().length > 0
+                      ? 'bg-[--accent] text-white hover:bg-[--accent-hover]'
+                      : 'bg-[--border-default] text-[--text-secondary] cursor-not-allowed',
+                  )}
+                  aria-label="Add to cart"
+                >
                 <ShoppingBag size={13} aria-hidden="true" />
                 Order Now
               </motion.button>
