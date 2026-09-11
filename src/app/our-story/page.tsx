@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart, ShieldCheck, Sparkles, Award, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -165,8 +166,14 @@ export default function OurStoryPage() {
       {/* ── Founder's Note ── */}
       <section className="py-16 md:py-24">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-white border border-[--border-default] shadow-sm mx-auto flex items-center justify-center text-2xl">
-            🐾
+          <div className="w-16 h-16 rounded-full bg-white border border-[--border-default] shadow-sm mx-auto flex items-center justify-center p-3">
+            <Image
+              src="/images/logo-mark.webp"
+              alt="Paw & Keepsake official emblem"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+            />
           </div>
           <h2 className="font-fraunces text-3xl font-light text-[--text-primary]">
             Our Promise to You

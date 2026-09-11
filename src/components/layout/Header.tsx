@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
 import { cn } from '@/lib/utils';
@@ -155,10 +156,20 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-fraunces text-xl font-light italic text-foreground hover:text-accent transition-colors shrink-0"
+          className="flex items-center gap-2 sm:gap-2.5 group shrink-0"
           aria-label="Paw & Keepsake — Home"
         >
-          Paw & Keepsake
+          <Image
+            src="/images/logo-mark.webp"
+            alt="Paw & Keepsake official emblem"
+            width={36}
+            height={36}
+            priority
+            className="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+          <span className="font-fraunces text-xl font-light italic text-foreground group-hover:text-accent transition-colors">
+            Paw & Keepsake
+          </span>
         </Link>
 
         {/* Desktop links */}

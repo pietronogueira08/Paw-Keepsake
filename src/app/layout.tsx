@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Header } from '@/components/layout/Header';
@@ -62,7 +63,16 @@ function Footer() {
       <div className="section-container">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           <div>
-            <h3 className="font-fraunces text-lg text-white font-light mb-3">Paw & Keepsake</h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <Image
+                src="/images/logo-mark.webp"
+                alt="Paw & Keepsake"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain brightness-0 invert opacity-90"
+              />
+              <h3 className="font-fraunces text-lg text-white font-light">Paw & Keepsake</h3>
+            </div>
             <p className="text-sm leading-relaxed text-white/60 font-jakarta">
               Artisan digital studio transforming the memory of beloved dogs into museum-quality art.
             </p>

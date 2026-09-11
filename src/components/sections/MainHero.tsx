@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -82,30 +83,38 @@ export function MainHero() {
             </motion.div>
           </div>
 
-          {/* Image Placeholder */}
+          {/* Hero Image Container */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative w-full aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden bg-[#EBE6DE] border border-white/50 shadow-2xl flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-[#EBE6DE] border border-white/60 shadow-2xl group"
           >
-            {/* Inner placeholder content until real image is added */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#D4A96A]/20 to-transparent" />
+            <Image
+              src="/images/hero-dog-canvas.webp"
+              alt="Custom watercolor dog memorial canvas art in an American living room"
+              fill
+              priority
+              fetchPriority="high"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            />
             
-            <div className="text-center p-8 relative z-10">
-              <div className="w-16 h-16 mx-auto mb-4 border-2 border-dashed border-[--accent]/40 rounded-xl flex items-center justify-center">
-                <span className="text-2xl">🖼️</span>
+            {/* Ambient luxury vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/5 pointer-events-none" />
+
+            {/* Editorial Glass Badge overlay */}
+            <div className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 backdrop-blur-md bg-white/85 border border-white/60 rounded-xl px-3.5 py-2 shadow-lg flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-[--accent] animate-pulse" />
+              <div>
+                <p className="text-[12px] font-semibold text-[--text-primary] font-jakarta leading-none">
+                  18×24&quot; Gallery Canvas
+                </p>
+                <p className="text-[10px] text-[--text-secondary] font-jakarta mt-0.5">
+                  Museum-Grade Oak Frame
+                </p>
               </div>
-              <p className="font-jakarta text-[--text-secondary] text-sm uppercase tracking-widest font-bold">
-                Hero Image Placeholder
-              </p>
-              <p className="font-fraunces text-xl text-[--text-primary] mt-2 italic">
-                (Dog Canvas in American Living Room)
-              </p>
             </div>
-            
-            {/* Subtle decorative frame */}
-            <div className="absolute inset-4 border border-[--accent]/10 rounded-xl pointer-events-none" />
           </motion.div>
 
         </div>
