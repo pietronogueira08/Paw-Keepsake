@@ -80,8 +80,34 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
     }
 
+    // Verify real-time inventory from Printify before charging the customer
+    const { getPrintifyInventory } = await import('@/lib/printify');
+    const inventory = await getPrintifyInventory();
+
+    for (const item of validated.items) {
+      const sizeStock = inventory.canvas[item.size];
+      if (sizeStock && !sizeStock.available) {
+        return NextResponse.json(
+          {
+            error: `The ${item.size}" canvas is temporarily out of stock at our print facility. Please choose a different size.`,
+            outOfStockSize: item.size,
+          },
+          { status: 409 },
+        );
+      }
+    }
+
+    if (validated.hasOrderBump && !inventory.tshirt.available) {
+      return NextResponse.json(
+        {
+          error: 'The matching memorial t-shirt is temporarily out of stock.',
+          outOfStockItem: 'tshirt',
+        },
+        { status: 409 },
+      );
+    }
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'link'],
       line_items: lineItems,
       mode: 'payment',
       success_url: validated.successUrl,

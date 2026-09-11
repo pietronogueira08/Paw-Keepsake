@@ -180,3 +180,139 @@ export async function createPrintifyOrder(params: CreatePrintifyOrderParams) {
 
   return orderResult;
 }
+
+export interface InventoryStatus {
+  canvas: Record<string, { available: boolean; variantId: number; title: string }>;
+  tshirt: {
+    available: boolean;
+    sizes: Record<string, boolean>;
+  };
+  lastChecked: number;
+}
+
+let cachedInventory: InventoryStatus | null = null;
+let cacheExpiry = 0;
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
+
+export function invalidateInventoryCache() {
+  cachedInventory = null;
+  cacheExpiry = 0;
+}
+
+/**
+ * Fetch live availability directly from Printify's catalog for all active variants
+ */
+export async function getPrintifyInventory(forceRefresh = false): Promise<InventoryStatus> {
+  const now = Date.now();
+  if (!forceRefresh && cachedInventory && now < cacheExpiry) {
+    return cachedInventory;
+  }
+
+  const shopId = PRINTIFY_CONFIG.shopId;
+
+  // Default fallback if API fails
+  const fallback: InventoryStatus = {
+    canvas: {
+      '8x12': { available: true, variantId: PRINTIFY_CANVAS_VARIANTS['8x12'], title: '8" x 12"' },
+      '12x16': { available: true, variantId: PRINTIFY_CANVAS_VARIANTS['12x16'], title: '12" x 16"' },
+      '16x20': { available: true, variantId: PRINTIFY_CANVAS_VARIANTS['16x20'], title: '16" x 20"' },
+      '16x24': { available: true, variantId: PRINTIFY_CANVAS_VARIANTS['16x24'], title: '16" x 24"' },
+    },
+    tshirt: {
+      available: true,
+      sizes: { S: true, M: true, L: true, XL: true, '2XL': true, '3XL': true },
+    },
+    lastChecked: now,
+  };
+
+  try {
+    const headers = getHeaders();
+
+    // Fetch Canvas Product
+    const canvasRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/products/${PRINTIFY_CONFIG.canvasProductId}.json`, {
+      headers,
+      next: { revalidate: 60 },
+    });
+
+    let canvasVariantsMap = fallback.canvas;
+
+    if (canvasRes.ok) {
+      const canvasData = (await canvasRes.json()) as {
+        variants: Array<{ id: number; title: string; is_available: boolean; is_enabled: boolean }>;
+      };
+
+      const variantIdToAvailability = new Map<number, boolean>();
+      canvasData.variants?.forEach((v) => {
+        variantIdToAvailability.set(v.id, Boolean(v.is_available && v.is_enabled));
+      });
+
+      canvasVariantsMap = {
+        '8x12': {
+          available: variantIdToAvailability.get(PRINTIFY_CANVAS_VARIANTS['8x12']) ?? true,
+          variantId: PRINTIFY_CANVAS_VARIANTS['8x12'],
+          title: '8" x 12"',
+        },
+        '12x16': {
+          available: variantIdToAvailability.get(PRINTIFY_CANVAS_VARIANTS['12x16']) ?? true,
+          variantId: PRINTIFY_CANVAS_VARIANTS['12x16'],
+          title: '12" x 16"',
+        },
+        '16x20': {
+          available: variantIdToAvailability.get(PRINTIFY_CANVAS_VARIANTS['16x20']) ?? true,
+          variantId: PRINTIFY_CANVAS_VARIANTS['16x20'],
+          title: '16" x 20"',
+        },
+        '16x24': {
+          available: variantIdToAvailability.get(PRINTIFY_CANVAS_VARIANTS['16x24']) ?? true,
+          variantId: PRINTIFY_CANVAS_VARIANTS['16x24'],
+          title: '16" x 24"',
+        },
+      };
+    }
+
+    // Fetch T-Shirt Product
+    const tshirtRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/products/${PRINTIFY_CONFIG.tshirtProductId}.json`, {
+      headers,
+      next: { revalidate: 60 },
+    });
+
+    let tshirtStatus = fallback.tshirt;
+
+    if (tshirtRes.ok) {
+      const tshirtData = (await tshirtRes.json()) as {
+        variants: Array<{ id: number; title: string; is_available: boolean; is_enabled: boolean }>;
+      };
+
+      const tshirtIdToAvailability = new Map<number, boolean>();
+      tshirtData.variants?.forEach((v) => {
+        tshirtIdToAvailability.set(v.id, Boolean(v.is_available && v.is_enabled));
+      });
+
+      const sizesMap: Record<string, boolean> = {};
+      let atLeastOneAvailable = false;
+
+      Object.entries(PRINTIFY_TSHIRT_VARIANTS).forEach(([sizeKey, varId]) => {
+        const isAvail = tshirtIdToAvailability.get(varId) ?? true;
+        sizesMap[sizeKey] = isAvail;
+        if (isAvail) atLeastOneAvailable = true;
+      });
+
+      tshirtStatus = {
+        available: atLeastOneAvailable,
+        sizes: sizesMap,
+      };
+    }
+
+    cachedInventory = {
+      canvas: canvasVariantsMap,
+      tshirt: tshirtStatus,
+      lastChecked: now,
+    };
+    cacheExpiry = now + CACHE_TTL_MS;
+
+    return cachedInventory;
+  } catch (err) {
+    console.warn('[Printify] Error fetching live inventory, falling back to cache:', err);
+    return cachedInventory || fallback;
+  }
+}

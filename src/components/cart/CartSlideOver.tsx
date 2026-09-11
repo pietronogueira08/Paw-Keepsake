@@ -8,8 +8,9 @@
  * order bump, trust seals, and the primary checkout CTA.
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { useCartStore } from '@/store/useCartStore';
 import { formatPrice } from '@/lib/utils';
 import { trackInitiateCheckout } from '@/lib/analytics';
@@ -185,12 +186,45 @@ export function CartSlideOver() {
   const itemCount = useCartStore((s) => s.itemCount);
 
   const hasItems = items.length > 0;
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleCheckout = useCallback(() => {
-    trackInitiateCheckout({ value: subtotal, currency: 'USD' });
-    // Navigate to checkout — router.push handled at page level
-    window.location.href = '/checkout';
-  }, [subtotal, itemCount]);
+  const handleCheckout = useCallback(async () => {
+    if (isCheckingOut) return;
+    setIsCheckingOut(true);
+
+    try {
+      trackInitiateCheckout({ value: subtotal, currency: 'USD' });
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          hasOrderBump: useCartStore.getState().hasOrderBump,
+          successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: window.location.href,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || 'Failed to initiate checkout. Please try again.');
+        setIsCheckingOut(false);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned from server');
+      }
+    } catch (err) {
+      console.error('[CartSlideOver] Checkout error:', err);
+      toast.error('Unable to connect to checkout. Please check your connection and try again.');
+      setIsCheckingOut(false);
+    }
+  }, [items, subtotal, isCheckingOut]);
 
   return (
     <Drawer isOpen={isOpen} onClose={closeCart} title="Your Order">
@@ -258,10 +292,18 @@ export function CartSlideOver() {
             {/* Primary CTA */}
             <motion.button
               whileTap={{ scale: 0.97 }}
+              disabled={isCheckingOut}
               onClick={handleCheckout}
-              className="w-full rounded-full bg-accent py-3.5 text-sm font-bold text-white font-jakarta tracking-wide hover:bg-accent-hover transition-colors shadow-lg shadow-accent/20"
+              className="w-full rounded-full bg-accent py-3.5 text-sm font-bold text-white font-jakarta tracking-wide hover:bg-accent-hover transition-colors shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-wait"
             >
-              Proceed to Checkout →
+              {isCheckingOut ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Securing Order...</span>
+                </>
+              ) : (
+                <span>Proceed to Checkout →</span>
+              )}
             </motion.button>
 
             {/* Secondary link */}

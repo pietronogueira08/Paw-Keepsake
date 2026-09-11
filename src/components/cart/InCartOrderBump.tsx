@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
@@ -14,9 +14,31 @@ export function InCartOrderBump() {
   const { hasOrderBump, addOrderBump, removeOrderBump } = useCartStore();
 
   const [isChecked, setIsChecked] = useState(hasOrderBump);
+  const [isAvailable, setIsAvailable] = useState(true);
   const displayName = petName.trim() || 'your pet';
 
+  useEffect(() => {
+    let active = true;
+    fetch('/api/inventory')
+      .then((res) => res.json())
+      .then((data) => {
+        if (active && data?.tshirt) {
+          setIsAvailable(Boolean(data.tshirt.available));
+          if (!data.tshirt.available && hasOrderBump) {
+            removeOrderBump();
+            setIsChecked(false);
+          }
+        }
+      })
+      .catch((err) => console.warn('[InCartOrderBump] Inventory check fallback:', err));
+
+    return () => {
+      active = false;
+    };
+  }, [hasOrderBump, removeOrderBump]);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!isAvailable) return;
     const checked = e.target.checked;
     setIsChecked(checked);
     if (checked) {
@@ -24,6 +46,10 @@ export function InCartOrderBump() {
     } else {
       removeOrderBump();
     }
+  }
+
+  if (!isAvailable) {
+    return null; // Gracefully hide the bump if out of stock in Printify
   }
 
   return (

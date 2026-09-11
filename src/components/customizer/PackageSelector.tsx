@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useCustomizerStore, type PackageTier } from '@/store/useCustomizerStore';
 import { formatPrice, cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -53,6 +54,41 @@ const cardTap = { scale: 0.98 };
 
 export function PackageSelector() {
   const { selectedPackage, setPackage } = useCustomizerStore();
+  const [inventory, setInventory] = useState<Record<string, boolean>>({
+    '8x12': true,
+    '12x16': true,
+    '16x20': true,
+    '16x24': true,
+  });
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/inventory')
+      .then((res) => res.json())
+      .then((data) => {
+        if (active && data?.canvas) {
+          const map: Record<string, boolean> = {};
+          Object.entries(data.canvas).forEach(([size, info]: [string, any]) => {
+            map[size] = Boolean(info.available);
+          });
+          setInventory((prev) => ({ ...prev, ...map }));
+
+          // If current selection is out of stock, auto-switch to first in-stock package
+          const currentSize = selectedPackage === 'gallery' ? '12x16' : selectedPackage === 'entry' ? '8x12' : selectedPackage;
+          if (map[currentSize] === false) {
+            const firstAvailable = PACKAGES.find((p) => map[p.id] !== false);
+            if (firstAvailable) {
+              setPackage(firstAvailable.id);
+            }
+          }
+        }
+      })
+      .catch((err) => console.warn('[PackageSelector] Inventory fetch fallback:', err));
+
+    return () => {
+      active = false;
+    };
+  }, [selectedPackage, setPackage]);
 
   return (
     <div className="pt-7 pb-7 border-t border-[--border-default]">
@@ -73,34 +109,46 @@ export function PackageSelector() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-4">
         {PACKAGES.map((pkg) => {
           const isSelected = selectedPackage === pkg.id || (pkg.id === '12x16' && selectedPackage === 'gallery') || (pkg.id === '8x12' && selectedPackage === 'entry');
+          const isAvailable = inventory[pkg.id] !== false;
 
           return (
             <motion.button
               key={pkg.id}
               type="button"
-              onClick={() => setPackage(pkg.id)}
-              whileHover={cardHover}
-              whileTap={cardTap}
+              disabled={!isAvailable}
+              onClick={() => isAvailable && setPackage(pkg.id)}
+              whileHover={isAvailable ? cardHover : undefined}
+              whileTap={isAvailable ? cardTap : undefined}
               className={cn(
-                'relative p-3.5 sm:p-4 rounded-xl flex flex-col items-center justify-between text-center transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[--accent] min-h-[148px]',
-                isSelected
+                'relative p-3.5 sm:p-4 rounded-xl flex flex-col items-center justify-between text-center transition-all outline-none min-h-[148px]',
+                !isAvailable
+                  ? 'opacity-40 cursor-not-allowed bg-neutral-100 border border-neutral-200 filter grayscale'
+                  : 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[--accent]',
+                isAvailable && isSelected
                   ? 'border-2 border-[--accent] bg-[--bg-page] ring-1 ring-[--accent]/30 shadow-sm'
-                  : pkg.isDecoy
+                  : isAvailable && pkg.isDecoy
                     ? 'border border-[--border-default] bg-white shadow-sm hover:border-[--accent]/50'
-                    : 'border border-[--border-default] bg-white hover:border-[--accent]/50'
+                    : isAvailable
+                      ? 'border border-[--border-default] bg-white hover:border-[--accent]/50'
+                      : ''
               )}
               aria-pressed={isSelected}
+              aria-disabled={!isAvailable}
             >
-              {pkg.badge && (
+              {!isAvailable ? (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-neutral-700 text-neutral-200 shadow-sm whitespace-nowrap">
+                  OUT OF STOCK
+                </span>
+              ) : pkg.badge ? (
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-[--accent] text-white shadow-sm whitespace-nowrap">
                   {pkg.badge}
                 </span>
-              )}
+              ) : null}
 
               <div className="w-full pt-1">
                 <span className={cn(
                   'text-base sm:text-lg font-bold font-jakarta block leading-tight',
-                  isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
+                  !isAvailable ? 'text-neutral-400' : isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
                 )}>
                   {pkg.title}
                 </span>
@@ -110,13 +158,13 @@ export function PackageSelector() {
               </div>
 
               <span className="text-[11px] leading-tight text-[--text-secondary] font-jakarta my-1.5 px-1">
-                {pkg.subtitle}
+                {!isAvailable ? 'Temporarily unavailable' : pkg.subtitle}
               </span>
 
               <div className="w-full pt-1.5 border-t border-[--border-default]/50">
                 <span className={cn(
                   'text-sm sm:text-base font-bold font-jakarta block',
-                  isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
+                  !isAvailable ? 'text-neutral-400 line-through' : isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
                 )}>
                   {formatPrice(pkg.price)}
                 </span>
