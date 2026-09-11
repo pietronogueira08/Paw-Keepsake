@@ -9,8 +9,12 @@ export const maxDuration = 30;
 
 // Size to pixel dimensions at 300 DPI (width x height in pixels)
 const SIZE_DIMENSIONS: Record<string, { width: number; height: number }> = {
-  '8x10':  { width: 2400, height: 3000 },
+  '8x12':  { width: 2400, height: 3600 },
   '12x16': { width: 3600, height: 4800 },
+  '16x20': { width: 4800, height: 6000 },
+  '16x24': { width: 4800, height: 7200 },
+  // Backward compatibility
+  '8x10':  { width: 2400, height: 3000 },
   '18x24': { width: 5400, height: 7200 },
   '24x36': { width: 7200, height: 10800 },
 };

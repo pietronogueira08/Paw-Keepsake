@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
-import { useCustomizerStore } from '@/store/useCustomizerStore';
+import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { generateId, formatPrice, cn } from '@/lib/utils';
 import { trackAddToCart } from '@/lib/analytics';
@@ -32,15 +32,16 @@ export function StickyMobileAddToCart() {
     if (!store.breed) return;
     if (store.petName.trim().length === 0) return;
 
+    const resolvedSize = getPackageSize(store.selectedPackage);
     const item: CartItem = {
       id: generateId(),
-      productTitle: `Memorial Canvas - ${store.selectedPackage.charAt(0).toUpperCase() + store.selectedPackage.slice(1)}`,
+      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")`,
       productType: 'museum-canvas',
       breed: store.breed,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
       quote: '',
-      size: store.selectedPackage === 'entry' ? '12x16' : '18x24',
+      size: resolvedSize,
       frameStyle: 'none',
       quantity: 1,
       unitPrice: store.unitPrice,
@@ -89,7 +90,7 @@ export function StickyMobileAddToCart() {
                 {store.petName || (store.breed?.name ?? 'Your Memorial Canvas')}
               </p>
               <p className="text-[10px] text-muted font-jakarta">
-                {store.selectedPackage === 'entry' ? '12×16"' : '18×24"'} · Canvas
+                {getPackageSize(store.selectedPackage).replace('x', '×')}&quot; · 1.5&quot; Canvas
               </p>
             </div>
 

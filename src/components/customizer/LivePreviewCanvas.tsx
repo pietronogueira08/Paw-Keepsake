@@ -58,7 +58,16 @@ function PlaceholderSilhouette() {
 export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanvasProps) {
   const { breed, petName, dateRange, selectedPackage, previewLoading } = useCustomizerStore();
 
-  const pkgLabel = selectedPackage === 'entry' ? '12×16" Canvas' : '18×24" Gallery Canvas';
+  const sizeLabels: Record<string, string> = {
+    '8x12': '8×12" Petite Canvas • 1.5" Depth',
+    '12x16': '12×16" Gallery Canvas • 1.5" Depth',
+    '16x20': '16×20" Statement Canvas • 1.5" Depth',
+    '16x24': '16×24" Grand Masterpiece • 1.5" Depth',
+    entry: '8×12" Petite Canvas • 1.5" Depth',
+    gallery: '12×16" Gallery Canvas • 1.5" Depth',
+    heritage: '16×24" Grand Masterpiece • 1.5" Depth',
+  };
+  const pkgLabel = sizeLabels[selectedPackage] || '12×16" Gallery Canvas • 1.5" Depth';
 
   // "previewSync" animation rule:
   const previewSync = { opacity: [0.6, 1], transition: { duration: 0.25, ease: "easeOut" as const } };

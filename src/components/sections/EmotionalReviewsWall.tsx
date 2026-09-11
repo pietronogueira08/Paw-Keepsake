@@ -9,13 +9,13 @@ const REVIEWS: ReviewPhoto[] = [
   {
     id: 'r1', authorName: 'Sarah M.', location: 'Plano, TX', rating: 5,
     body: 'When we lost our golden retriever Max after 13 years, I didn\'t know how to process the grief. This canvas now hangs above our fireplace and it\'s like he\'s still with us. The watercolor looks EXACTLY like him.',
-    petName: 'Max', breed: 'Golden Retriever', productType: 'museum-canvas', size: '18x24',
+    petName: 'Max', breed: 'Golden Retriever', productType: 'museum-canvas', size: '16x24',
     verifiedPurchase: true, datePosted: 'August 2026',
   },
   {
     id: 'r2', authorName: 'James & Priya L.', location: 'Portland, OR', rating: 5,
-    body: 'Ordered the 18×24 framed print for my wife\'s birthday. She cried when she opened it. Best gift I\'ve ever given anyone. The frame quality is absolutely stunning.',
-    petName: 'Bella', breed: 'Labrador Retriever', productType: 'framed-print', size: '18x24',
+    body: 'Ordered the 16×24 framed print for my wife\'s birthday. She cried when she opened it. Best gift I\'ve ever given anyone. The frame quality is absolutely stunning.',
+    petName: 'Bella', breed: 'Labrador Retriever', productType: 'framed-print', size: '16x24',
     verifiedPurchase: true, datePosted: 'July 2026',
   },
   {
@@ -27,19 +27,19 @@ const REVIEWS: ReviewPhoto[] = [
   {
     id: 'r4', authorName: 'Tom R.', location: 'Austin, TX', rating: 5,
     body: 'Incredibly fast shipping. Got it in 5 days. The packaging was so careful, like they knew how precious the cargo was. Absolutely beautiful piece.',
-    petName: 'Cooper', breed: 'Beagle', productType: 'museum-canvas', size: '12x16',
+    petName: 'Cooper', breed: 'Beagle', productType: 'museum-canvas', size: '8x12',
     verifiedPurchase: true, datePosted: 'June 2026',
   },
   {
     id: 'r5', authorName: 'Melissa C.', location: 'Denver, CO', rating: 5,
     body: 'The custom quote I chose — about dogs finding their way home — made the piece even more special. I stare at it every morning with my coffee and feel so much peace.',
-    petName: 'Luna', breed: 'Australian Shepherd', productType: 'museum-canvas', size: '18x24',
+    petName: 'Luna', breed: 'Australian Shepherd', productType: 'museum-canvas', size: '16x20',
     verifiedPurchase: true, datePosted: 'July 2026',
   },
   {
     id: 'r6', authorName: 'David & Susan H.', location: 'Scottsdale, AZ', rating: 5,
     body: 'Our Labrador Charlie passed at 15. This piece captures his spirit perfectly. The watercolor style is so warm and life-like. We ordered a second one as a gift.',
-    petName: 'Charlie', breed: 'Labrador Retriever', productType: 'framed-print', size: '18x24',
+    petName: 'Charlie', breed: 'Labrador Retriever', productType: 'framed-print', size: '16x24',
     verifiedPurchase: true, datePosted: 'May 2026',
   },
 ];

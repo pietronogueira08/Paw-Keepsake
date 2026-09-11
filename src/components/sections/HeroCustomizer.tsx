@@ -7,7 +7,7 @@ import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, Shopping
 import { LivePreviewCanvas } from '@/components/customizer/LivePreviewCanvas';
 import { PackageSelector } from '@/components/customizer/PackageSelector';
 import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraftModal';
-import { useCustomizerStore } from '@/store/useCustomizerStore';
+import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { trackAddToCart } from '@/lib/analytics';
 import { generateId, formatPrice, cn } from '@/lib/utils';
@@ -45,15 +45,16 @@ export function HeroCustomizer() {
       return;
     }
 
+    const resolvedSize = getPackageSize(store.selectedPackage);
     const item: CartItem = {
       id: generateId(),
-      productTitle: `Memorial Canvas - ${store.selectedPackage.charAt(0).toUpperCase() + store.selectedPackage.slice(1)}`,
+      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")`,
       productType: 'museum-canvas',
       breed: store.breed,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
       quote: '', // Kept for type compatibility
-      size: store.selectedPackage === 'entry' ? '12x16' : '18x24',
+      size: resolvedSize,
       frameStyle: 'none',
       quantity: 1,
       unitPrice: store.unitPrice,

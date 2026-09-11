@@ -108,10 +108,10 @@ export function MainHero() {
               <span className="w-2 h-2 rounded-full bg-[--accent] animate-pulse" />
               <div>
                 <p className="text-[12px] font-semibold text-[--text-primary] font-jakarta leading-none">
-                  18×24&quot; Gallery Canvas
+                  16×24&quot; Grand Masterpiece
                 </p>
                 <p className="text-[10px] text-[--text-secondary] font-jakarta mt-0.5">
-                  Museum-Grade Oak Frame
+                  1.5&quot; Museum Depth • Handcrafted Frame
                 </p>
               </div>
             </div>

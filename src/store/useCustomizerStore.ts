@@ -4,14 +4,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Breed } from '@/types/ecommerce';
 
-export type PackageTier = 'entry' | 'gallery' | 'heritage';
+export type PackageTier = '8x12' | '12x16' | '16x20' | '16x24' | 'entry' | 'gallery' | 'heritage';
 
-// Price table for packages
-const PACKAGE_PRICES: Record<PackageTier, number> = {
+// Price table for the 4 Printify models (optimized for 55-69% margins)
+export const PACKAGE_PRICES: Record<string, number> = {
+  '8x12': 48,
+  '12x16': 68,
+  '16x20': 98,
+  '16x24': 128,
   entry: 48,
   gallery: 68,
-  heritage: 88,
+  heritage: 128,
 };
+
+export function getPackageSize(pkg: PackageTier): '8x12' | '12x16' | '16x20' | '16x24' {
+  if (pkg === '8x12' || pkg === 'entry') return '8x12';
+  if (pkg === '16x20') return '16x20';
+  if (pkg === '16x24' || pkg === 'heritage') return '16x24';
+  return '12x16';
+}
 
 interface CustomizerStoreState {
   breed: Breed | null;
@@ -37,9 +48,9 @@ const DEFAULT_STATE: CustomizerStoreState = {
   breed: null,
   petName: '',
   dateRange: '',
-  selectedPackage: 'gallery', // Decoy/Most Loved default
+  selectedPackage: '12x16', // Most Loved default ($68)
   previewLoading: false,
-  unitPrice: PACKAGE_PRICES.gallery,
+  unitPrice: PACKAGE_PRICES['12x16'],
 };
 
 export const useCustomizerStore = create<CustomizerStore>()(

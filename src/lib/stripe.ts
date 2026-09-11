@@ -31,12 +31,19 @@ export const stripe = new Proxy({} as Stripe, {
 // Price ID map
 // ---------------------------------------------------------------------------
 export const STRIPE_PRICE_IDS: Record<string, string> = {
-  'museum-canvas-8x10':  process.env.STRIPE_PRICE_CANVAS_8X10  ?? '',
+  'museum-canvas-8x12':  process.env.STRIPE_PRICE_CANVAS_8X12  ?? '',
   'museum-canvas-12x16': process.env.STRIPE_PRICE_CANVAS_12X16 ?? '',
+  'museum-canvas-16x20': process.env.STRIPE_PRICE_CANVAS_16X20 ?? '',
+  'museum-canvas-16x24': process.env.STRIPE_PRICE_CANVAS_16X24 ?? '',
+  'framed-print-8x12':   process.env.STRIPE_PRICE_PRINT_8X12   ?? '',
+  'framed-print-12x16':  process.env.STRIPE_PRICE_PRINT_12X16  ?? '',
+  'framed-print-16x20':  process.env.STRIPE_PRICE_PRINT_16X20  ?? '',
+  'framed-print-16x24':  process.env.STRIPE_PRICE_PRINT_16X24  ?? '',
+  // Backward compatibility
+  'museum-canvas-8x10':  process.env.STRIPE_PRICE_CANVAS_8X10  ?? '',
   'museum-canvas-18x24': process.env.STRIPE_PRICE_CANVAS_18X24 ?? '',
   'museum-canvas-24x36': process.env.STRIPE_PRICE_CANVAS_24X36 ?? '',
   'framed-print-8x10':   process.env.STRIPE_PRICE_PRINT_8X10   ?? '',
-  'framed-print-12x16':  process.env.STRIPE_PRICE_PRINT_12X16  ?? '',
   'framed-print-18x24':  process.env.STRIPE_PRICE_PRINT_18X24  ?? '',
   'framed-print-24x36':  process.env.STRIPE_PRICE_PRINT_24X36  ?? '',
   'comfort-tshirt':      process.env.STRIPE_PRICE_TSHIRT        ?? '',

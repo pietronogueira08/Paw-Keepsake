@@ -534,42 +534,47 @@ export const MEMORIAL_QUOTES: MemorialQuote[] = [
 
 export const SIZE_VARIANTS: SizeVariant[] = [
   {
-    size: '8x10',
-    label: '8\u00d710"',
+    size: '8x12',
+    label: '8×12"',
+    popularityLabel: 'Petite / Desk',
     prices: {
       'museum-canvas': 48,
-      'framed-print': 65,
+      'framed-print': 68,
     },
-    dimensionsCm: '20.3 \u00d7 25.4 cm',
+    dimensionsCm: '20.3 × 30.5 cm',
   },
   {
     size: '12x16',
-    label: '12\u00d716"',
-    popularityLabel: 'Most Popular',
+    label: '12×16"',
+    popularityLabel: 'Most Loved',
+    croBadge: 'Most Loved by Families',
     prices: {
       'museum-canvas': 68,
       'framed-print': 89,
     },
-    dimensionsCm: '30.5 \u00d7 40.6 cm',
+    dimensionsCm: '30.5 × 40.6 cm',
   },
   {
-    size: '18x24',
-    label: '18\u00d724"',
-    popularityLabel: 'Best Value',
+    size: '16x20',
+    label: '16×20"',
+    popularityLabel: 'Feature Wall',
+    croBadge: 'Living Room Favorite',
     prices: {
       'museum-canvas': 98,
       'framed-print': 125,
     },
-    dimensionsCm: '45.7 \u00d7 61.0 cm',
+    dimensionsCm: '40.6 × 50.8 cm',
   },
   {
-    size: '24x36',
-    label: '24\u00d736"',
+    size: '16x24',
+    label: '16×24"',
+    popularityLabel: 'Grand Gallery',
+    croBadge: 'Best Value',
     prices: {
-      'museum-canvas': 148,
-      'framed-print': 185,
+      'museum-canvas': 128,
+      'framed-print': 165,
     },
-    dimensionsCm: '61.0 \u00d7 91.4 cm',
+    dimensionsCm: '40.6 × 61.0 cm',
   },
 ];
 
