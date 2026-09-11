@@ -151,23 +151,23 @@ export function Header() {
       <nav
         role="navigation"
         aria-label="Main navigation"
-        className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-[60px]"
+        className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-[66px] sm:h-[72px]"
       >
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 sm:gap-2.5 group shrink-0"
+          className="flex items-center gap-2.5 sm:gap-3.5 group shrink-0"
           aria-label="Paw & Keepsake — Home"
         >
           <Image
             src="/images/logo-mark.webp"
             alt="Paw & Keepsake official emblem"
-            width={36}
-            height={36}
+            width={48}
+            height={48}
             priority
-            className="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-300 group-hover:scale-105"
+            className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           />
-          <span className="font-fraunces text-xl font-light italic text-foreground group-hover:text-accent transition-colors">
+          <span className="font-fraunces text-2xl sm:text-[26px] md:text-[28px] font-normal italic text-foreground group-hover:text-accent transition-colors tracking-tight leading-none">
             Paw & Keepsake
           </span>
         </Link>
