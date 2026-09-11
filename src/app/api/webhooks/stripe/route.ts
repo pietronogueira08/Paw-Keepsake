@@ -38,11 +38,51 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           session.customer_details?.email,
         );
 
-        // TODO: Trigger print dispatch to fulfillment partner
-        // await triggerPrintDispatch(session);
+        // Automatically dispatch order to Printify
+        const sessionAny = session as unknown as {
+          collected_information?: { shipping_details?: { name?: string; address?: Stripe.Address } };
+          shipping_details?: { name?: string; address?: Stripe.Address };
+        };
+        const shippingDetails = sessionAny.collected_information?.shipping_details || sessionAny.shipping_details;
+        const addr = shippingDetails?.address || session.customer_details?.address;
 
-        // TODO: Send order confirmation email via Resend
-        // await sendOrderConfirmationEmail(session);
+        if (addr) {
+          const recipientName = shippingDetails?.name || session.customer_details?.name || 'Valued Customer';
+          const nameParts = recipientName.trim().split(' ');
+          const firstName = nameParts[0] || 'Valued';
+          const lastName = nameParts.slice(1).join(' ') || 'Customer';
+
+          try {
+            const { createPrintifyOrder } = await import('@/lib/printify');
+            await createPrintifyOrder({
+              externalId: session.id,
+              shippingAddress: {
+                first_name: firstName,
+                last_name: lastName,
+                email: session.customer_details?.email || '',
+                phone: session.customer_details?.phone || '',
+                country: addr.country || 'US',
+                region: addr.state || '',
+                address1: addr.line1 || '',
+                address2: addr.line2 || '',
+                city: addr.city || '',
+                zip: addr.postal_code || '',
+              },
+              items: [
+                {
+                  productType: 'museum-canvas',
+                  size: (session.metadata?.size as string) || '12x16',
+                  quantity: 1,
+                  printFileUrl: session.metadata?.print_file_url,
+                },
+              ],
+              autoSubmit: false, // Saves as Draft in Printify for instant review & 1-click fulfillment
+            });
+            console.info('[stripe-webhook] ✅ Printify order dispatched successfully for session:', session.id);
+          } catch (printifyErr) {
+            console.error('[stripe-webhook] ⚠️ Printify order dispatch failed:', printifyErr);
+          }
+        }
 
         // TODO: Fire server-side Meta CAPI Purchase event
         // await fireMetaCAPIPurchase(session);
