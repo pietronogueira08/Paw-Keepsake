@@ -52,6 +52,29 @@ interface CartStore {
 // Store
 // ---------------------------------------------------------------------------
 
+function computeTotals(
+  items: CartItem[],
+  hasOrderBump: boolean,
+  orderBump: OrderBumpItem | null,
+) {
+  const subtotal = items.reduce(
+    (sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1),
+    0,
+  );
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const total = subtotal + (hasOrderBump && orderBump ? orderBump.salePrice : 0);
+
+  return {
+    subtotal,
+    itemCount,
+    freeShippingRemaining,
+    hasFreeShipping,
+    total,
+  };
+}
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -60,37 +83,50 @@ export const useCartStore = create<CartStore>()(
       orderBump: null,
       hasOrderBump: false,
       isOpen: false,
+      subtotal: 0,
+      itemCount: 0,
+      freeShippingRemaining: FREE_SHIPPING_THRESHOLD,
+      hasFreeShipping: false,
+      total: 0,
 
       // Actions
       addItem: (item: CartItem) =>
         set((state) => {
           const existing = state.items.find((i) => i.id === item.id);
-          if (existing) {
-            return {
-              items: state.items.map((i) =>
+          const nextItems = existing
+            ? state.items.map((i) =>
                 i.id === item.id
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i,
-              ),
-            };
-          }
-          return { items: [...state.items, item] };
+              )
+            : [...state.items, item];
+
+          return {
+            items: nextItems,
+            ...computeTotals(nextItems, state.hasOrderBump, state.orderBump),
+          };
         }),
 
       removeItem: (id: string) =>
-        set((state) => ({
-          items: state.items.filter((i) => i.id !== id),
-        })),
+        set((state) => {
+          const nextItems = state.items.filter((i) => i.id !== id);
+          return {
+            items: nextItems,
+            ...computeTotals(nextItems, state.hasOrderBump, state.orderBump),
+          };
+        }),
 
       updateQuantity: (id: string, quantity: number) =>
         set((state) => {
-          if (quantity <= 0) {
-            return { items: state.items.filter((i) => i.id !== id) };
-          }
+          const nextItems =
+            quantity <= 0
+              ? state.items.filter((i) => i.id !== id)
+              : state.items.map((i) =>
+                  i.id === id ? { ...i, quantity } : i,
+                );
           return {
-            items: state.items.map((i) =>
-              i.id === id ? { ...i, quantity } : i,
-            ),
+            items: nextItems,
+            ...computeTotals(nextItems, state.hasOrderBump, state.orderBump),
           };
         }),
 
@@ -99,9 +135,18 @@ export const useCartStore = create<CartStore>()(
       closeCart: () => set({ isOpen: false }),
 
       addOrderBump: () =>
-        set({ orderBump: DEFAULT_ORDER_BUMP, hasOrderBump: true }),
+        set((state) => ({
+          orderBump: DEFAULT_ORDER_BUMP,
+          hasOrderBump: true,
+          ...computeTotals(state.items, true, DEFAULT_ORDER_BUMP),
+        })),
 
-      removeOrderBump: () => set({ orderBump: null, hasOrderBump: false }),
+      removeOrderBump: () =>
+        set((state) => ({
+          orderBump: null,
+          hasOrderBump: false,
+          ...computeTotals(state.items, false, null),
+        })),
 
       clearCart: () =>
         set({
@@ -109,41 +154,30 @@ export const useCartStore = create<CartStore>()(
           orderBump: null,
           hasOrderBump: false,
           isOpen: false,
+          subtotal: 0,
+          itemCount: 0,
+          freeShippingRemaining: FREE_SHIPPING_THRESHOLD,
+          hasFreeShipping: false,
+          total: 0,
         }),
-
-      // Derived getters — computed on every access, never persisted
-      get subtotal(): number {
-        return get().items.reduce(
-          (sum, item) => sum + item.unitPrice * item.quantity,
-          0,
-        );
-      },
-
-      get itemCount(): number {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0);
-      },
-
-      get freeShippingRemaining(): number {
-        const remaining = FREE_SHIPPING_THRESHOLD - get().subtotal;
-        return remaining > 0 ? remaining : 0;
-      },
-
-      get hasFreeShipping(): boolean {
-        return get().subtotal >= FREE_SHIPPING_THRESHOLD;
-      },
-
-      get total(): number {
-        const { subtotal, orderBump, hasOrderBump } = get();
-        return subtotal + (hasOrderBump && orderBump ? orderBump.salePrice : 0);
-      },
     }),
     {
       name: 'paw-cart',
-      // Exclude isOpen so the drawer always starts closed after a page refresh.
       partialize: (state) =>
         Object.fromEntries(
           Object.entries(state).filter(([key]) => key !== 'isOpen'),
         ) as Omit<CartStore, 'isOpen'>,
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const totals = computeTotals(
+            state.items || [],
+            Boolean(state.hasOrderBump),
+            state.orderBump || null,
+          );
+          Object.assign(state, totals);
+        }
+      },
     },
   ),
 );
+
