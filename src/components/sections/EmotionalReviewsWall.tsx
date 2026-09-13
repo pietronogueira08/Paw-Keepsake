@@ -4,12 +4,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, CheckCircle2, X, ZoomIn, Heart } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface MemorialReview {
   id: string;
   authorName: string;
   location: string;
+  avatarSrc: string;
   rating: number;
   body: string;
   petName: string;
@@ -26,99 +26,105 @@ interface MemorialReview {
 const REVIEWS: MemorialReview[] = [
   {
     id: 'r1',
-    authorName: 'Sarah M.',
-    location: 'Plano, TX',
-    rating: 5,
-    body: 'When we lost our golden boy Charlie after 13 years, I didn\'t know how to process the grief. This canvas sits on our credenza right beside his collar and a candle. The watercolor captures his gentle soul so perfectly. It brings us peace every single day.',
-    petName: 'Charlie',
-    breed: 'Golden Retriever',
-    productType: 'Museum Canvas',
-    size: '16×24"',
-    verifiedPurchase: true,
-    datePosted: 'August 2026',
-    imageSrc: '/images/reviews/review-1.webp',
-    imageAlt: 'Golden Retriever Charlie memorial canvas on rustic mantel with collar and candle',
-    memorialSetup: 'Memorial Credenza & Keepsake Collar',
-  },
-  {
-    id: 'r2',
-    authorName: 'Amanda & Priya L.',
+    authorName: 'Amanda L.',
     location: 'Denver, CO',
+    avatarSrc: '/images/avatars/avatar-amanda.webp',
     rating: 5,
-    body: 'My husband surprised me with this on the anniversary of Barney\'s passing. I broke down crying the second I unwrapped it. It felt like getting one last hug from my sweetest boy. The quality and heavy wooden frame exceeded every expectation.',
-    petName: 'Barney',
-    breed: 'Black Labrador',
-    productType: 'Framed Fine Art',
+    body: 'My husband surprised me with this on the anniversary of Haika\'s passing. I broke down in tears the second I held it in my arms. It felt like getting one last hug from my sweetest little shadow. The quality, frame, and watercolor details exceeded every expectation.',
+    petName: 'Haika',
+    breed: 'Dachshund',
+    productType: 'Framed Canvas',
     size: '16×24"',
     verifiedPurchase: true,
-    datePosted: 'July 2026',
-    imageSrc: '/images/reviews/review-2.webp',
-    imageAlt: 'Customer hugging framed memorial canvas of black labrador Barney',
+    datePosted: 'September 2026',
+    imageSrc: '/images/reviews/review-haika-hug.webp',
+    imageAlt: 'Amanda crying and hugging framed memorial portrait of her Dachshund Haika',
     memorialSetup: 'Emotional Unboxing & Forever Hug',
   },
   {
-    id: 'r3',
-    authorName: 'Linda K.',
-    location: 'Naperville, IL',
-    rating: 5,
-    body: 'I was skeptical about ordering custom memorial art online, but the texture and depth blew me away. The canvas hangs right above our entryway console. Everyone who visits stops and comments on how radiant Baguette looks.',
-    petName: 'Baguette',
-    breed: 'French Bulldog',
-    productType: 'Museum Canvas',
-    size: '12×16"',
-    verifiedPurchase: true,
-    datePosted: 'August 2026',
-    imageSrc: '/images/reviews/review-3.webp',
-    imageAlt: 'French Bulldog Baguette memorial canvas on living room gallery wall',
-    memorialSetup: 'Entryway Memorial Wall Tribute',
-  },
-  {
-    id: 'r4',
-    authorName: 'Tom & Rachel R.',
+    id: 'r2',
+    authorName: 'Sarah M.',
     location: 'Austin, TX',
+    avatarSrc: '/images/avatars/avatar-sarah.webp',
     rating: 5,
-    body: 'Unboxed Cooper\'s canvas this morning. The packaging was so secure and carefully wrapped. The print resolution on the archival canvas is breathtaking — you can see every delicate watercolor brushstroke. 5 days from order to door.',
-    petName: 'Cooper',
+    body: 'Jake was our family\'s constant joy for 12 years. Placing his portrait right on our piano with his original leather collar has brought so much peace to our home. Every guest stops and smiles when they see his gentle eyes.',
+    petName: 'Jake',
     breed: 'Beagle',
     productType: 'Museum Canvas',
     size: '12×16"',
     verifiedPurchase: true,
-    datePosted: 'June 2026',
-    imageSrc: '/images/reviews/review-4.webp',
-    imageAlt: 'Beagle Cooper canvas unboxed on wooden dining table next to shipping box',
-    memorialSetup: 'Unboxing & Morning Tribute',
+    datePosted: 'August 2026',
+    imageSrc: '/images/reviews/review-jake-piano.webp',
+    imageAlt: 'Beagle Jake memorial canvas on piano next to his leather collar',
+    memorialSetup: 'Piano Keepsake with Collar',
+  },
+  {
+    id: 'r3',
+    authorName: 'David H.',
+    location: 'Scottsdale, AZ',
+    avatarSrc: '/images/avatars/avatar-david.webp',
+    rating: 5,
+    body: 'Clark was the noblest companion I\'ve ever had. Seeing him hanging in our living room every morning brings a sense of quiet strength and dignity back into our home. The depth of the canvas and the watercolor strokes are truly gallery-grade.',
+    petName: 'Clark',
+    breed: 'Doberman Pinscher',
+    productType: 'Museum Canvas',
+    size: '16×24"',
+    verifiedPurchase: true,
+    datePosted: 'August 2026',
+    imageSrc: '/images/reviews/review-clark-wall.webp',
+    imageAlt: 'Doberman Clark memorial canvas hanging above wooden console table in living room',
+    memorialSetup: 'Living Room Memorial Wall',
+  },
+  {
+    id: 'r4',
+    authorName: 'Tom & Rachel R.',
+    location: 'Plano, TX',
+    avatarSrc: '/images/avatars/avatar-tom-rachel.webp',
+    rating: 5,
+    body: 'Unboxed Buster\'s tribute over coffee this morning. The packaging was bulletproof and opening it was so deeply moving. The texture on the archival canvas makes his eyes feel alive again. 5 days from order to our doorstep.',
+    petName: 'Buster',
+    breed: 'Rescue Shepherd Mix',
+    productType: 'Museum Canvas',
+    size: '12×16"',
+    verifiedPurchase: true,
+    datePosted: 'August 2026',
+    imageSrc: '/images/reviews/review-unboxing-table.webp',
+    imageAlt: 'Unboxed custom rescue dog canvas portrait on rustic dining table',
+    memorialSetup: 'Unboxing Morning Tribute',
   },
   {
     id: 'r5',
-    authorName: 'Melissa C.',
-    location: 'Boise, ID',
+    authorName: 'Linda K.',
+    location: 'Naperville, IL',
+    avatarSrc: '/images/avatars/avatar-linda.webp',
     rating: 5,
-    body: 'The inscription \'Run free, our sweet boy\' along with his dates touched our entire family. We placed Jasper\'s portrait on our piano with his collar and dried flowers. It turned a painful loss into a sacred celebration of his life.',
-    petName: 'Jasper',
-    breed: 'Australian Shepherd',
-    productType: 'Statement Canvas',
-    size: '16×20"',
+    body: 'When Charlie passed after 13 years of unconditional love, the silence was unbearable. This canvas sits on our mantel next to his collar and an amber candle. It\'s not just art — it\'s a sacred place of gratitude for his life.',
+    petName: 'Charlie',
+    breed: 'Golden Retriever',
+    productType: 'Framed Canvas',
+    size: '16×24"',
     verifiedPurchase: true,
     datePosted: 'July 2026',
-    imageSrc: '/images/reviews/review-5.webp',
-    imageAlt: 'Australian Shepherd Jasper memorial canvas displayed on piano with collar and flowers',
-    memorialSetup: 'Piano Keepsake with Collar & Flowers',
+    imageSrc: '/images/reviews/review-charlie-mantel.webp',
+    imageAlt: 'Golden Retriever Charlie memorial portrait on rustic mantel with collar and candle',
+    memorialSetup: 'Memorial Mantel with Candle & Collar',
   },
   {
     id: 'r6',
-    authorName: 'David & Susan H.',
+    authorName: 'Susan & David M.',
     location: 'Scottsdale, AZ',
+    avatarSrc: '/images/avatars/avatar-susan-david.webp',
     rating: 5,
-    body: 'Max was our protector and shadow for 13 years. Seeing him on our brick fireplace mantel with his paw print keepsake brings warmth back into the living room. Truly the most meaningful tribute we could have ever chosen.',
+    body: 'Max was our protector and faithful shadow for 13 years. Seeing his portrait on our stone fireplace alongside his paw print keepsake brings warmth right back into our home. Hands down the most meaningful tribute we could have chosen.',
     petName: 'Max',
     breed: 'German Shepherd',
     productType: 'Framed Canvas',
     size: '16×24"',
     verifiedPurchase: true,
-    datePosted: 'May 2026',
-    imageSrc: '/images/reviews/review-6.webp',
-    imageAlt: 'German Shepherd Max memorial canvas on brick fireplace with paw print keepsake',
-    memorialSetup: 'Fireplace Mantel Tribute with Keepsake',
+    datePosted: 'July 2026',
+    imageSrc: '/images/reviews/review-max-fireplace.webp',
+    imageAlt: 'German Shepherd Max memorial canvas on brick fireplace mantel with paw print keepsake',
+    memorialSetup: 'Fireplace Mantel with Paw Keepsake',
   },
 ];
 
@@ -179,7 +185,7 @@ export function EmotionalReviewsWall() {
           </div>
         </motion.div>
 
-        {/* Reviews Grid with Real Customer Photos */}
+        {/* Reviews Grid with Real Customer Photos & Avatars */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {REVIEWS.map((review, index) => (
             <motion.div
@@ -204,11 +210,11 @@ export function EmotionalReviewsWall() {
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 opacity-70 group-hover:opacity-60 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10 opacity-70 group-hover:opacity-60 transition-opacity" />
                   
                   {/* Photo Overlay Badge */}
                   <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white drop-shadow-xs">
-                    <span className="text-[11px] font-medium font-jakarta bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                    <span className="text-[11px] font-medium font-jakarta bg-black/55 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
                       {review.memorialSetup}
                     </span>
                     <span className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:bg-white/40 transition-colors">
@@ -219,20 +225,35 @@ export function EmotionalReviewsWall() {
 
                 {/* Content Body */}
                 <div className="p-5 sm:p-6">
-                  {/* Header: Author & Rating */}
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div>
-                      <p className="font-bold text-sm sm:text-[15px] text-[--text-primary] font-jakarta leading-tight">
-                        {review.authorName}
-                      </p>
-                      <p className="text-xs text-[--text-secondary] font-jakarta mt-0.5">
-                        {review.location}
-                      </p>
+                  {/* Author Avatar & Header */}
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow-xs shrink-0 ring-1 ring-[--border-default]">
+                        <Image
+                          src={review.avatarSrc}
+                          alt={review.authorName}
+                          fill
+                          sizes="44px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-bold text-sm sm:text-[15px] text-[--text-primary] font-jakarta leading-tight">
+                            {review.authorName}
+                          </p>
+                          <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                        </div>
+                        <p className="text-xs text-[--text-secondary] font-jakarta mt-0.5">
+                          {review.location}
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex flex-col items-end gap-1">
                       <StarRating rating={review.rating} />
-                      <span className="text-[10px] font-semibold text-emerald-700 font-jakarta flex items-center gap-0.5">
-                        <CheckCircle2 size={11} className="text-emerald-600" /> Verified Buyer
+                      <span className="text-[10px] font-semibold text-emerald-700 font-jakarta bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md">
+                        Verified
                       </span>
                     </div>
                   </div>
@@ -304,13 +325,24 @@ export function EmotionalReviewsWall() {
 
               <div className="p-5 bg-white">
                 <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <h3 className="font-bold text-base text-[--text-primary] font-jakarta">
-                      {selectedImage.authorName} — {selectedImage.location}
-                    </h3>
-                    <p className="text-xs text-[--text-secondary] font-jakarta">
-                      Memorial setup: {selectedImage.memorialSetup}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[--border-default] shrink-0">
+                      <Image
+                        src={selectedImage.avatarSrc}
+                        alt={selectedImage.authorName}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base text-[--text-primary] font-jakarta">
+                        {selectedImage.authorName} — {selectedImage.location}
+                      </h3>
+                      <p className="text-xs text-[--text-secondary] font-jakarta">
+                        Memorial setup: {selectedImage.memorialSetup}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-semibold text-[--accent] font-jakarta">
