@@ -12,9 +12,8 @@ import { cn } from '@/lib/utils';
 const NAV_LINKS = [
   { label: 'Custom Canvas',      href: '/' },
   { label: 'Our Story',          href: '/our-story' },
-  { label: 'Shop All',           href: '/shop' },
-  { label: 'Memorial Apparel',   href: '/product/memorial-crewneck' },
   { label: 'Reviews',            href: '/#reviews' },
+  { label: 'FAQ',                href: '/#faq-heading' },
 ];
 
 // ─── Icons ────────────────────────────────────────────────────────────────────

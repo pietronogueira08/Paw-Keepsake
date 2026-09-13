@@ -157,7 +157,7 @@ export function FeaturedCollection() {
           className="text-center mt-10"
         >
           <Link
-            href="/shop"
+            href="/#hero-customizer-section"
             className="inline-flex items-center gap-2 font-jakarta text-sm font-semibold text-muted hover:text-accent transition-colors"
           >
             View the full collection

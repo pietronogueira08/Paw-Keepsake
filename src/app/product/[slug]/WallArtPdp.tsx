@@ -84,7 +84,7 @@ export function WallArtPdp({ product }: Props) {
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/#hero-customizer"
+                href="/#hero-customizer-section"
                 className="flex-1 flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-white font-jakarta hover:bg-[#A37747] active:scale-[0.98] transition-all duration-150"
               >
                 Start Personalizing
@@ -93,10 +93,10 @@ export function WallArtPdp({ product }: Props) {
                 </svg>
               </Link>
               <Link
-                href="/shop"
+                href="/#reviews"
                 className="flex items-center justify-center gap-2 rounded-full border border-border px-6 py-3.5 text-sm font-semibold text-foreground font-jakarta hover:border-accent hover:text-accent transition-all duration-150"
               >
-                Browse All
+                Customer Reviews
               </Link>
             </div>
 

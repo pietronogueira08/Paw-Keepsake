@@ -52,6 +52,17 @@ const nextConfig: NextConfig = {
   // and opts in to Turbopack without any custom webpack loaders conflicting.
   turbopack: {},
 
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/shop',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
+
   experimental: {
     optimizePackageImports: [
       'framer-motion',

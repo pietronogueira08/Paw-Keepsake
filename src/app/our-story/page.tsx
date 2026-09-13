@@ -218,10 +218,10 @@ export default function OurStoryPage() {
                   <ArrowRight size={18} />
                 </Link>
                 <Link
-                  href="/shop"
+                  href="/#reviews"
                   className="w-full sm:w-auto px-8 h-14 rounded-lg bg-white/10 hover:bg-white/15 text-white font-jakarta font-semibold text-base transition-all flex items-center justify-center border border-white/20"
                 >
-                  Explore All Keepsakes
+                  Read Customer Tributes
                 </Link>
               </div>
             </div>
