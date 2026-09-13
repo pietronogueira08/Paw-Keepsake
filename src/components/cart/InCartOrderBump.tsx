@@ -46,6 +46,7 @@ export function InCartOrderBump() {
   const customizerPetName = useCustomizerStore((s) => s.petName);
   const customizerBreed = useCustomizerStore((s) => s.breed);
   const customizerCoat = useCustomizerStore((s) => s.selectedCoat);
+  const customizerQuote = useCustomizerStore((s) => s.quote);
 
   const cartItems = useCartStore((s) => s.items);
   const {
@@ -65,6 +66,7 @@ export function InCartOrderBump() {
   const petName = firstItem?.petName || customizerPetName || 'Cooper';
   const breed = firstItem?.breed || customizerBreed;
   const selectedCoat = firstItem?.selectedCoat || customizerCoat;
+  const quote = firstItem?.quote || customizerQuote || 'Forever in our hearts';
 
   const activeDogImage = selectedCoat
     ? `/breeds/${selectedCoat}.webp`
@@ -141,10 +143,10 @@ export function InCartOrderBump() {
             />
           </AnimatePresence>
 
-          {/* Printed Watercolor Artwork on the Chest */}
+          {/* Printed Watercolor Artwork & Typography on the Chest */}
           <div
-            className="absolute flex flex-col items-center justify-center text-center pointer-events-none"
-            style={{ top: '44%', left: '50%', transform: 'translate(-50%, -50%)' }}
+            className="absolute flex flex-col items-center justify-center text-center pointer-events-none px-1"
+            style={{ top: '44%', left: '50%', transform: 'translate(-50%, -50%)', width: '72%' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -159,15 +161,29 @@ export function InCartOrderBump() {
                   : 'filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]'
               )}
             />
+            {/* Pet Name: Elegant Title Case in Fraunces */}
             <span
-              className="font-fraunces text-[6.5px] sm:text-[7px] font-bold tracking-widest uppercase block truncate max-w-[50px] mt-0.5 leading-none"
+              className="font-fraunces text-[7.5px] sm:text-[8.5px] font-medium tracking-tight block truncate max-w-full mt-0.5 leading-tight capitalize"
               style={{
                 color: selectedColorConfig.textColor,
-                textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.7)' : 'none',
+                textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.8)' : 'none',
               }}
             >
               {petName}
             </span>
+
+            {/* Memorial Quote in delicate italic script */}
+            {quote && (
+              <span
+                className="font-fraunces italic text-[4.5px] sm:text-[5px] leading-[1.18] block max-w-[56px] sm:max-w-[64px] text-center line-clamp-2 mt-0.5"
+                style={{
+                  color: orderBumpColor === 'black' ? '#D6D0C2' : '#524C42',
+                  textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.8)' : 'none',
+                }}
+              >
+                “{quote}”
+              </span>
+            )}
           </div>
 
           {/* Micro Tag */}
@@ -281,9 +297,9 @@ export function InCartOrderBump() {
           />
           <span className="text-xs font-semibold text-[--text-primary] font-jakarta truncate">
             {hasOrderBump ? (
-              <span className="text-emerald-700 font-bold flex items-center gap-1 truncate">
-                <Check size={14} strokeWidth={2.5} className="shrink-0" />
-                <span className="truncate">Matching Tee added ({selectedColorConfig.label}, {orderBumpSize})</span>
+              <span className="text-emerald-700 font-bold flex items-center gap-1 min-w-0 text-[11px] sm:text-xs">
+                <Check size={13} strokeWidth={2.5} className="shrink-0" />
+                <span className="truncate">Tee added ({selectedColorConfig.label}, {orderBumpSize})</span>
               </span>
             ) : (
               <span className="font-bold text-[--text-primary] tracking-tight text-[11px] sm:text-xs">
