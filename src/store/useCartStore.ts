@@ -18,6 +18,9 @@ const DEFAULT_ORDER_BUMP: OrderBumpItem = {
   salePrice: 29,
 };
 
+export type OrderBumpColor = 'black' | 'grey' | 'white';
+export type OrderBumpSize = 'S' | 'M' | 'L' | 'XL' | '2XL';
+
 // ---------------------------------------------------------------------------
 // Store shape
 // ---------------------------------------------------------------------------
@@ -27,6 +30,8 @@ interface CartStore {
   items: CartItem[];
   orderBump: OrderBumpItem | null;
   hasOrderBump: boolean;
+  orderBumpColor: OrderBumpColor;
+  orderBumpSize: OrderBumpSize;
   isOpen: boolean;
 
   // Actions
@@ -38,6 +43,8 @@ interface CartStore {
   closeCart: () => void;
   addOrderBump: () => void;
   removeOrderBump: () => void;
+  setOrderBumpColor: (color: OrderBumpColor) => void;
+  setOrderBumpSize: (size: OrderBumpSize) => void;
   clearCart: () => void;
 
   // Derived (computed inline via getters — not stored)
@@ -82,6 +89,8 @@ export const useCartStore = create<CartStore>()(
       items: [],
       orderBump: null,
       hasOrderBump: false,
+      orderBumpColor: 'white',
+      orderBumpSize: 'L',
       isOpen: false,
       subtotal: 0,
       itemCount: 0,
@@ -147,6 +156,10 @@ export const useCartStore = create<CartStore>()(
           hasOrderBump: false,
           ...computeTotals(state.items, false, null),
         })),
+
+      setOrderBumpColor: (orderBumpColor: OrderBumpColor) => set({ orderBumpColor }),
+
+      setOrderBumpSize: (orderBumpSize: OrderBumpSize) => set({ orderBumpSize }),
 
       clearCart: () =>
         set({

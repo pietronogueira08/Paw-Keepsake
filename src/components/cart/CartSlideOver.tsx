@@ -187,6 +187,10 @@ export function CartSlideOver() {
   const closeCart = useCartStore((s) => s.closeCart);
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal);
+  const total = useCartStore((s) => s.total);
+  const hasOrderBump = useCartStore((s) => s.hasOrderBump);
+  const orderBumpColor = useCartStore((s) => s.orderBumpColor);
+  const orderBumpSize = useCartStore((s) => s.orderBumpSize);
   const itemCount = useCartStore((s) => s.itemCount);
 
   const hasItems = items.length > 0;
@@ -197,14 +201,20 @@ export function CartSlideOver() {
     setIsCheckingOut(true);
 
     try {
-      trackInitiateCheckout({ value: subtotal, currency: 'USD' });
+      trackInitiateCheckout({ value: total, currency: 'USD' });
 
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items,
-          hasOrderBump: useCartStore.getState().hasOrderBump,
+          hasOrderBump,
+          orderBumpDetails: hasOrderBump
+            ? {
+                color: orderBumpColor,
+                size: orderBumpSize,
+              }
+            : undefined,
           successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: window.location.href,
         }),
@@ -228,7 +238,7 @@ export function CartSlideOver() {
       toast.error('Unable to connect to checkout. Please check your connection and try again.');
       setIsCheckingOut(false);
     }
-  }, [items, subtotal, isCheckingOut]);
+  }, [items, total, hasOrderBump, orderBumpColor, orderBumpSize, isCheckingOut]);
 
   return (
     <Drawer isOpen={isOpen} onClose={closeCart} title="Your Order">
@@ -273,16 +283,33 @@ export function CartSlideOver() {
 
           {/* ── Footer ── */}
           <div className="border-t border-border bg-surface px-4 pt-4 pb-5 space-y-3">
-            {/* Subtotal */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted font-jakarta">Subtotal</span>
-              <span className="text-base font-bold text-foreground font-jakarta">
-                {formatPrice(subtotal)}
-              </span>
+            {/* Price breakdown */}
+            <div className="space-y-1.5 py-1 text-sm font-jakarta">
+              <div className="flex items-center justify-between text-muted text-xs sm:text-sm">
+                <span>Canvas Subtotal</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+
+              {hasOrderBump && (
+                <div className="flex items-center justify-between text-[--accent] font-medium text-xs sm:text-sm">
+                  <span className="flex items-center gap-1.5">
+                    <span>👕 Matching Tee</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted bg-surface-subtle px-1.5 py-0.5 rounded border border-border">
+                      {orderBumpColor} · {orderBumpSize}
+                    </span>
+                  </span>
+                  <span>{formatPrice(29)}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t border-border/70 text-base font-bold text-foreground">
+                <span>Total</span>
+                <span className="text-lg text-[--accent]">{formatPrice(total)}</span>
+              </div>
             </div>
 
             {/* Trust seals */}
-            <div className="flex items-center justify-center gap-4 py-2">
+            <div className="flex items-center justify-center gap-4 py-1">
               <div className="flex items-center gap-1.5">
                 <ShieldIcon />
                 <span className="text-[11px] text-muted font-jakarta">Lifetime Memory Guarantee</span>
@@ -306,7 +333,7 @@ export function CartSlideOver() {
                   <span>Securing Order...</span>
                 </>
               ) : (
-                <span>Proceed to Checkout →</span>
+                <span>Proceed to Checkout • {formatPrice(total)} →</span>
               )}
             </motion.button>
 

@@ -23,6 +23,12 @@ const CartItemSchema = z.object({
 const CheckoutRequestSchema = z.object({
   items: z.array(CartItemSchema).min(1),
   hasOrderBump: z.boolean(),
+  orderBumpDetails: z
+    .object({
+      color: z.string().optional(),
+      size: z.string().optional(),
+    })
+    .optional(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
 });
@@ -67,12 +73,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
 
     if (validated.hasOrderBump) {
+      const bumpColor = validated.orderBumpDetails?.color?.toUpperCase() || 'WHITE';
+      const bumpSize = validated.orderBumpDetails?.size || 'L';
+      const firstPet = validated.items[0]?.petName || 'Pet';
       lineItems.push({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: "Matching Comfort Colors T-Shirt (35% OFF)",
-            description: "Premium unisex tee with your pet's watercolor art — add-on discount",
+            name: `Matching Comfort Colors T-Shirt — ${firstPet} (${bumpColor}, Size ${bumpSize})`,
+            description: `Custom ${firstPet}'s watercolor art on chest · 100% Ring-Spun Cotton · ${bumpColor} · Size ${bumpSize}`,
+            metadata: {
+              product_type: 'apparel-tshirt',
+              color: bumpColor.toLowerCase(),
+              size: bumpSize,
+              pet_name: firstPet,
+            },
           },
           unit_amount: 2900,
         },
