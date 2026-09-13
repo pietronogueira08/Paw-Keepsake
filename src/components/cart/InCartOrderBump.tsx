@@ -155,10 +155,10 @@ export function InCartOrderBump() {
               className={cn(
                 'w-9 h-9 sm:w-10 sm:h-10 object-contain transition-all',
                 orderBumpColor === 'white'
-                  ? 'mix-blend-multiply opacity-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)]'
+                  ? 'opacity-95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)]'
                   : orderBumpColor === 'grey'
-                  ? 'mix-blend-multiply opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]'
-                  : 'filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]'
+                  ? 'opacity-95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]'
+                  : 'filter drop-shadow-[0_0_6px_rgba(255,255,255,0.15)] drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]'
               )}
             />
             {/* Pet Name: Elegant Title Case in Fraunces */}

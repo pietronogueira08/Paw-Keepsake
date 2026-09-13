@@ -12,13 +12,13 @@ interface LivePreviewCanvasProps {
 }
 
 const SCALE_BY_PACKAGE: Record<string, { scale: number; label: string; badge: string }> = {
-  '8x12': { scale: 0.70, label: '8×12" Petite', badge: 'Compact / Desk' },
+  '8x12': { scale: 0.72, label: '8×12" Petite', badge: 'Compact / Desk' },
   '12x16': { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
-  '16x20': { scale: 1.02, label: '16×20" Statement', badge: 'Feature Wall' },
-  '16x24': { scale: 1.18, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
-  entry: { scale: 0.70, label: '8×12" Petite', badge: 'Compact / Desk' },
+  '16x20': { scale: 0.98, label: '16×20" Statement', badge: 'Feature Wall' },
+  '16x24': { scale: 1.12, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
+  entry: { scale: 0.72, label: '8×12" Petite', badge: 'Compact / Desk' },
   gallery: { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
-  heritage: { scale: 1.18, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
+  heritage: { scale: 1.12, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
 };
 
 /** Placeholder silhouette when no breed is selected */
@@ -278,12 +278,12 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 aria-hidden="true"
               />
 
-              {/* Scalable Mounted Canvas on the Cream Plaster Wall (Positioned cleanly above credenza) */}
+              {/* Scalable Mounted Canvas on the Cream Plaster Wall (Positioned cleanly above credenza, clear of foliage) */}
               <motion.div
                 className="absolute origin-center"
                 style={{
-                  top: '29%',
-                  left: '60%',
+                  top: '25%',
+                  left: '67%',
                 }}
                 animate={{
                   scale: currentScale.scale,

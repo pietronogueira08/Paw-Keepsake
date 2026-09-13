@@ -3,6 +3,7 @@ import { MainHero } from '@/components/sections/MainHero';
 import { HeroCustomizer } from '@/components/sections/HeroCustomizer';
 import { FeaturedCollection } from '@/components/sections/FeaturedCollection';
 import { CraftsmanshipStory } from '@/components/sections/CraftsmanshipStory';
+import { UgcVideoCarousel } from '@/components/sections/UgcVideoCarousel';
 import { EmotionalReviewsWall } from '@/components/sections/EmotionalReviewsWall';
 import { FaqAccordion } from '@/components/sections/FaqAccordion';
 import { StickyMobileAddToCart } from '@/components/sections/StickyMobileAddToCart';
@@ -67,6 +68,7 @@ export default function HomePage() {
       <main id="main-content">
         <MainHero />
         <HeroCustomizer />
+        <UgcVideoCarousel />
         <CraftsmanshipStory />
         <FeaturedCollection />
         <EmotionalReviewsWall />

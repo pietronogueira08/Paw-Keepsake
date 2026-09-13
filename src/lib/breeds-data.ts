@@ -537,6 +537,23 @@ export const BREEDS: Breed[] = [
       'M 132 52 C 128 66 138 74 158 62 C 160 46 142 38 132 52 Z',
   },
   {
+    id: 'lhasa-apso',
+    name: 'Lhasa Apso',
+    slug: 'lhasa-apso',
+    popularRank: null,
+    category: 'toy',
+    image: '/breeds/lhasa-apso.webp',
+    svgPath:
+      'M 100 34 C 84 28 68 38 62 54 C 50 44 36 54 38 68 ' +
+      'C 28 76 26 92 36 104 C 30 116 34 132 46 140 ' +
+      'C 50 154 62 164 78 166 C 88 174 96 176 100 174 ' +
+      'C 104 176 112 174 122 166 C 138 164 150 154 154 140 ' +
+      'C 166 132 170 116 164 104 C 174 92 172 76 162 68 ' +
+      'C 164 54 150 44 138 54 C 132 38 116 26 100 34 Z ' +
+      'M 64 52 C 54 38 36 44 38 60 C 40 72 58 76 70 64 Z ' +
+      'M 136 52 C 130 64 142 72 160 60 C 162 44 144 38 136 52 Z',
+  },
+  {
     id: 'weimaraner',
     name: 'Weimaraner',
     slug: 'weimaraner',
