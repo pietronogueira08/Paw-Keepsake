@@ -29,6 +29,7 @@ interface CustomizerStoreState {
   selectedCoat: string | null;
   petName: string;
   dateRange: string;
+  quote: string;
   selectedPackage: PackageTier;
   previewLoading: boolean;
   unitPrice: number;
@@ -41,6 +42,7 @@ interface CustomizerStoreActions {
   setViewMode: (mode: 'detail' | 'room') => void;
   setPetName: (name: string) => void;
   setDateRange: (range: string) => void;
+  setQuote: (quote: string) => void;
   setPackage: (pkg: PackageTier) => void;
   setPreviewLoading: (loading: boolean) => void;
   reset: () => void;
@@ -53,6 +55,7 @@ const DEFAULT_STATE: CustomizerStoreState = {
   selectedCoat: null,
   petName: '',
   dateRange: '',
+  quote: 'No longer by my side, but forever in my heart.',
   selectedPackage: '12x16', // Most Loved default ($68)
   previewLoading: false,
   unitPrice: PACKAGE_PRICES['12x16'],
@@ -81,6 +84,8 @@ export const useCustomizerStore = create<CustomizerStore>()(
 
       setDateRange: (dateRange) => set({ dateRange }),
 
+      setQuote: (quote) => set({ quote }),
+
       setPackage: (pkg) =>
         set({ selectedPackage: pkg, unitPrice: PACKAGE_PRICES[pkg] }),
 
@@ -95,6 +100,7 @@ export const useCustomizerStore = create<CustomizerStore>()(
         selectedCoat: s.selectedCoat,
         petName: s.petName,
         dateRange: s.dateRange,
+        quote: s.quote,
         selectedPackage: s.selectedPackage,
         unitPrice: s.unitPrice,
         viewMode: s.viewMode,

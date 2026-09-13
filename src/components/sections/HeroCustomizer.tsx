@@ -14,11 +14,19 @@ import { generateId, formatPrice, cn } from '@/lib/utils';
 import type { CartItem } from '@/types/ecommerce';
 import { BREEDS } from '@/lib/breeds-data';
 
+const PRESET_QUOTES = [
+  'No longer by my side, but forever in my heart.',
+  'You were my favorite hello and my hardest goodbye.',
+  'Forever running free, always loved.',
+  'Until one has loved an animal, a part of one\'s soul remains unawakened.',
+];
+
 export function HeroCustomizer() {
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [breedSearch, setBreedSearch] = useState('');
+  const [isCustomQuote, setIsCustomQuote] = useState(false);
   
   // Validation state
   const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
@@ -56,7 +64,7 @@ export function HeroCustomizer() {
       selectedCoat: store.selectedCoat || undefined,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
-      quote: '', // Kept for type compatibility
+      quote: store.quote.trim(),
       size: resolvedSize,
       frameStyle: 'none',
       quantity: 1,
@@ -282,6 +290,90 @@ export function HeroCustomizer() {
                       className="w-full h-12 px-4 rounded-lg border border-[--border-default] bg-white text-base font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/60 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[--accent]/30 focus:border-[--accent]"
                     />
                   </div>
+                </div>
+
+                {/* Memorial Tribute Phrase / Frase de Homenagem */}
+                <div className="mt-5 pt-5 border-t border-[--border-default]/70">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[13px] font-bold uppercase tracking-[0.06em] text-[--text-primary] block font-jakarta">
+                      Memorial Tribute Phrase / Homenagem
+                    </label>
+                    <span className="text-xs text-[--accent] font-medium font-jakarta">
+                      No quadro
+                    </span>
+                  </div>
+                  <p className="text-xs text-[--text-secondary] font-jakarta mb-3">
+                    Choose a meaningful memorial tribute or write your own heartfelt dedication.
+                  </p>
+
+                  <div className="flex flex-col gap-2 mb-3">
+                    {PRESET_QUOTES.map((q) => {
+                      const isSelected = store.quote === q && !isCustomQuote;
+                      return (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => {
+                            store.setQuote(q);
+                            setIsCustomQuote(false);
+                          }}
+                          className={cn(
+                            "text-left px-3.5 py-2.5 rounded-lg text-xs sm:text-[13px] font-medium font-jakarta transition-all border flex items-center justify-between gap-2 cursor-pointer",
+                            isSelected
+                              ? "bg-[--bg-page] border-2 border-[--accent] text-[--text-primary] shadow-xs ring-1 ring-[--accent]/30 font-semibold"
+                              : "bg-white border-[--border-default] text-[--text-secondary] hover:border-[--accent]/50 hover:text-[--text-primary]"
+                          )}
+                        >
+                          <span className="italic">“{q}”</span>
+                          {isSelected && (
+                            <Check size={14} className="text-[--accent] shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+
+                    {/* Custom Quote Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomQuote(true)}
+                      className={cn(
+                        "text-left px-3.5 py-2.5 rounded-lg text-xs sm:text-[13px] font-medium font-jakarta transition-all border flex items-center justify-between gap-2 cursor-pointer",
+                        isCustomQuote
+                          ? "bg-[--bg-page] border-2 border-[--accent] text-[--text-primary] shadow-xs ring-1 ring-[--accent]/30 font-semibold"
+                          : "bg-white border-[--border-default] text-[--text-secondary] hover:border-[--accent]/50 hover:text-[--text-primary]"
+                      )}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>✍️</span>
+                        <span>Write your own tribute phrase...</span>
+                      </span>
+                      {isCustomQuote && (
+                        <Check size={14} className="text-[--accent] shrink-0" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Custom Quote Input */}
+                  {isCustomQuote && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <input
+                        type="text"
+                        placeholder="e.g. Always running free in our hearts..."
+                        value={store.quote}
+                        onChange={(e) => store.setQuote(e.target.value)}
+                        maxLength={75}
+                        className="w-full h-11 px-4 rounded-lg border border-[--accent] bg-white text-sm font-jakarta text-[--text-primary] placeholder:text-[--text-secondary]/60 outline-none focus-visible:ring-2 focus-visible:ring-[--accent]/30"
+                      />
+                      <span className="text-[11px] text-[--text-secondary] font-jakarta mt-1 block text-right">
+                        {store.quote.length}/75 characters
+                      </span>
+                    </motion.div>
+                  )}
                 </div>
               </div>
 

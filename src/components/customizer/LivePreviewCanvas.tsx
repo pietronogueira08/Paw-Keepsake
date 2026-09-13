@@ -12,13 +12,13 @@ interface LivePreviewCanvasProps {
 }
 
 const SCALE_BY_PACKAGE: Record<string, { scale: number; label: string; badge: string }> = {
-  '8x12': { scale: 0.66, label: '8×12" Petite', badge: 'Compact / Desk' },
-  '12x16': { scale: 0.82, label: '12×16" Gallery', badge: 'Most Loved' },
-  '16x20': { scale: 0.98, label: '16×20" Statement', badge: 'Feature Wall' },
-  '16x24': { scale: 1.15, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
-  entry: { scale: 0.66, label: '8×12" Petite', badge: 'Compact / Desk' },
-  gallery: { scale: 0.82, label: '12×16" Gallery', badge: 'Most Loved' },
-  heritage: { scale: 1.15, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
+  '8x12': { scale: 0.70, label: '8×12" Petite', badge: 'Compact / Desk' },
+  '12x16': { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
+  '16x20': { scale: 1.02, label: '16×20" Statement', badge: 'Feature Wall' },
+  '16x24': { scale: 1.18, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
+  entry: { scale: 0.70, label: '8×12" Petite', badge: 'Compact / Desk' },
+  gallery: { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
+  heritage: { scale: 1.18, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
 };
 
 /** Placeholder silhouette when no breed is selected */
@@ -44,6 +44,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
     selectedCoat,
     petName,
     dateRange,
+    quote,
     selectedPackage,
     previewLoading,
     viewMode,
@@ -140,7 +141,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
             >
               {/* Museum Gallery-Wrapped Canvas Mockup */}
               <div
-                className="relative w-full h-full rounded-[3px] bg-[#FDFBF7] flex flex-col justify-between p-4 sm:p-6 overflow-hidden transition-all"
+                className="relative w-full h-full rounded-[3px] bg-[#FDFBF7] flex flex-col justify-between p-4 sm:p-5 overflow-hidden transition-all"
                 style={{
                   boxShadow:
                     '10px 18px 32px -8px rgba(45,35,25,0.22), 2px 6px 14px -2px rgba(45,35,25,0.12), inset 0 0 0 1px rgba(0,0,0,0.05)',
@@ -184,13 +185,13 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                         animate={previewLoading ? { opacity: 0.5, scale: 0.97 } : { opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.94 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
-                        className="relative w-full h-full max-h-[220px] flex items-center justify-center"
+                        className="relative w-full h-full max-h-[180px] sm:max-h-[195px] flex items-center justify-center"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={activeImage}
                           alt={breed ? breed.name : 'Memorial Dog Artwork'}
-                          className="max-h-[190px] sm:max-h-[210px] w-auto max-w-full object-contain filter drop-shadow-[0_6px_14px_rgba(45,35,25,0.12)]"
+                          className="max-h-[165px] sm:max-h-[185px] w-auto max-w-full object-contain filter drop-shadow-[0_6px_14px_rgba(45,35,25,0.12)]"
                         />
                       </motion.div>
                     ) : (
@@ -208,24 +209,36 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 </div>
 
                 {/* Typography Area */}
-                <div className="relative z-10 flex flex-col items-center text-center gap-0.5 pt-2 pb-1">
+                <div className="relative z-10 flex flex-col items-center text-center gap-0.5 pt-1.5 pb-0.5 px-3">
                   <motion.div layoutId="petName" layout="position" className="w-full">
                     <span
                       className="font-fraunces text-[--text-primary] font-medium leading-tight block truncate tracking-tight"
-                      style={{ fontSize: 'clamp(20px, 5.5cqw, 30px)' }}
+                      style={{ fontSize: 'clamp(18px, 5.2cqw, 28px)' }}
                     >
                       {petName || (breed ? breed.name : 'Your Pet')}
                     </span>
                   </motion.div>
 
-                  <motion.div layoutId="dateRange" layout="position">
-                    <span className="font-fraunces text-xs sm:text-sm text-[--text-secondary] italic block">
-                      {dateRange || 'Forever in our hearts'}
-                    </span>
-                  </motion.div>
+                  {dateRange && (
+                    <motion.div layoutId="dateRange" layout="position">
+                      <span className="font-fraunces text-xs sm:text-[13px] text-[--text-secondary] italic block">
+                        {dateRange}
+                      </span>
+                    </motion.div>
+                  )}
+
+                  {/* Memorial Tribute Quote / Frase de Homenagem */}
+                  {quote && (
+                    <motion.p
+                      layout="position"
+                      className="font-fraunces italic text-[11px] sm:text-xs text-[#524C42] leading-snug max-w-[280px] mx-auto mt-1"
+                    >
+                      “{quote}”
+                    </motion.p>
+                  )}
 
                   {/* Micro badge */}
-                  <span className="text-[9px] tracking-wider uppercase font-semibold text-[--border-default] text-[#A39788] mt-2 font-jakarta">
+                  <span className="text-[9px] tracking-wider uppercase font-semibold text-[#A39788] mt-1.5 font-jakarta">
                     {pkgLabel}
                   </span>
                 </div>
@@ -265,12 +278,12 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 aria-hidden="true"
               />
 
-              {/* Scalable Mounted Canvas on the Cream Plaster Wall */}
+              {/* Scalable Mounted Canvas on the Cream Plaster Wall (Positioned cleanly above credenza) */}
               <motion.div
                 className="absolute origin-center"
                 style={{
-                  top: '36%',
-                  left: '52%',
+                  top: '29%',
+                  left: '60%',
                 }}
                 animate={{
                   scale: currentScale.scale,
@@ -287,10 +300,10 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 <div
                   className="relative rounded-[2px] bg-[#FAF7F0] flex flex-col justify-between p-2 overflow-hidden"
                   style={{
-                    width: '142px',
-                    height: '188px',
+                    width: '124px',
+                    height: '166px',
                     boxShadow:
-                      '0 24px 38px -8px rgba(0,0,0,0.48), 0 8px 16px -4px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(0,0,0,0.08)',
+                      '0 22px 34px -8px rgba(0,0,0,0.48), 0 8px 16px -4px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(0,0,0,0.08)',
                     background:
                       'radial-gradient(circle at 50% 30%, #FFFDF9 0%, #F8F3EA 80%, #EDE5D5 100%)',
                   }}
@@ -311,7 +324,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                       <img
                         src={activeImage}
                         alt="Canvas Art"
-                        className="max-h-[96px] w-auto max-w-full object-contain filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.15)]"
+                        className="max-h-[82px] w-auto max-w-full object-contain filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.15)]"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-[#EBE6DE]/60 flex items-center justify-center text-sm">
@@ -321,13 +334,20 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                   </div>
 
                   {/* Text thumbnail */}
-                  <div className="text-center pt-1 pb-0.5">
-                    <p className="font-fraunces text-[11px] font-semibold text-[--text-primary] leading-none truncate max-w-[125px] mx-auto">
+                  <div className="text-center pt-0.5 pb-0.5 px-0.5">
+                    <p className="font-fraunces text-[10px] font-semibold text-[--text-primary] leading-none truncate max-w-[115px] mx-auto">
                       {petName || (breed ? breed.name : 'Your Pet')}
                     </p>
-                    <p className="font-fraunces text-[8px] text-[--text-secondary] italic leading-tight mt-0.5">
-                      {dateRange || 'Forever Loved'}
-                    </p>
+                    {dateRange && (
+                      <p className="font-fraunces text-[7.5px] text-[--text-secondary] italic leading-tight mt-0.5">
+                        {dateRange}
+                      </p>
+                    )}
+                    {quote && (
+                      <p className="font-fraunces text-[6.5px] text-[#615B52] italic leading-tight line-clamp-1 max-w-[118px] mx-auto mt-0.5">
+                        “{quote}”
+                      </p>
+                    )}
                   </div>
                 </div>
               </motion.div>
