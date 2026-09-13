@@ -13,33 +13,29 @@ const SALE_PRICE = 29; // 35% off
 const TSHIRT_COLORS: {
   id: OrderBumpColor;
   label: string;
+  image: string;
   hex: string;
-  collar: string;
-  stroke: string;
   textColor: string;
 }[] = [
   {
     id: 'black',
-    label: 'Black',
-    hex: '#1E1E20',
-    collar: '#2D2D32',
-    stroke: '#38383E',
+    label: 'Pepper Black',
+    image: '/images/tshirts/tshirt-black.webp',
+    hex: '#242424',
     textColor: '#FFFFFF',
   },
   {
     id: 'grey',
     label: 'Heather Grey',
-    hex: '#D0D3D8',
-    collar: '#BEC2C9',
-    stroke: '#B4B8C0',
+    image: '/images/tshirts/tshirt-grey.webp',
+    hex: '#D1D5DB',
     textColor: '#242424',
   },
   {
     id: 'white',
-    label: 'White',
+    label: 'Pure White',
+    image: '/images/tshirts/tshirt-white.webp',
     hex: '#FFFFFF',
-    collar: '#F0ECE4',
-    stroke: '#E0DDD4',
     textColor: '#242424',
   },
 ];
@@ -75,7 +71,7 @@ export function InCartOrderBump() {
     : breed?.image || (breed ? `/breeds/${breed.slug}.webp` : '/breeds/french-bulldog-fawn.webp');
 
   const selectedColorConfig =
-    TSHIRT_COLORS.find((c) => c.id === orderBumpColor) || TSHIRT_COLORS[2]; // default white
+    TSHIRT_COLORS.find((c) => c.id === orderBumpColor) || TSHIRT_COLORS[0]; // default Pepper Black
 
   useEffect(() => {
     let active = true;
@@ -122,72 +118,60 @@ export function InCartOrderBump() {
           <Sparkles size={11} />
           Special Add-on Offer (35% OFF)
         </span>
-        <span className="text-[10px] text-[--text-secondary] font-jakarta">
-          Printful Direct • Ships Together
+        <span className="text-[10px] text-[--text-secondary] font-jakarta font-medium">
+          Studio Direct • Ships Together
         </span>
       </div>
 
-      {/* Main Row: T-Shirt Mockup on Left, Offer Details on Right */}
+      {/* Main Row: Photorealistic T-Shirt Mockup on Left, Offer Details on Right */}
       <div className="flex gap-3 sm:gap-4 items-center">
-        {/* ── Realistic Interactive T-Shirt Mockup ───────────────────── */}
-        <div className="relative w-24 h-28 sm:w-28 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-white/70 border border-[#E8E4DC] p-1 flex items-center justify-center shadow-xs select-none">
-          {/* T-shirt Vector Mockup */}
-          <svg
-            viewBox="0 0 160 160"
-            className="w-full h-full filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.1)] transition-all duration-200"
-          >
-            {/* T-shirt Body and Sleeves */}
-            <path
-              d="M 52 24 C 64 37, 96 37, 108 24 L 142 43 C 147 46, 148 53, 145 58 L 130 81 C 127 85, 120 87, 115 84 L 108 79 L 108 150 C 108 153, 105 156, 102 156 L 58 156 C 55 156, 52 153, 52 150 L 52 79 L 45 84 C 40 87, 33 85, 30 81 L 15 58 C 12 53, 13 46, 18 43 Z"
-              fill={selectedColorConfig.hex}
-              stroke={selectedColorConfig.stroke}
-              strokeWidth="1.5"
+        {/* ── Studio Photograph T-Shirt Mockup ─────────────────────── */}
+        <div className="relative w-24 h-28 sm:w-28 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-[#F5F2EB] border border-[#E5E0D6] flex items-center justify-center shadow-xs select-none">
+          {/* Photorealistic T-Shirt Base Image */}
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={selectedColorConfig.image}
+              src={selectedColorConfig.image}
+              alt={`${selectedColorConfig.label} T-Shirt`}
+              initial={{ opacity: 0.5, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0.5 }}
+              transition={{ duration: 0.2 }}
+              className="w-full h-full object-cover object-center"
             />
-            {/* Ribbed Collar */}
-            <path
-              d="M 52 24 C 64 38, 96 38, 108 24 C 96 31, 64 31, 52 24 Z"
-              fill={selectedColorConfig.collar}
-              stroke={selectedColorConfig.stroke}
-              strokeWidth="1"
-            />
-            {/* Fabric Crease Shadow Lines */}
-            <path
-              d="M 52 79 Q 65 83 80 85"
-              stroke={selectedColorConfig.stroke}
-              strokeWidth="1"
-              opacity="0.35"
-              fill="none"
-            />
-            <path
-              d="M 108 79 Q 95 83 80 85"
-              stroke={selectedColorConfig.stroke}
-              strokeWidth="1"
-              opacity="0.35"
-              fill="none"
-            />
-          </svg>
+          </AnimatePresence>
 
           {/* Printed Watercolor Artwork on the Chest */}
           <div
             className="absolute flex flex-col items-center justify-center text-center pointer-events-none"
-            style={{ top: '38%', left: '50%', transform: 'translate(-50%, -50%)' }}
+            style={{ top: '44%', left: '50%', transform: 'translate(-50%, -50%)' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={activeDogImage}
               alt="T-shirt artwork"
-              className="w-10 h-10 sm:w-11 sm:h-11 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.18)]"
+              className={cn(
+                'w-9 h-9 sm:w-10 sm:h-10 object-contain transition-all',
+                orderBumpColor === 'white'
+                  ? 'mix-blend-multiply opacity-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)]'
+                  : orderBumpColor === 'grey'
+                  ? 'mix-blend-multiply opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]'
+                  : 'filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]'
+              )}
             />
             <span
               className="font-fraunces text-[6.5px] sm:text-[7px] font-bold tracking-widest uppercase block truncate max-w-[50px] mt-0.5 leading-none"
-              style={{ color: selectedColorConfig.textColor }}
+              style={{
+                color: selectedColorConfig.textColor,
+                textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.7)' : 'none',
+              }}
             >
               {petName}
             </span>
           </div>
 
-          {/* Brand Micro-Label */}
-          <span className="absolute bottom-1 right-1.5 text-[7px] text-[#A69E90] font-jakarta tracking-tight">
+          {/* Micro Tag */}
+          <span className="absolute bottom-1 right-1.5 text-[7px] font-semibold text-[#8C8477] bg-white/85 px-1 py-0.2 rounded backdrop-blur-xs font-jakarta tracking-tight">
             100% Cotton
           </span>
         </div>
@@ -198,7 +182,7 @@ export function InCartOrderBump() {
             Matching Comfort Colors® Tee
           </p>
           <p className="text-[11px] text-[--text-secondary] font-jakarta leading-snug mt-0.5">
-            Wear <span className="font-semibold text-[--text-primary]">{petName}</span>'s portrait with soft ringspun cotton.
+            Wear <span className="font-semibold text-[--text-primary]">{petName}</span>'s portrait with heavy 6.1 oz ringspun cotton.
           </p>
 
           {/* Pricing */}
@@ -214,34 +198,44 @@ export function InCartOrderBump() {
             </span>
           </div>
 
-          {/* ── Color Swatches (Black, Heather Grey, White) ────────── */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta mr-1">
-              Color:
+          {/* ── Color Swatches (Clean Circles, No Text Clipping) ─────── */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta truncate">
+              Color: <span className="font-semibold text-[--text-primary]">{selectedColorConfig.label}</span>
             </span>
-            {TSHIRT_COLORS.map((c) => {
-              const isSelected = orderBumpColor === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  title={c.label}
-                  onClick={() => setOrderBumpColor(c.id)}
-                  className={cn(
-                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium font-jakarta border transition-all cursor-pointer',
-                    isSelected
-                      ? 'border-[--accent] bg-white text-[--text-primary] shadow-2xs ring-1 ring-[--accent]/30'
-                      : 'border-[--border-default] bg-white/60 text-[--text-secondary] hover:border-[--accent]/50'
-                  )}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
-                    style={{ backgroundColor: c.hex }}
-                  />
-                  <span>{c.label}</span>
-                </button>
-              );
-            })}
+            <div className="flex items-center gap-1.5 shrink-0" role="radiogroup" aria-label="T-shirt color">
+              {TSHIRT_COLORS.map((c) => {
+                const isSelected = orderBumpColor === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    title={c.label}
+                    onClick={() => setOrderBumpColor(c.id)}
+                    className={cn(
+                      'w-5 h-5 rounded-full transition-all cursor-pointer relative flex items-center justify-center',
+                      c.id === 'white' && 'bg-white border border-black/20',
+                      c.id === 'grey' && 'bg-[#D1D5DB] border border-black/10',
+                      c.id === 'black' && 'bg-[#242424] border border-black/30',
+                      isSelected
+                        ? 'ring-2 ring-[--accent] ring-offset-2 ring-offset-white shadow-xs scale-110'
+                        : 'opacity-80 hover:opacity-100 hover:scale-105'
+                    )}
+                  >
+                    {isSelected && (
+                      <span
+                        className={cn(
+                          'w-1.5 h-1.5 rounded-full',
+                          c.id === 'black' ? 'bg-white' : 'bg-[--accent]'
+                        )}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* ── Size Pills (S, M, L, XL, 2XL) ───────────────────────── */}
@@ -275,24 +269,26 @@ export function InCartOrderBump() {
       <div className="mt-3 pt-3 border-t border-[--border-default]/70 flex items-center justify-between gap-3">
         <label
           htmlFor="order-bump-checkbox"
-          className="flex items-center gap-2 cursor-pointer flex-1 select-none"
+          className="flex items-center gap-2 cursor-pointer flex-1 select-none min-w-0"
         >
           <input
             id="order-bump-checkbox"
             type="checkbox"
             checked={hasOrderBump}
             onChange={handleToggle}
-            className="w-4 h-4 rounded accent-[#B88A58] cursor-pointer"
+            className="w-4 h-4 rounded accent-[#B88A58] cursor-pointer shrink-0"
             aria-label="Add matching t-shirt to order"
           />
-          <span className="text-xs font-semibold text-[--text-primary] font-jakarta">
+          <span className="text-xs font-semibold text-[--text-primary] font-jakarta truncate">
             {hasOrderBump ? (
-              <span className="text-emerald-700 font-bold flex items-center gap-1">
-                <Check size={14} strokeWidth={2.5} />
-                Matching Tee added ({selectedColorConfig.label}, {orderBumpSize})
+              <span className="text-emerald-700 font-bold flex items-center gap-1 truncate">
+                <Check size={14} strokeWidth={2.5} className="shrink-0" />
+                <span className="truncate">Matching Tee added ({selectedColorConfig.label}, {orderBumpSize})</span>
               </span>
             ) : (
-              <span>Add Matching Tee for +$29</span>
+              <span className="font-bold text-[--text-primary] tracking-tight text-[11px] sm:text-xs">
+                + ADD MATCHING T-SHIRT (+${SALE_PRICE})
+              </span>
             )}
           </span>
         </label>
@@ -301,7 +297,7 @@ export function InCartOrderBump() {
           type="button"
           onClick={handleToggle}
           className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer border',
+            'px-3 py-1.5 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer border shrink-0',
             hasOrderBump
               ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
               : 'bg-[--accent] text-white border-[--accent] hover:bg-[#A67A49]'
