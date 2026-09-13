@@ -196,7 +196,7 @@ export function HeroCustomizer() {
                     >
                       <div className="flex items-center justify-between mb-3">
                         <label className="text-[12px] font-bold uppercase tracking-[0.06em] text-[--text-primary] font-jakarta">
-                          Coat Color / Pelagem
+                          Coat Color / Variation
                         </label>
                         <span className="text-xs font-medium text-[--accent] font-jakarta">
                           {store.breed.coats.find((c) => c.slug === store.selectedCoat)?.label || ''}
@@ -292,14 +292,14 @@ export function HeroCustomizer() {
                   </div>
                 </div>
 
-                {/* Memorial Tribute Phrase / Frase de Homenagem */}
+                {/* Memorial Tribute Inscription */}
                 <div className="mt-5 pt-5 border-t border-[--border-default]/70">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-[13px] font-bold uppercase tracking-[0.06em] text-[--text-primary] block font-jakarta">
-                      Memorial Tribute Phrase / Homenagem
+                      Memorial Tribute Inscription
                     </label>
                     <span className="text-xs text-[--accent] font-medium font-jakarta">
-                      No quadro
+                      Printed on canvas
                     </span>
                   </div>
                   <p className="text-xs text-[--text-secondary] font-jakarta mb-3">

@@ -13,7 +13,6 @@ const SALE_PRICE = 29; // 35% off
 const TSHIRT_COLORS: {
   id: OrderBumpColor;
   label: string;
-  namePt: string;
   hex: string;
   collar: string;
   stroke: string;
@@ -22,7 +21,6 @@ const TSHIRT_COLORS: {
   {
     id: 'black',
     label: 'Black',
-    namePt: 'Preto',
     hex: '#1E1E20',
     collar: '#2D2D32',
     stroke: '#38383E',
@@ -31,7 +29,6 @@ const TSHIRT_COLORS: {
   {
     id: 'grey',
     label: 'Heather Grey',
-    namePt: 'Cinza',
     hex: '#D0D3D8',
     collar: '#BEC2C9',
     stroke: '#B4B8C0',
@@ -40,7 +37,6 @@ const TSHIRT_COLORS: {
   {
     id: 'white',
     label: 'White',
-    namePt: 'Branco',
     hex: '#FFFFFF',
     collar: '#F0ECE4',
     stroke: '#E0DDD4',
@@ -218,10 +214,10 @@ export function InCartOrderBump() {
             </span>
           </div>
 
-          {/* ── Color Swatches (Preto, Cinza, Branco) ─────────────── */}
+          {/* ── Color Swatches (Black, Heather Grey, White) ────────── */}
           <div className="flex items-center gap-1.5 mb-2">
             <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta mr-1">
-              Cor:
+              Color:
             </span>
             {TSHIRT_COLORS.map((c) => {
               const isSelected = orderBumpColor === c.id;
@@ -229,7 +225,7 @@ export function InCartOrderBump() {
                 <button
                   key={c.id}
                   type="button"
-                  title={`${c.label} (${c.namePt})`}
+                  title={c.label}
                   onClick={() => setOrderBumpColor(c.id)}
                   className={cn(
                     'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium font-jakarta border transition-all cursor-pointer',
@@ -242,7 +238,7 @@ export function InCartOrderBump() {
                     className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
                     style={{ backgroundColor: c.hex }}
                   />
-                  <span>{c.namePt}</span>
+                  <span>{c.label}</span>
                 </button>
               );
             })}
@@ -251,7 +247,7 @@ export function InCartOrderBump() {
           {/* ── Size Pills (S, M, L, XL, 2XL) ───────────────────────── */}
           <div className="flex items-center gap-1">
             <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta mr-1">
-              Tam:
+              Size:
             </span>
             {TSHIRT_SIZES.map((sz) => {
               const isSelected = orderBumpSize === sz;
@@ -293,10 +289,10 @@ export function InCartOrderBump() {
             {hasOrderBump ? (
               <span className="text-emerald-700 font-bold flex items-center gap-1">
                 <Check size={14} strokeWidth={2.5} />
-                Camiseta adicionada ({selectedColorConfig.namePt}, {orderBumpSize})
+                Matching Tee added ({selectedColorConfig.label}, {orderBumpSize})
               </span>
             ) : (
-              <span>Adicionar Camiseta por +$29</span>
+              <span>Add Matching Tee for +$29</span>
             )}
           </span>
         </label>
@@ -311,7 +307,7 @@ export function InCartOrderBump() {
               : 'bg-[--accent] text-white border-[--accent] hover:bg-[#A67A49]'
           )}
         >
-          {hasOrderBump ? 'Remover' : '+ Adicionar'}
+          {hasOrderBump ? 'Remove' : '+ Add'}
         </button>
       </div>
     </div>

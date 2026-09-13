@@ -98,7 +98,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
             />
           )}
           <Eye size={14} className="relative z-10 text-[--accent]" />
-          <span className="relative z-10">Quadro em Detalhe</span>
+          <span className="relative z-10">Canvas Detail</span>
         </button>
 
         <button
@@ -120,7 +120,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
             />
           )}
           <Home size={14} className="relative z-10 text-[--accent]" />
-          <span className="relative z-10">Ver na Parede</span>
+          <span className="relative z-10">View in Room</span>
         </button>
       </div>
 
@@ -175,8 +175,8 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                   aria-hidden="true"
                 />
 
-                {/* Artwork Area */}
-                <div className="flex-1 w-full flex items-center justify-center relative my-auto min-h-0">
+                {/* Artwork Area - Smartly scaled hero presence */}
+                <div className="flex-1 w-full flex items-center justify-center relative my-auto min-h-0 pt-1">
                   <AnimatePresence mode="wait">
                     {activeImage ? (
                       <motion.div
@@ -185,13 +185,13 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                         animate={previewLoading ? { opacity: 0.5, scale: 0.97 } : { opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.94 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
-                        className="relative w-full h-full max-h-[180px] sm:max-h-[195px] flex items-center justify-center"
+                        className="relative w-full h-full max-h-[225px] sm:max-h-[260px] md:max-h-[285px] flex items-center justify-center"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={activeImage}
                           alt={breed ? breed.name : 'Memorial Dog Artwork'}
-                          className="max-h-[165px] sm:max-h-[185px] w-auto max-w-full object-contain filter drop-shadow-[0_6px_14px_rgba(45,35,25,0.12)]"
+                          className="max-h-[215px] sm:max-h-[250px] md:max-h-[275px] w-auto max-w-[84%] sm:max-w-[80%] object-contain filter drop-shadow-[0_8px_20px_rgba(45,35,25,0.15)]"
                         />
                       </motion.div>
                     ) : (
@@ -227,7 +227,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                     </motion.div>
                   )}
 
-                  {/* Memorial Tribute Quote / Frase de Homenagem */}
+                  {/* Memorial Tribute Inscription Quote */}
                   {quote && (
                     <motion.p
                       layout="position"
@@ -324,7 +324,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                       <img
                         src={activeImage}
                         alt="Canvas Art"
-                        className="max-h-[82px] w-auto max-w-full object-contain filter drop-shadow-[0_2px_5px_rgba(0,0,0,0.15)]"
+                        className="max-h-[96px] w-auto max-w-[86%] object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.18)]"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-[#EBE6DE]/60 flex items-center justify-center text-sm">
@@ -357,7 +357,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Sparkles size={13} className="text-[--accent] shrink-0" />
                   <span className="text-[11px] font-semibold font-jakarta text-[--text-primary] truncate">
-                    Tamanho na Parede: {resolvedSize.replace('x', '×')}&quot;
+                    Wall Size: {resolvedSize.replace('x', '×')}&quot;
                   </span>
                 </div>
                 <span className="text-[10px] font-bold font-jakarta px-2 py-0.5 rounded-full bg-[--accent]/10 text-[--accent] shrink-0 uppercase tracking-wide">
@@ -373,7 +373,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
       <div className="w-full flex items-center justify-between text-xs text-[--text-secondary] font-jakarta px-1">
         <span className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-          Preview em tempo real
+          Live Interactive Preview
         </span>
 
         {onEmailPreview && (
@@ -382,7 +382,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
             onClick={onEmailPreview}
             className="text-xs font-medium text-[--text-secondary] hover:text-[--accent] transition-colors cursor-pointer underline underline-offset-2"
           >
-            Salvar prévia por e-mail
+            Email this preview
           </button>
         )}
       </div>
