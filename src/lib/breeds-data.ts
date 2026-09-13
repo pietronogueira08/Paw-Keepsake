@@ -18,6 +18,19 @@ export const BREEDS: Breed[] = [
     slug: 'french-bulldog',
     popularRank: 1,
     category: 'non-sporting',
+    image: '/breeds/french-bulldog-fawn.webp',
+    coats: [
+      {
+            label: "Fawn",
+            slug: "french-bulldog-fawn",
+            image: "/breeds/french-bulldog-fawn.webp"
+      },
+      {
+            label: "Brindle",
+            slug: "french-bulldog-brindle",
+            image: "/breeds/french-bulldog-brindle.webp"
+      }
+],
     svgPath:
       'M105.1,43.2 c1.9-8.4,5.4-17.6,12.2-22.1 c5.1-3.4,12.2-2.8,16.5,1.9 c5.4,5.9,5.7,14.6,3.6,22.1 c-2.4,8.5-7.7,16.2-14.7,21.2 c5.4,3.1,10.6,6.9,15.1,11.3 c8.9,8.7,14.1,20.8,14.5,33.5 c0.3,8.7-2.6,17.4-8.2,23.8 c-6.6,7.5-16.7,11.2-26.6,11.5 c-10.2,0.3-20.6-2.9-28-9.4 c-6.5-5.7-10.4-14-11.4-22.7 c-0.8-7.3,0.7-14.7,4.3-21.2 c-7-5-12.3-12.7-14.7-21.2 c-2.1-7.5-1.8-16.2,3.6-22.1 c4.3-4.7,11.4-5.3,16.5-1.9 c6.8,4.5,10.3,13.7,12.2,22.1 C101.3,71.2,103.5,71.2,105.1,43.2 z',
   },
@@ -27,6 +40,24 @@ export const BREEDS: Breed[] = [
     slug: 'labrador-retriever',
     popularRank: 2,
     category: 'sporting',
+    image: '/breeds/labrador-yellow.webp',
+    coats: [
+      {
+            label: "Yellow",
+            slug: "labrador-yellow",
+            image: "/breeds/labrador-yellow.webp"
+      },
+      {
+            label: "Chocolate",
+            slug: "labrador-chocolate",
+            image: "/breeds/labrador-chocolate.webp"
+      },
+      {
+            label: "Black",
+            slug: "labrador-black",
+            image: "/breeds/labrador-black.webp"
+      }
+],
     svgPath:
       'M 100 28 C 80 22 60 34 54 52 C 42 50 32 60 30 74 C 24 82 22 96 28 108 ' +
       'C 22 118 24 132 34 140 C 36 154 46 164 60 166 C 70 174 84 178 100 176 ' +
@@ -41,6 +72,7 @@ export const BREEDS: Breed[] = [
     slug: 'golden-retriever',
     popularRank: 3,
     category: 'sporting',
+    image: '/breeds/golden-retriever.webp',
     svgPath:
       'M 100 24 C 78 18 56 32 50 52 C 36 50 24 62 24 78 C 16 90 16 106 26 118 ' +
       'C 22 130 26 146 38 154 C 42 168 54 178 70 180 C 80 188 90 190 100 190 ' +
@@ -55,6 +87,19 @@ export const BREEDS: Breed[] = [
     slug: 'german-shepherd',
     popularRank: 4,
     category: 'herding',
+    image: '/breeds/german-shepherd-black-tan.webp',
+    coats: [
+      {
+            label: "Black & Tan",
+            slug: "german-shepherd-black-tan",
+            image: "/breeds/german-shepherd-black-tan.webp"
+      },
+      {
+            label: "All Black",
+            slug: "german-shepherd-all-black",
+            image: "/breeds/german-shepherd-all-black.webp"
+      }
+],
     svgPath:
       'M 100 22 C 80 16 62 26 56 44 C 44 30 28 36 28 52 C 18 40 12 58 20 72 ' +
       'C 12 84 14 100 24 112 C 20 126 24 142 36 150 C 40 164 52 174 68 176 ' +
@@ -70,6 +115,7 @@ export const BREEDS: Breed[] = [
     slug: 'bulldog',
     popularRank: 5,
     category: 'non-sporting',
+    image: '/breeds/bulldog.webp',
     svgPath:
       'M 100 44 C 80 38 62 48 56 62 C 44 56 34 66 36 80 C 28 84 24 98 32 110 ' +
       'C 28 122 32 136 44 142 C 46 156 58 166 72 168 C 82 174 90 176 100 174 ' +
@@ -86,6 +132,19 @@ export const BREEDS: Breed[] = [
     slug: 'poodle',
     popularRank: 6,
     category: 'non-sporting',
+    image: '/breeds/poodle-white.webp',
+    coats: [
+      {
+            label: "White",
+            slug: "poodle-white",
+            image: "/breeds/poodle-white.webp"
+      },
+      {
+            label: "Apricot",
+            slug: "poodle-apricot",
+            image: "/breeds/poodle-apricot.webp"
+      }
+],
     svgPath:
       'M 100 20 C 84 16 70 24 64 38 C 54 28 40 34 38 48 C 28 44 20 56 24 70 ' +
       'C 16 80 16 96 26 108 C 22 122 28 138 40 146 C 44 160 56 172 72 174 ' +
@@ -101,6 +160,7 @@ export const BREEDS: Breed[] = [
     slug: 'beagle',
     popularRank: 7,
     category: 'hound',
+    image: '/breeds/beagle.webp',
     svgPath:
       'M 100 30 C 82 24 64 36 58 54 C 44 46 30 56 30 72 C 22 82 22 98 32 110 ' +
       'C 28 122 32 138 44 146 C 48 160 60 170 74 172 C 84 180 92 182 100 180 ' +
@@ -115,6 +175,7 @@ export const BREEDS: Breed[] = [
     slug: 'rottweiler',
     popularRank: 8,
     category: 'working',
+    image: '/breeds/rottweiler.webp',
     svgPath:
       'M 100 30 C 78 22 58 36 52 56 C 38 52 26 64 28 80 C 18 90 18 108 30 120 ' +
       'C 24 134 28 150 42 158 C 46 174 60 184 76 186 C 86 194 94 196 100 194 ' +
@@ -129,6 +190,7 @@ export const BREEDS: Breed[] = [
     slug: 'german-shorthaired-pointer',
     popularRank: 9,
     category: 'sporting',
+    image: '/breeds/german-shorthaired-pointer.webp',
     svgPath:
       'M 100 26 C 80 20 60 34 54 54 C 40 50 28 62 28 78 C 20 90 20 106 30 118 ' +
       'C 24 132 28 148 40 156 C 44 170 56 180 72 182 C 82 190 92 192 100 190 ' +
@@ -143,6 +205,19 @@ export const BREEDS: Breed[] = [
     slug: 'dachshund',
     popularRank: 10,
     category: 'hound',
+    image: '/breeds/dachshund-red.webp',
+    coats: [
+      {
+            label: "Red / Tan",
+            slug: "dachshund-red",
+            image: "/breeds/dachshund-red.webp"
+      },
+      {
+            label: "Black & Tan",
+            slug: "dachshund-black-tan",
+            image: "/breeds/dachshund-black-tan.webp"
+      }
+],
     svgPath:
       'M 30 80 C 30 62 44 52 60 52 C 68 42 78 36 92 36 C 104 34 114 36 122 42 ' +
       'C 136 44 148 50 154 60 C 162 60 172 66 174 78 C 180 88 178 102 170 110 ' +
@@ -157,6 +232,19 @@ export const BREEDS: Breed[] = [
     slug: 'pembroke-welsh-corgi',
     popularRank: 11,
     category: 'herding',
+    image: '/breeds/pembroke-welsh-corgi-red.webp',
+    coats: [
+      {
+            label: "Red & White",
+            slug: "pembroke-welsh-corgi-red",
+            image: "/breeds/pembroke-welsh-corgi-red.webp"
+      },
+      {
+            label: "Tricolor",
+            slug: "pembroke-welsh-corgi-tricolor",
+            image: "/breeds/pembroke-welsh-corgi-tricolor.webp"
+      }
+],
     svgPath:
       'M 100 34 C 80 28 60 40 54 58 C 40 44 24 50 26 68 C 16 58 10 76 18 90 ' +
       'C 12 104 16 120 28 128 C 32 144 44 156 60 158 C 72 166 84 170 100 168 ' +
@@ -171,6 +259,7 @@ export const BREEDS: Breed[] = [
     slug: 'australian-shepherd',
     popularRank: 12,
     category: 'herding',
+    image: '/breeds/australian-shepherd.webp',
     svgPath:
       'M 100 26 C 80 20 60 32 54 52 C 40 48 28 60 28 76 C 20 88 20 104 30 116 ' +
       'C 24 130 28 146 40 154 C 44 168 58 178 74 180 C 84 188 92 190 100 188 ' +
@@ -185,6 +274,7 @@ export const BREEDS: Breed[] = [
     slug: 'yorkshire-terrier',
     popularRank: 13,
     category: 'toy',
+    image: '/breeds/yorkshire-terrier.webp',
     svgPath:
       'M 100 32 C 84 26 70 36 64 50 C 54 40 40 46 40 60 C 30 66 26 80 32 92 ' +
       'C 26 104 28 118 38 126 C 40 140 50 150 64 152 C 74 160 84 164 100 162 ' +
@@ -199,6 +289,7 @@ export const BREEDS: Breed[] = [
     slug: 'cavalier-king-charles-spaniel',
     popularRank: 14,
     category: 'toy',
+    image: '/breeds/cavalier-king-charles-spaniel.webp',
     svgPath:
       'M 100 28 C 82 22 64 34 58 52 C 44 44 30 56 32 72 C 24 82 24 98 34 110 ' +
       'C 28 124 32 140 44 148 C 48 162 62 172 78 174 ' +
@@ -215,6 +306,19 @@ export const BREEDS: Breed[] = [
     slug: 'doberman-pinscher',
     popularRank: 15,
     category: 'working',
+    image: '/breeds/doberman-black-rust.webp',
+    coats: [
+      {
+            label: "Black & Rust",
+            slug: "doberman-black-rust",
+            image: "/breeds/doberman-black-rust.webp"
+      },
+      {
+            label: "Red & Rust",
+            slug: "doberman-red-rust",
+            image: "/breeds/doberman-red-rust.webp"
+      }
+],
     svgPath:
       'M 100 22 C 82 16 64 28 58 48 C 46 34 30 38 28 54 C 18 44 12 60 20 74 ' +
       'C 12 86 14 102 24 114 C 18 128 24 144 36 152 ' +
@@ -235,6 +339,7 @@ export const BREEDS: Breed[] = [
     slug: 'boxer',
     popularRank: null,
     category: 'working',
+    image: '/breeds/boxer.webp',
     svgPath:
       'M 100 36 C 80 30 62 42 56 60 C 42 54 30 66 32 82 C 22 90 20 106 30 118 ' +
       'C 24 132 28 148 42 156 C 46 170 60 180 76 182 ' +
@@ -251,6 +356,19 @@ export const BREEDS: Breed[] = [
     slug: 'siberian-husky',
     popularRank: null,
     category: 'working',
+    image: '/breeds/siberian-husky-black-white.webp',
+    coats: [
+      {
+            label: "Black & White",
+            slug: "siberian-husky-black-white",
+            image: "/breeds/siberian-husky-black-white.webp"
+      },
+      {
+            label: "Copper Red",
+            slug: "siberian-husky-copper-red",
+            image: "/breeds/siberian-husky-copper-red.webp"
+      }
+],
     svgPath:
       'M 100 24 C 80 18 60 32 54 52 C 40 36 22 40 22 58 C 12 46 6 64 14 78 ' +
       'C 6 90 8 108 20 120 C 14 134 20 150 34 158 ' +
@@ -268,6 +386,7 @@ export const BREEDS: Breed[] = [
     slug: 'great-dane',
     popularRank: null,
     category: 'working',
+    image: '/breeds/great-dane.webp',
     svgPath:
       'M 100 18 C 78 10 56 26 50 48 C 34 44 20 58 22 76 C 12 88 12 108 24 122 ' +
       'C 16 138 22 156 36 164 C 40 180 56 192 74 194 ' +
@@ -284,6 +403,7 @@ export const BREEDS: Breed[] = [
     slug: 'miniature-schnauzer',
     popularRank: null,
     category: 'terrier',
+    image: '/breeds/miniature-schnauzer.webp',
     svgPath:
       'M 100 30 C 82 24 66 36 60 52 C 46 44 32 56 34 70 C 24 78 22 94 32 106 ' +
       'C 26 118 30 134 42 142 C 46 156 58 166 74 168 ' +
@@ -302,6 +422,7 @@ export const BREEDS: Breed[] = [
     slug: 'shih-tzu',
     popularRank: null,
     category: 'toy',
+    image: '/breeds/shih-tzu.webp',
     svgPath:
       'M 100 34 C 82 28 66 40 60 56 C 48 48 34 58 36 72 ' +
       'C 26 80 24 96 34 108 C 28 120 32 136 44 144 ' +
@@ -318,6 +439,7 @@ export const BREEDS: Breed[] = [
     slug: 'boston-terrier',
     popularRank: null,
     category: 'non-sporting',
+    image: '/breeds/boston-terrier.webp',
     svgPath:
       'M 100 36 C 82 30 66 42 60 58 C 48 50 34 60 36 76 ' +
       'C 26 82 24 98 34 110 C 28 122 32 138 44 146 ' +
@@ -334,6 +456,7 @@ export const BREEDS: Breed[] = [
     slug: 'bernese-mountain-dog',
     popularRank: null,
     category: 'working',
+    image: '/breeds/bernese-mountain-dog.webp',
     svgPath:
       'M 100 22 C 78 14 56 30 50 52 C 34 48 20 62 22 80 C 12 92 12 112 24 126 ' +
       'C 16 142 22 160 38 168 C 42 184 58 196 76 198 ' +
@@ -350,6 +473,7 @@ export const BREEDS: Breed[] = [
     slug: 'pomeranian',
     popularRank: null,
     category: 'toy',
+    image: '/breeds/pomeranian.webp',
     svgPath:
       'M 100 28 C 84 22 68 32 62 48 C 50 38 36 46 38 60 ' +
       'C 28 66 24 82 32 94 C 26 106 28 122 40 130 ' +
@@ -366,6 +490,7 @@ export const BREEDS: Breed[] = [
     slug: 'havanese',
     popularRank: null,
     category: 'toy',
+    image: '/breeds/havanese.webp',
     svgPath:
       'M 100 32 C 84 26 68 38 62 54 C 50 44 36 54 38 68 ' +
       'C 28 76 26 92 36 104 C 30 116 34 132 46 140 ' +
@@ -382,6 +507,7 @@ export const BREEDS: Breed[] = [
     slug: 'shetland-sheepdog',
     popularRank: null,
     category: 'herding',
+    image: '/breeds/shetland-sheepdog.webp',
     svgPath:
       'M 100 26 C 82 18 62 32 56 52 C 42 36 24 42 24 60 ' +
       'C 14 50 8 68 16 82 C 8 96 10 114 22 126 ' +
@@ -399,6 +525,7 @@ export const BREEDS: Breed[] = [
     slug: 'maltese',
     popularRank: null,
     category: 'toy',
+    image: '/breeds/maltese.webp',
     svgPath:
       'M 100 34 C 86 28 72 38 66 54 C 54 44 40 54 42 68 ' +
       'C 32 74 28 90 36 102 C 30 114 32 130 44 138 ' +
@@ -415,6 +542,7 @@ export const BREEDS: Breed[] = [
     slug: 'weimaraner',
     popularRank: null,
     category: 'sporting',
+    image: '/breeds/weimaraner.webp',
     svgPath:
       'M 100 24 C 80 16 60 30 54 52 C 38 48 24 62 26 80 ' +
       'C 16 92 16 110 28 124 C 20 140 26 158 40 166 ' +
@@ -431,6 +559,19 @@ export const BREEDS: Breed[] = [
     slug: 'border-collie',
     popularRank: null,
     category: 'herding',
+    image: '/breeds/border-collie-black-white.webp',
+    coats: [
+      {
+            label: "Black & White",
+            slug: "border-collie-black-white",
+            image: "/breeds/border-collie-black-white.webp"
+      },
+      {
+            label: "Blue Merle",
+            slug: "border-collie-blue-merle",
+            image: "/breeds/border-collie-blue-merle.webp"
+      }
+],
     svgPath:
       'M 100 24 C 80 18 60 32 54 52 C 40 36 22 42 22 62 ' +
       'C 12 52 6 70 14 84 C 6 98 8 116 20 128 ' +
@@ -448,6 +589,7 @@ export const BREEDS: Breed[] = [
     slug: 'irish-setter',
     popularRank: null,
     category: 'sporting',
+    image: '/breeds/irish-setter.webp',
     svgPath:
       'M 100 22 C 80 14 58 30 52 52 C 36 46 22 60 24 78 ' +
       'C 14 90 14 108 26 122 C 18 138 24 156 40 164 ' +
@@ -464,6 +606,7 @@ export const BREEDS: Breed[] = [
     slug: 'vizsla',
     popularRank: null,
     category: 'sporting',
+    image: '/breeds/vizsla.webp',
     svgPath:
       'M 100 26 C 80 18 60 34 54 56 C 38 50 24 66 26 84 ' +
       'C 16 96 16 114 28 128 C 20 144 26 162 42 170 ' +

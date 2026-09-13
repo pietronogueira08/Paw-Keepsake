@@ -73,10 +73,17 @@ export function StickyMobileAddToCart() {
           >
             {/* Breed thumbnail or paw icon */}
             {store.breed ? (
-              <div className="w-10 h-10 rounded-lg bg-surface-subtle border border-border flex items-center justify-center flex-shrink-0">
-                <svg viewBox="0 0 200 200" width="28" height="28" aria-hidden="true">
-                  <path d={store.breed.svgPath} fill="#B88A58" opacity="0.8" />
-                </svg>
+              <div className="w-10 h-10 rounded-lg bg-[#FAF8F5] border border-border flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={
+                    store.selectedCoat
+                      ? `/breeds/${store.selectedCoat}.webp`
+                      : store.breed.image || `/breeds/${store.breed.slug}.webp`
+                  }
+                  alt={store.breed.name}
+                  className="w-full h-full object-contain"
+                />
               </div>
             ) : (
               <div className="w-10 h-10 rounded-lg bg-surface-subtle border border-border flex items-center justify-center flex-shrink-0 text-xl" aria-hidden="true">

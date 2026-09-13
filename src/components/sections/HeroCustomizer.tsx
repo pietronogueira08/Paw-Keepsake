@@ -46,11 +46,14 @@ export function HeroCustomizer() {
     }
 
     const resolvedSize = getPackageSize(store.selectedPackage);
+    const coatObj = store.breed.coats?.find((c) => c.slug === store.selectedCoat);
+    const coatLabel = coatObj ? ` · ${coatObj.label}` : '';
     const item: CartItem = {
       id: generateId(),
-      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")`,
+      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")${coatLabel}`,
       productType: 'museum-canvas',
       breed: store.breed,
+      selectedCoat: store.selectedCoat || undefined,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
       quote: '', // Kept for type compatibility
@@ -172,6 +175,60 @@ export function HeroCustomizer() {
                     Mixed breed / Not sure? Choose the closest match.
                   </p>
                 )}
+
+                {/* Coat / Color Variation Selector (for breeds with multiple coats) */}
+                <AnimatePresence>
+                  {store.breed?.coats && store.breed.coats.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="mt-5 pt-4 border-t border-[--border-default]/80 overflow-hidden"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="text-[12px] font-bold uppercase tracking-[0.06em] text-[--text-primary] font-jakarta">
+                          Coat Color / Pelagem
+                        </label>
+                        <span className="text-xs font-medium text-[--accent] font-jakarta">
+                          {store.breed.coats.find((c) => c.slug === store.selectedCoat)?.label || ''}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Select coat color">
+                        {store.breed.coats.map((coat) => {
+                          const isCoatSelected = store.selectedCoat === coat.slug;
+                          return (
+                            <button
+                              key={coat.slug}
+                              type="button"
+                              role="radio"
+                              aria-checked={isCoatSelected}
+                              onClick={() => store.setCoat(coat.slug)}
+                              className={cn(
+                                'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium font-jakarta transition-all cursor-pointer border outline-none',
+                                isCoatSelected
+                                  ? 'bg-[--bg-page] text-[--text-primary] border-2 border-[--accent] shadow-sm ring-1 ring-[--accent]/30'
+                                  : 'bg-white text-[--text-secondary] border-[--border-default] hover:border-[--accent]/60 hover:text-[--text-primary]'
+                              )}
+                            >
+                              <span className="w-5 h-5 rounded-full overflow-hidden border border-[--border-default] shrink-0 bg-[#FAF8F5] flex items-center justify-center">
+                                <img
+                                  src={coat.image}
+                                  alt={coat.label}
+                                  className="w-full h-full object-contain"
+                                />
+                              </span>
+                              <span>{coat.label}</span>
+                              {isCoatSelected && (
+                                <Check size={13} strokeWidth={2.5} className="text-[--accent]" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Step 2: Pet Details */}

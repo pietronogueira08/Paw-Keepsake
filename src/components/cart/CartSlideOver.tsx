@@ -85,19 +85,23 @@ function CartItemRow({ item }: CartItemRowProps) {
       transition={{ type: 'spring', stiffness: 320, damping: 32 }}
       className="flex items-start gap-3 py-3.5 border-b border-border last:border-0"
     >
-      {/* Breed silhouette */}
+      {/* Breed artwork thumbnail */}
       <div
-        className="flex-shrink-0 h-8 w-8 rounded-md bg-surface-subtle border border-border overflow-hidden flex items-center justify-center"
-        aria-label={item.breed ? `${item.breed.name} silhouette` : 'memorial item'}
+        className="flex-shrink-0 h-9 w-9 rounded-md bg-[#FAF8F5] border border-border overflow-hidden flex items-center justify-center p-0.5"
+        aria-label={item.breed ? `${item.breed.name} portrait` : 'memorial item'}
       >
-        {item.breed?.svgPath ? (
+        {item.selectedCoat || item.breed?.image || item.breed?.slug ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={item.breed.svgPath}
-            alt={item.breed.name}
-            width={28}
-            height={28}
-            className="object-contain"
+            src={
+              item.selectedCoat
+                ? `/breeds/${item.selectedCoat}.webp`
+                : item.breed?.image || `/breeds/${item.breed?.slug}.webp`
+            }
+            alt={item.breed?.name || 'Pet artwork'}
+            width={32}
+            height={32}
+            className="w-full h-full object-contain"
           />
         ) : (
           <span className="text-base select-none">🐾</span>

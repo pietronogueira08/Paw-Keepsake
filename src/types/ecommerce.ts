@@ -12,6 +12,12 @@ export type ApparelSize = 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
 export type FrameStyle = 'none' | 'natural-oak' | 'black-walnut' | 'white-gallery';
 export type ApparelColor = 'sand' | 'off-white' | 'heather-grey';
 
+export interface BreedCoat {
+  label: string;
+  slug: string;
+  image: string;
+}
+
 export interface Breed {
   id: string;
   name: string;
@@ -19,6 +25,8 @@ export interface Breed {
   popularRank: number | null;
   svgPath: string;
   category: 'sporting' | 'hound' | 'working' | 'terrier' | 'toy' | 'non-sporting' | 'herding' | 'mixed';
+  image?: string;
+  coats?: BreedCoat[];
 }
 
 export interface MemorialQuote {
@@ -44,6 +52,7 @@ export interface CustomizerState {
   currentStep: 1 | 2 | 3 | 4 | 5;
   productType: ProductType;
   breed: Breed | null;
+  selectedCoat?: string | null;
   petName: string;
   dateRange: string;
   selectedQuoteId: string;
@@ -62,6 +71,7 @@ export interface CartItem {
   productType: AnyProductType;
   /** null for off-the-shelf apparel without breed personalization */
   breed: Breed | null;
+  selectedCoat?: string;
   petName: string;
   dateRange: string;
   quote: string;

@@ -26,15 +26,19 @@ export function getPackageSize(pkg: PackageTier): '8x12' | '12x16' | '16x20' | '
 
 interface CustomizerStoreState {
   breed: Breed | null;
+  selectedCoat: string | null;
   petName: string;
   dateRange: string;
   selectedPackage: PackageTier;
   previewLoading: boolean;
   unitPrice: number;
+  viewMode: 'detail' | 'room';
 }
 
 interface CustomizerStoreActions {
   setBreed: (breed: Breed | null) => void;
+  setCoat: (coatSlug: string) => void;
+  setViewMode: (mode: 'detail' | 'room') => void;
   setPetName: (name: string) => void;
   setDateRange: (range: string) => void;
   setPackage: (pkg: PackageTier) => void;
@@ -46,11 +50,13 @@ export type CustomizerStore = CustomizerStoreState & CustomizerStoreActions;
 
 const DEFAULT_STATE: CustomizerStoreState = {
   breed: null,
+  selectedCoat: null,
   petName: '',
   dateRange: '',
   selectedPackage: '12x16', // Most Loved default ($68)
   previewLoading: false,
   unitPrice: PACKAGE_PRICES['12x16'],
+  viewMode: 'detail',
 };
 
 export const useCustomizerStore = create<CustomizerStore>()(
@@ -60,10 +66,16 @@ export const useCustomizerStore = create<CustomizerStore>()(
 
       setBreed: (breed) => {
         set({ previewLoading: true });
-        // Simulate a slight delay to avoid abrupt jumps, as requested:
-        // "previewLoading que pode ter um delay mínimo de 200-300ms só para a transição visual não parecer um "pulo" abrupto"
-        setTimeout(() => set({ breed, previewLoading: false }), 250);
+        const initialCoat = breed?.coats && breed.coats.length > 0 ? breed.coats[0].slug : null;
+        setTimeout(() => set({ breed, selectedCoat: initialCoat, previewLoading: false }), 250);
       },
+
+      setCoat: (coatSlug) => {
+        set({ previewLoading: true });
+        setTimeout(() => set({ selectedCoat: coatSlug, previewLoading: false }), 200);
+      },
+
+      setViewMode: (viewMode) => set({ viewMode }),
 
       setPetName: (petName) => set({ petName }),
 
@@ -80,10 +92,12 @@ export const useCustomizerStore = create<CustomizerStore>()(
       name: 'paw-customizer-draft',
       partialize: (s) => ({
         breed: s.breed,
+        selectedCoat: s.selectedCoat,
         petName: s.petName,
         dateRange: s.dateRange,
         selectedPackage: s.selectedPackage,
         unitPrice: s.unitPrice,
+        viewMode: s.viewMode,
       }),
     }
   )
