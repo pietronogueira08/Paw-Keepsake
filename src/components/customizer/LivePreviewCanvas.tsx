@@ -11,14 +11,112 @@ interface LivePreviewCanvasProps {
   className?: string;
 }
 
-const SCALE_BY_PACKAGE: Record<string, { scale: number; label: string; badge: string }> = {
-  '8x12': { scale: 0.72, label: '8×12" Petite', badge: 'Compact / Desk' },
-  '12x16': { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
-  '16x20': { scale: 0.98, label: '16×20" Statement', badge: 'Feature Wall' },
-  '16x24': { scale: 1.12, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
-  entry: { scale: 0.72, label: '8×12" Petite', badge: 'Compact / Desk' },
-  gallery: { scale: 0.86, label: '12×16" Gallery', badge: 'Most Loved' },
-  heritage: { scale: 1.12, label: '16×24" Masterpiece', badge: 'Grand Gallery' },
+interface RoomCanvasConfig {
+  width: number;
+  height: number;
+  top: string;
+  imageMaxHeight: number;
+  nameFontSize: number;
+  dateFontSize: number;
+  quoteFontSize: number;
+  padding: number;
+  shadow: string;
+  badge: string;
+}
+
+const ROOM_CANVAS_CONFIG: Record<string, RoomCanvasConfig> = {
+  '8x12': {
+    width: 75,
+    height: 112,
+    top: '32%',
+    imageMaxHeight: 56,
+    nameFontSize: 8,
+    dateFontSize: 6,
+    quoteFontSize: 5.5,
+    padding: 4,
+    shadow:
+      '0 14px 22px -6px rgba(0,0,0,0.40), 0 6px 12px -3px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Compact / Desk',
+  },
+  '12x16': {
+    width: 100,
+    height: 133,
+    top: '30%',
+    imageMaxHeight: 74,
+    nameFontSize: 9.5,
+    dateFontSize: 7,
+    quoteFontSize: 6,
+    padding: 6,
+    shadow:
+      '0 18px 28px -7px rgba(0,0,0,0.45), 0 8px 14px -4px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Most Loved',
+  },
+  '16x20': {
+    width: 135,
+    height: 169,
+    top: '28%',
+    imageMaxHeight: 96,
+    nameFontSize: 11,
+    dateFontSize: 8,
+    quoteFontSize: 7,
+    padding: 7,
+    shadow:
+      '0 22px 34px -8px rgba(0,0,0,0.48), 0 9px 18px -4px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Feature Wall',
+  },
+  '16x24': {
+    width: 155,
+    height: 232,
+    top: '28%',
+    imageMaxHeight: 136,
+    nameFontSize: 12.5,
+    dateFontSize: 9,
+    quoteFontSize: 7.5,
+    padding: 8,
+    shadow:
+      '0 26px 40px -10px rgba(0,0,0,0.52), 0 11px 20px -5px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Grand Gallery',
+  },
+  // Legacy PackageTier fallbacks
+  entry: {
+    width: 75,
+    height: 112,
+    top: '32%',
+    imageMaxHeight: 56,
+    nameFontSize: 8,
+    dateFontSize: 6,
+    quoteFontSize: 5.5,
+    padding: 4,
+    shadow:
+      '0 14px 22px -6px rgba(0,0,0,0.40), 0 6px 12px -3px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Compact / Desk',
+  },
+  gallery: {
+    width: 100,
+    height: 133,
+    top: '30%',
+    imageMaxHeight: 74,
+    nameFontSize: 9.5,
+    dateFontSize: 7,
+    quoteFontSize: 6,
+    padding: 6,
+    shadow:
+      '0 18px 28px -7px rgba(0,0,0,0.45), 0 8px 14px -4px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Most Loved',
+  },
+  heritage: {
+    width: 155,
+    height: 232,
+    top: '28%',
+    imageMaxHeight: 136,
+    nameFontSize: 12.5,
+    dateFontSize: 9,
+    quoteFontSize: 7.5,
+    padding: 8,
+    shadow:
+      '0 26px 40px -10px rgba(0,0,0,0.52), 0 11px 20px -5px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(0,0,0,0.08)',
+    badge: 'Grand Gallery',
+  },
 };
 
 /** Placeholder silhouette when no breed is selected */
@@ -52,7 +150,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
   } = useCustomizerStore();
 
   const resolvedSize = getPackageSize(selectedPackage);
-  const currentScale = SCALE_BY_PACKAGE[selectedPackage] || SCALE_BY_PACKAGE['12x16'];
+  const currentRoomConfig = ROOM_CANVAS_CONFIG[resolvedSize] || ROOM_CANVAS_CONFIG['12x16'];
 
   const sizeLabels: Record<string, string> = {
     '8x12': '8×12" Petite Canvas • 1.5" Museum Depth',
@@ -281,29 +379,27 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
               {/* Scalable Mounted Canvas on the Cream Plaster Wall (Positioned cleanly above credenza, clear of foliage) */}
               <motion.div
                 className="absolute origin-center"
-                style={{
-                  top: '25%',
-                  left: '67%',
-                }}
                 animate={{
-                  scale: currentScale.scale,
+                  width: currentRoomConfig.width,
+                  height: currentRoomConfig.height,
+                  top: currentRoomConfig.top,
+                  left: '67%',
                   x: '-50%',
                   y: '-50%',
                 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 280,
-                  damping: 24,
+                  stiffness: 260,
+                  damping: 26,
+                  mass: 0.9,
                 }}
               >
                 {/* The Miniature Hanging Canvas */}
                 <div
-                  className="relative rounded-[2px] bg-[#FAF7F0] flex flex-col justify-between p-2 overflow-hidden"
+                  className="relative w-full h-full rounded-[2px] bg-[#FAF7F0] flex flex-col justify-between overflow-hidden transition-all duration-300 ease-out"
                   style={{
-                    width: '124px',
-                    height: '166px',
-                    boxShadow:
-                      '0 22px 34px -8px rgba(0,0,0,0.48), 0 8px 16px -4px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(0,0,0,0.08)',
+                    padding: `${currentRoomConfig.padding}px`,
+                    boxShadow: currentRoomConfig.shadow,
                     background:
                       'radial-gradient(circle at 50% 30%, #FFFDF9 0%, #F8F3EA 80%, #EDE5D5 100%)',
                   }}
@@ -324,7 +420,8 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                       <img
                         src={activeImage}
                         alt="Canvas Art"
-                        className="max-h-[96px] w-auto max-w-[86%] object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.18)]"
+                        className="w-auto max-w-[86%] object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.18)] transition-all duration-300 ease-out"
+                        style={{ maxHeight: `${currentRoomConfig.imageMaxHeight}px` }}
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-[#EBE6DE]/60 flex items-center justify-center text-sm">
@@ -334,17 +431,32 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                   </div>
 
                   {/* Text thumbnail */}
-                  <div className="text-center pt-0.5 pb-0.5 px-0.5">
-                    <p className="font-fraunces text-[10px] font-semibold text-[--text-primary] leading-none truncate max-w-[115px] mx-auto">
+                  <div className="text-center pt-0.5 pb-0.5 px-0.5 transition-all duration-300 ease-out">
+                    <p
+                      className="font-fraunces font-semibold text-[--text-primary] leading-none truncate mx-auto transition-all duration-300 ease-out"
+                      style={{
+                        fontSize: `${currentRoomConfig.nameFontSize}px`,
+                        maxWidth: `${currentRoomConfig.width - currentRoomConfig.padding * 2}px`,
+                      }}
+                    >
                       {petName || (breed ? breed.name : 'Your Pet')}
                     </p>
                     {dateRange && (
-                      <p className="font-fraunces text-[7.5px] text-[--text-secondary] italic leading-tight mt-0.5">
+                      <p
+                        className="font-fraunces text-[--text-secondary] italic leading-tight mt-0.5 transition-all duration-300 ease-out"
+                        style={{ fontSize: `${currentRoomConfig.dateFontSize}px` }}
+                      >
                         {dateRange}
                       </p>
                     )}
                     {quote && (
-                      <p className="font-fraunces text-[6.5px] text-[#615B52] italic leading-tight line-clamp-1 max-w-[118px] mx-auto mt-0.5">
+                      <p
+                        className="font-fraunces text-[#615B52] italic leading-tight line-clamp-1 mx-auto mt-0.5 transition-all duration-300 ease-out"
+                        style={{
+                          fontSize: `${currentRoomConfig.quoteFontSize}px`,
+                          maxWidth: `${currentRoomConfig.width - currentRoomConfig.padding * 2}px`,
+                        }}
+                      >
                         “{quote}”
                       </p>
                     )}
@@ -361,7 +473,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                   </span>
                 </div>
                 <span className="text-[10px] font-bold font-jakarta px-2 py-0.5 rounded-full bg-[--accent]/10 text-[--accent] shrink-0 uppercase tracking-wide">
-                  {currentScale.badge}
+                  {currentRoomConfig.badge}
                 </span>
               </div>
             </motion.div>

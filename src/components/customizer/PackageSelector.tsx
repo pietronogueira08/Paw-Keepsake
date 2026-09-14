@@ -91,17 +91,17 @@ export function PackageSelector() {
   }, [selectedPackage, setPackage]);
 
   return (
-    <div className="pt-5 pb-5 border-t border-[--border-default]">
+    <div className="pt-5 pb-5 border-t border-[#EBE6DE]">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-[--accent] text-white text-[11px] font-bold font-jakarta flex items-center justify-center shrink-0">
+          <span className="w-5 h-5 rounded-full bg-[#B88A58] text-white text-[11px] font-bold font-jakarta flex items-center justify-center shrink-0">
             3
           </span>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[--text-primary] font-jakarta">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#2B241D] font-jakarta">
             Select Canvas Size
           </h3>
         </div>
-        <span className="text-[11px] text-[--text-secondary] font-jakarta">
+        <span className="text-[11px] text-[#6B6156] font-jakarta">
           1.5&quot; Museum Depth • Ready to Hang
         </span>
       </div>
@@ -123,24 +123,24 @@ export function PackageSelector() {
                 'relative p-3 sm:p-3.5 rounded-xl flex flex-col items-center justify-between text-center transition-all outline-none min-h-[132px]',
                 !isAvailable
                   ? 'opacity-40 cursor-not-allowed bg-neutral-100 border border-neutral-200 filter grayscale'
-                  : 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[--accent]',
+                  : 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[#B88A58]',
                 isAvailable && isSelected
-                  ? 'border-2 border-[--accent] bg-[--bg-page] ring-1 ring-[--accent]/30 shadow-sm'
+                  ? 'border-2 border-[#B88A58] bg-[#FAF8F5] ring-1 ring-[#B88A58]/30 shadow-sm'
                   : isAvailable && pkg.isDecoy
-                    ? 'border border-[--border-default] bg-white shadow-sm hover:border-[--accent]/50'
+                    ? 'border border-[#EBE6DE] bg-white shadow-sm hover:border-[#B88A58]/50'
                     : isAvailable
-                      ? 'border border-[--border-default] bg-white hover:border-[--accent]/50'
+                      ? 'border border-[#EBE6DE] bg-white hover:border-[#B88A58]/50'
                       : ''
               )}
               aria-pressed={isSelected}
               aria-disabled={!isAvailable}
             >
               {!isAvailable ? (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-neutral-700 text-neutral-200 shadow-sm whitespace-nowrap">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-neutral-700 text-white shadow-sm whitespace-nowrap">
                   OUT OF STOCK
                 </span>
               ) : pkg.badge ? (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-[--accent] text-white shadow-sm whitespace-nowrap">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-full bg-[#B88A58] text-white shadow-xs whitespace-nowrap">
                   {pkg.badge}
                 </span>
               ) : null}
@@ -148,23 +148,23 @@ export function PackageSelector() {
               <div className="w-full pt-0.5">
                 <span className={cn(
                   'text-base sm:text-lg font-bold font-jakarta block leading-tight',
-                  !isAvailable ? 'text-neutral-400' : isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
+                  !isAvailable ? 'text-neutral-400' : isSelected ? 'text-[#B88A58]' : 'text-[#2B241D]'
                 )}>
                   {pkg.title}
                 </span>
-                <span className="text-[10px] text-[--text-secondary] font-jakarta block mt-0.5">
+                <span className="text-[10px] text-[#6B6156] font-jakarta block mt-0.5">
                   {pkg.dimensions}
                 </span>
               </div>
 
-              <span className="text-[11px] leading-tight text-[--text-secondary] font-jakarta my-1 px-1">
+              <span className="text-[11px] leading-tight text-[#6B6156] font-jakarta my-1 px-1">
                 {!isAvailable ? 'Temporarily unavailable' : pkg.subtitle}
               </span>
 
-              <div className="w-full pt-1.5 border-t border-[--border-default]/50">
+              <div className="w-full pt-1.5 border-t border-[#EBE6DE]/60">
                 <span className={cn(
                   'text-sm sm:text-base font-bold font-jakarta block',
-                  !isAvailable ? 'text-neutral-400 line-through' : isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
+                  !isAvailable ? 'text-neutral-400 line-through' : isSelected ? 'text-[#B88A58]' : 'text-[#2B241D]'
                 )}>
                   {formatPrice(pkg.price)}
                 </span>

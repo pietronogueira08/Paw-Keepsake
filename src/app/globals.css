@@ -102,3 +102,28 @@
   background-color: var(--border-default);
   border-radius: 10px;
 }
+
+/* CSS Variable Utility Fallbacks */
+@layer utilities {
+  .bg-\[--accent\] { background-color: #B88A58 !important; }
+  .hover\:bg-\[--accent-hover\]:hover { background-color: #A67A49 !important; }
+  .text-\[--accent\] { color: #B88A58 !important; }
+  .border-\[--accent\] { border-color: #B88A58 !important; }
+  .ring-\[--accent\] { --tw-ring-color: #B88A58 !important; }
+  .ring-\[--accent\]\/30 { --tw-ring-color: rgba(184, 138, 88, 0.3) !important; }
+  .focus-visible\:ring-\[--accent\]:focus-visible { --tw-ring-color: #B88A58 !important; }
+  .focus-visible\:ring-\[--accent\]\/30:focus-visible { --tw-ring-color: rgba(184, 138, 88, 0.3) !important; }
+  .focus\:border-\[--accent\]:focus { border-color: #B88A58 !important; }
+  .bg-\[--bg-page\] { background-color: #FAF8F5 !important; }
+  .text-\[--text-primary\] { color: #2B241D !important; }
+  .text-\[--text-secondary\] { color: #6B6156 !important; }
+  .border-\[--border-default\] { border-color: #EBE6DE !important; }
+  .border-\[--border-default\]\/80 { border-color: rgba(235, 230, 222, 0.8) !important; }
+  .border-\[--border-default\]\/70 { border-color: rgba(235, 230, 222, 0.7) !important; }
+  .border-\[--border-default\]\/50 { border-color: rgba(235, 230, 222, 0.5) !important; }
+  .border-\[--border-default\]\/40 { border-color: rgba(235, 230, 222, 0.4) !important; }
+  .divide-\[--border-default\]\/40 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(235, 230, 222, 0.4) !important; }
+  .border-\[--error\] { border-color: #B3543E !important; }
+  .text-\[--error\] { color: #B3543E !important; }
+  .text-\[--success\] { color: #5C7A5C !important; }
+}
