@@ -3,10 +3,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, ShoppingBag, ChevronDown, X } from 'lucide-react';
+import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, ShoppingBag, ChevronDown, X, Sparkles } from 'lucide-react';
 import { LivePreviewCanvas } from '@/components/customizer/LivePreviewCanvas';
 import { PackageSelector } from '@/components/customizer/PackageSelector';
 import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraftModal';
+import { AiTributeModal } from '@/components/customizer/AiTributeModal';
 import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { trackAddToCart } from '@/lib/analytics';
@@ -35,6 +36,7 @@ export function HeroCustomizer() {
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+  const [isAiTributeOpen, setIsAiTributeOpen] = useState(false);
   const [breedSearch, setBreedSearch] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCustomQuote, setIsCustomQuote] = useState(() => {
@@ -415,13 +417,18 @@ export function HeroCustomizer() {
 
                 {/* Compact Memorial Quote Selector */}
                 <div className="mt-3.5 pt-3.5 border-t border-[--border-default]/70">
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-2">
                     <label htmlFor="memorial-quote-select" className="text-[12px] font-bold uppercase tracking-[0.06em] text-[--text-primary] block font-jakarta">
                       Memorial Quote
                     </label>
-                    <span className="text-[11px] text-[--accent] font-medium font-jakarta">
-                      Printed on canvas
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsAiTributeOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/12 text-[#B88A58] hover:bg-[#B88A58] hover:text-white transition-all text-[11px] font-semibold font-jakarta cursor-pointer border border-[#B88A58]/35 shadow-2xs group"
+                    >
+                      <Sparkles size={12} className="text-[#B88A58] group-hover:text-white transition-colors" />
+                      <span>✨ Write with AI</span>
+                    </button>
                   </div>
 
                   <div className="relative">
@@ -535,6 +542,11 @@ export function HeroCustomizer() {
       <SaveMemorialDraftModal
         isOpen={isDraftModalOpen}
         onClose={() => setIsDraftModalOpen(false)}
+      />
+
+      <AiTributeModal
+        isOpen={isAiTributeOpen}
+        onClose={() => setIsAiTributeOpen(false)}
       />
     </section>
   );
