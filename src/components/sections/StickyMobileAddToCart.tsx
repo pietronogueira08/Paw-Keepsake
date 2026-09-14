@@ -33,14 +33,17 @@ export function StickyMobileAddToCart() {
     if (store.petName.trim().length === 0) return;
 
     const resolvedSize = getPackageSize(store.selectedPackage);
+    const coatObj = store.breed.coats?.find((c) => c.slug === store.selectedCoat);
+    const coatLabel = coatObj ? ` · ${coatObj.label}` : '';
     const item: CartItem = {
       id: generateId(),
-      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")`,
+      productTitle: `Memorial Canvas (${resolvedSize.replace('x', '×')}")${coatLabel}`,
       productType: 'museum-canvas',
       breed: store.breed,
+      selectedCoat: store.selectedCoat || undefined,
       petName: store.petName.trim(),
       dateRange: store.dateRange.trim(),
-      quote: '',
+      quote: store.quote.trim(),
       size: resolvedSize,
       frameStyle: 'none',
       quantity: 1,

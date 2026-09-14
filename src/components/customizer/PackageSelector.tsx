@@ -91,8 +91,8 @@ export function PackageSelector() {
   }, [selectedPackage, setPackage]);
 
   return (
-    <div className="pt-7 pb-7 border-t border-[--border-default]">
-      <div className="flex items-center justify-between mb-4">
+    <div className="pt-5 pb-5 border-t border-[--border-default]">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-[--accent] text-white text-[11px] font-bold font-jakarta flex items-center justify-center shrink-0">
             3
@@ -106,7 +106,7 @@ export function PackageSelector() {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-3">
         {PACKAGES.map((pkg) => {
           const isSelected = selectedPackage === pkg.id || (pkg.id === '12x16' && selectedPackage === 'gallery') || (pkg.id === '8x12' && selectedPackage === 'entry');
           const isAvailable = inventory[pkg.id] !== false;
@@ -120,7 +120,7 @@ export function PackageSelector() {
               whileHover={isAvailable ? cardHover : undefined}
               whileTap={isAvailable ? cardTap : undefined}
               className={cn(
-                'relative p-3.5 sm:p-4 rounded-xl flex flex-col items-center justify-between text-center transition-all outline-none min-h-[148px]',
+                'relative p-3 sm:p-3.5 rounded-xl flex flex-col items-center justify-between text-center transition-all outline-none min-h-[132px]',
                 !isAvailable
                   ? 'opacity-40 cursor-not-allowed bg-neutral-100 border border-neutral-200 filter grayscale'
                   : 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[--accent]',
@@ -145,7 +145,7 @@ export function PackageSelector() {
                 </span>
               ) : null}
 
-              <div className="w-full pt-1">
+              <div className="w-full pt-0.5">
                 <span className={cn(
                   'text-base sm:text-lg font-bold font-jakarta block leading-tight',
                   !isAvailable ? 'text-neutral-400' : isSelected ? 'text-[--accent]' : 'text-[--text-primary]'
@@ -157,7 +157,7 @@ export function PackageSelector() {
                 </span>
               </div>
 
-              <span className="text-[11px] leading-tight text-[--text-secondary] font-jakarta my-1.5 px-1">
+              <span className="text-[11px] leading-tight text-[--text-secondary] font-jakarta my-1 px-1">
                 {!isAvailable ? 'Temporarily unavailable' : pkg.subtitle}
               </span>
 
