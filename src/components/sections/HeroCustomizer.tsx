@@ -8,7 +8,6 @@ import { LivePreviewCanvas } from '@/components/customizer/LivePreviewCanvas';
 import { PackageSelector } from '@/components/customizer/PackageSelector';
 import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraftModal';
 import { AiTributeModal } from '@/components/customizer/AiTributeModal';
-import { AiQuotesModal } from '@/components/customizer/AiQuotesModal';
 import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { trackAddToCart } from '@/lib/analytics';
@@ -43,10 +42,13 @@ export function HeroCustomizer() {
   const [isCustomQuote, setIsCustomQuote] = useState(() => {
     return !PRESET_QUOTES.includes(store.quote) && store.quote.length > 0;
   });
-  const [isQuotesModalOpen, setIsQuotesModalOpen] = useState(false);
-  const [isGeneratingQuote, setIsGeneratingQuote] = useState(false);
-  const [isRegeneratingQuotes, setIsRegeneratingQuotes] = useState(false);
-  const [aiQuotes, setAiQuotes] = useState<string[]>([]);
+
+  // Keep isCustomQuote in sync whenever a tribute or custom text is selected
+  useEffect(() => {
+    if (!PRESET_QUOTES.includes(store.quote) && store.quote.length > 0) {
+      setIsCustomQuote(true);
+    }
+  }, [store.quote]);
   
   // Validation state
   const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
@@ -123,12 +125,12 @@ export function HeroCustomizer() {
     setHasTriedSubmit(false);
   };
 
-  const handleAiQuoteClick = async () => {
-    // 1. If petName is empty, focus Pet Name input with gentle toast
+  const handleWriteWithAiClick = () => {
+    // 1. If petName is empty, focus Pet Name input with a gentle toast
     if (!store.petName.trim()) {
       toast.error("Please enter your pet's name first", {
         icon: "🐾",
-        description: "We need their name to generate personalized memorial quotes.",
+        description: "We need their name to personalize their memorial quotes.",
       });
       step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       const inputEl = document.getElementById('pet-name');
@@ -136,61 +138,8 @@ export function HeroCustomizer() {
       return;
     }
 
-    // 2. Show subtle loading spinner inside the button
-    setIsGeneratingQuote(true);
-    try {
-      const res = await fetch('/api/generate-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          petName: store.petName.trim(),
-          breed: store.breed?.name,
-        }),
-      });
-
-      const data = await res.json();
-      if (Array.isArray(data.quotes) && data.quotes.length > 0) {
-        setAiQuotes(data.quotes);
-        setIsQuotesModalOpen(true);
-      } else {
-        toast.error('Unable to generate quotes right now. Please try again.');
-      }
-    } catch (err) {
-      console.error('Failed to generate quotes:', err);
-      toast.error('Network issue while generating quotes. Please try again.');
-    } finally {
-      setIsGeneratingQuote(false);
-    }
-  };
-
-  const handleRegenerateQuotes = async () => {
-    setIsRegeneratingQuotes(true);
-    try {
-      const res = await fetch('/api/generate-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          petName: store.petName.trim(),
-          breed: store.breed?.name,
-        }),
-      });
-
-      const data = await res.json();
-      if (Array.isArray(data.quotes) && data.quotes.length > 0) {
-        setAiQuotes(data.quotes);
-      }
-    } catch (err) {
-      console.error('Failed to regenerate quotes:', err);
-      toast.error('Could not refresh quotes. Please try again.');
-    } finally {
-      setIsRegeneratingQuotes(false);
-    }
-  };
-
-  const handleSelectAiQuote = (quoteText: string) => {
-    store.setQuote(quoteText);
-    setIsCustomQuote(true);
-    toast.success('Memorial quote applied to your canvas! ✨', { icon: '🐾' });
+    // 2. Open the Quiz Memorial Modal
+    setIsAiTributeOpen(true);
   };
 
   const springDefault = { type: "spring" as const, stiffness: 350, damping: 25 };
@@ -498,25 +447,12 @@ export function HeroCustomizer() {
                     </label>
                     <button
                       type="button"
-                      onClick={handleAiQuoteClick}
-                      disabled={isGeneratingQuote}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/12 text-[#B88A58] hover:bg-[#B88A58] hover:text-white transition-all text-[11px] font-semibold font-jakarta cursor-pointer border border-[#B88A58]/35 shadow-2xs group",
-                        isGeneratingQuote && "opacity-75 cursor-wait"
-                      )}
+                      onClick={handleWriteWithAiClick}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/12 text-[#B88A58] hover:bg-[#B88A58] hover:text-white transition-all text-[11px] font-semibold font-jakarta cursor-pointer border border-[#B88A58]/35 shadow-2xs group"
                       title="Generate personalized memorial quotes with AI"
                     >
-                      {isGeneratingQuote ? (
-                        <>
-                          <Loader2 size={12} className="animate-spin text-[#B88A58] group-hover:text-white" />
-                          <span>Writing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={12} className="text-[#B88A58] group-hover:text-white transition-colors" />
-                          <span>✨ Write with AI</span>
-                        </>
-                      )}
+                      <Sparkles size={12} className="text-[#B88A58] group-hover:text-white transition-colors" />
+                      <span>✨ Write with AI</span>
                     </button>
                   </div>
 
@@ -636,17 +572,7 @@ export function HeroCustomizer() {
       <AiTributeModal
         isOpen={isAiTributeOpen}
         onClose={() => setIsAiTributeOpen(false)}
-      />
-
-      <AiQuotesModal
-        isOpen={isQuotesModalOpen}
-        onClose={() => setIsQuotesModalOpen(false)}
-        quotes={aiQuotes}
-        petName={store.petName}
-        breedName={store.breed?.name}
-        onSelectQuote={handleSelectAiQuote}
-        onRegenerate={handleRegenerateQuotes}
-        isRegenerating={isRegeneratingQuotes}
+        onQuoteApplied={() => setIsCustomQuote(true)}
       />
     </section>
   );

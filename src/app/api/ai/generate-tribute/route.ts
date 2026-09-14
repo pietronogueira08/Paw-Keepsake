@@ -63,8 +63,8 @@ Rules:
 4. Focus on celebrating the dog's soul, companionship, and the eternal bond.
 5. Example format: ["quote 1", "quote 2", "quote 3"]`;
 
-    // Cascade through reliable Gemini models
-    const candidateModels = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+    // Cascade through reliable Gemini models (gemini-3.5-flash-lite first for free tier speed and stability)
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-flash-lite-latest', 'gemini-flash-latest'];
     let generatedQuotes: string[] | null = null;
 
     for (const model of candidateModels) {
