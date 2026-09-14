@@ -1,101 +1,37 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sparkles } from 'lucide-react';
-import { useCartStore, type OrderBumpColor, type OrderBumpSize } from '@/store/useCartStore';
+import { motion } from 'framer-motion';
+import { Check, Sparkles, Shield, Key } from 'lucide-react';
+import { useCartStore } from '@/store/useCartStore';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
 import { formatPrice, cn } from '@/lib/utils';
 
-const ORIGINAL_PRICE = 45;
-const SALE_PRICE = 29; // 35% off
-
-const TSHIRT_COLORS: {
-  id: OrderBumpColor;
-  label: string;
-  image: string;
-  hex: string;
-  textColor: string;
-}[] = [
-  {
-    id: 'black',
-    label: 'Pepper Black',
-    image: '/images/tshirts/tshirt-black.webp',
-    hex: '#242424',
-    textColor: '#FFFFFF',
-  },
-  {
-    id: 'grey',
-    label: 'Heather Grey',
-    image: '/images/tshirts/tshirt-grey.webp',
-    hex: '#D1D5DB',
-    textColor: '#242424',
-  },
-  {
-    id: 'white',
-    label: 'Pure White',
-    image: '/images/tshirts/tshirt-white.webp',
-    hex: '#FFFFFF',
-    textColor: '#242424',
-  },
-];
-
-const TSHIRT_SIZES: OrderBumpSize[] = ['S', 'M', 'L', 'XL', '2XL'];
+const ORIGINAL_PRICE = 29;
+const SALE_PRICE = 19.9; // $19.90 promo price (31% OFF)
 
 export function InCartOrderBump() {
   const customizerPetName = useCustomizerStore((s) => s.petName);
   const customizerBreed = useCustomizerStore((s) => s.breed);
   const customizerCoat = useCustomizerStore((s) => s.selectedCoat);
-  const customizerQuote = useCustomizerStore((s) => s.quote);
 
   const cartItems = useCartStore((s) => s.items);
   const {
     hasOrderBump,
-    orderBumpColor,
-    orderBumpSize,
     addOrderBump,
     removeOrderBump,
-    setOrderBumpColor,
-    setOrderBumpSize,
   } = useCartStore();
-
-  const [isAvailable, setIsAvailable] = useState(true);
 
   // Resolve pet details from first cart item or customizer draft
   const firstItem = cartItems[0];
   const petName = firstItem?.petName || customizerPetName || 'Cooper';
   const breed = firstItem?.breed || customizerBreed;
   const selectedCoat = firstItem?.selectedCoat || customizerCoat;
-  const quote = firstItem?.quote || customizerQuote || 'Forever in our hearts';
 
   const activeDogImage = selectedCoat
     ? `/breeds/${selectedCoat}.webp`
     : breed?.image || (breed ? `/breeds/${breed.slug}.webp` : '/breeds/french-bulldog-fawn.webp');
 
-  const selectedColorConfig =
-    TSHIRT_COLORS.find((c) => c.id === orderBumpColor) || TSHIRT_COLORS[0]; // default Pepper Black
-
-  useEffect(() => {
-    let active = true;
-    fetch('/api/inventory')
-      .then((res) => res.json())
-      .then((data) => {
-        if (active && data?.tshirt) {
-          setIsAvailable(Boolean(data.tshirt.available));
-          if (!data.tshirt.available && hasOrderBump) {
-            removeOrderBump();
-          }
-        }
-      })
-      .catch((err) => console.warn('[InCartOrderBump] Inventory check fallback:', err));
-
-    return () => {
-      active = false;
-    };
-  }, [hasOrderBump, removeOrderBump]);
-
   function handleToggle() {
-    if (!isAvailable) return;
     if (hasOrderBump) {
       removeOrderBump();
     } else {
@@ -103,12 +39,10 @@ export function InCartOrderBump() {
     }
   }
 
-  if (!isAvailable) return null;
-
   return (
     <div
       className={cn(
-        'rounded-2xl border transition-all overflow-hidden p-3.5 sm:p-4',
+        'rounded-2xl border transition-all overflow-hidden p-3.5 sm:p-4 my-2',
         hasOrderBump
           ? 'bg-[#FAF6F0] border-[--accent] shadow-xs'
           : 'bg-[#FCFAF7] border-dashed border-[--border-default] hover:border-[--accent]/60'
@@ -116,167 +50,97 @@ export function InCartOrderBump() {
     >
       {/* Top Banner */}
       <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[--accent] font-jakarta bg-[--accent]/10 px-2 py-0.5 rounded-full">
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[--accent] font-jakarta bg-[--accent]/10 px-2.5 py-0.5 rounded-full">
           <Sparkles size={11} />
-          Special Add-on Offer (35% OFF)
+          Special Add-on Offer (31% OFF)
         </span>
         <span className="text-[10px] text-[--text-secondary] font-jakarta font-medium">
           Studio Direct • Ships Together
         </span>
       </div>
 
-      {/* Main Row: Photorealistic T-Shirt Mockup on Left, Offer Details on Right */}
+      {/* Main Row: Photorealistic Keyring Mockup on Left, Offer Details on Right */}
       <div className="flex gap-3 sm:gap-4 items-center">
-        {/* ── Studio Photograph T-Shirt Mockup ─────────────────────── */}
-        <div className="relative w-24 h-28 sm:w-28 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-[#F5F2EB] border border-[#E5E0D6] flex items-center justify-center shadow-xs select-none">
-          {/* Photorealistic T-Shirt Base Image */}
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={selectedColorConfig.image}
-              src={selectedColorConfig.image}
-              alt={`${selectedColorConfig.label} T-Shirt`}
-              initial={{ opacity: 0.5, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0.5 }}
-              transition={{ duration: 0.2 }}
-              className="w-full h-full object-cover object-center"
-            />
-          </AnimatePresence>
-
-          {/* Printed Watercolor Artwork & Typography on the Chest */}
-          <div
-            className="absolute flex flex-col items-center justify-center text-center pointer-events-none px-1"
-            style={{ top: '44%', left: '50%', transform: 'translate(-50%, -50%)', width: '72%' }}
-          >
+        {/* ── Studio Keyring Mockup Container ───────────────────────── */}
+        <div className="relative w-24 h-28 sm:w-28 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-gradient-to-b from-[#F7F4EE] to-[#ECE7DC] border border-[#E2DDD3] flex items-center justify-center shadow-xs select-none p-1">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Photorealistic Stainless Steel Keyring Base */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={activeDogImage}
-              alt="T-shirt artwork"
-              className={cn(
-                'w-9 h-9 sm:w-10 sm:h-10 object-contain transition-all',
-                orderBumpColor === 'white'
-                  ? 'opacity-95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)]'
-                  : orderBumpColor === 'grey'
-                  ? 'opacity-95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]'
-                  : 'filter drop-shadow-[0_0_6px_rgba(255,255,255,0.15)] drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]'
-              )}
+              src="/images/keyring/keyring-mockup.webp"
+              alt="Custom Memorial Keepsake Keyring"
+              className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.18)]"
             />
-            {/* Pet Name: Elegant Title Case in Fraunces */}
-            <span
-              className="font-fraunces text-[7.5px] sm:text-[8.5px] font-medium tracking-tight block truncate max-w-full mt-0.5 leading-tight capitalize"
-              style={{
-                color: selectedColorConfig.textColor,
-                textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.8)' : 'none',
-              }}
-            >
-              {petName}
-            </span>
 
-            {/* Memorial Quote in delicate italic script */}
-            {quote && (
-              <span
-                className="font-fraunces italic text-[4.5px] sm:text-[5px] leading-[1.18] block max-w-[56px] sm:max-w-[64px] text-center line-clamp-2 mt-0.5"
-                style={{
-                  color: orderBumpColor === 'black' ? '#D6D0C2' : '#524C42',
-                  textShadow: orderBumpColor === 'black' ? '0 1px 2px rgba(0,0,0,0.8)' : 'none',
-                }}
-              >
-                “{quote}”
-              </span>
-            )}
+            {/* ── Perfectly Circular Mask (rounded-full overflow-hidden) ── */}
+            {/* Precisely calibrated over the round medallion bezel */}
+            <div
+              className="absolute rounded-full overflow-hidden flex items-center justify-center pointer-events-none bg-white shadow-[inset_0_2px_5px_rgba(0,0,0,0.3)]"
+              style={{
+                left: '44.8%',
+                top: '65.6%',
+                width: '38.8%',
+                height: '36.8%',
+                transform: 'translate(-50%, -50%)',
+              }}
+              aria-label={`${petName}'s portrait medallion`}
+            >
+              {/* Only the Pet Artwork inside the round medallion */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeDogImage}
+                alt={`${petName}'s artwork`}
+                className="w-[88%] h-[88%] object-contain rounded-full filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform duration-300"
+              />
+
+              {/* Protective Domed Resin Glass Highlight */}
+              <div
+                className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-black/15 via-transparent to-white/45 opacity-80"
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
           {/* Micro Tag */}
-          <span className="absolute bottom-1 right-1.5 text-[7px] font-semibold text-[#8C8477] bg-white/85 px-1 py-0.2 rounded backdrop-blur-xs font-jakarta tracking-tight">
-            100% Cotton
+          <span className="absolute bottom-1 right-1.5 text-[7px] font-bold text-[#7A7163] bg-white/90 px-1 py-0.2 rounded backdrop-blur-xs font-jakarta tracking-tight border border-black/5">
+            Stainless Steel
           </span>
         </div>
 
         {/* ── Offer Info & Actions ─────────────────────────────────── */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs sm:text-sm font-bold text-[--text-primary] font-jakarta leading-tight truncate">
-            Matching Comfort Colors® Tee
-          </p>
-          <p className="text-[11px] text-[--text-secondary] font-jakarta leading-snug mt-0.5">
-            Wear <span className="font-semibold text-[--text-primary]">{petName}</span>'s portrait with heavy 6.1 oz ringspun cotton.
+          <div className="flex items-center gap-1.5">
+            <Key size={13} className="text-[--accent] shrink-0" />
+            <p className="text-xs sm:text-sm font-bold text-[--text-primary] font-jakarta leading-tight truncate">
+              Matching Keepsake Keyring
+            </p>
+          </div>
+          <p className="text-[11px] text-[--text-secondary] font-jakarta leading-snug mt-1">
+            Keep <span className="font-semibold text-[--text-primary]">{petName}</span> close wherever you go. Heavyweight polished metal medallion with scratch-resistant resin dome.
           </p>
 
           {/* Pricing */}
-          <div className="flex items-center gap-2 mt-1.5 mb-2.5">
-            <span className="text-sm font-bold text-[--accent] font-jakarta">
+          <div className="flex items-center gap-2 mt-2 mb-2">
+            <span className="text-sm sm:text-base font-bold text-[--accent] font-jakarta">
               {formatPrice(SALE_PRICE)}
             </span>
             <span className="text-xs text-[--text-secondary]/70 font-jakarta line-through">
               {formatPrice(ORIGINAL_PRICE)}
             </span>
             <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded font-jakarta">
-              SAVE $16
+              SAVE $9.10
             </span>
           </div>
 
-          {/* ── Color Swatches (Clean Circles, No Text Clipping) ─────── */}
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta truncate">
-              Color: <span className="font-semibold text-[--text-primary]">{selectedColorConfig.label}</span>
+          {/* Feature Badges */}
+          <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[--text-secondary] font-jakarta">
+            <span className="inline-flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded border border-[#E8E3DA]">
+              <Shield size={10} className="text-emerald-600" />
+              Scratch-proof
             </span>
-            <div className="flex items-center gap-1.5 shrink-0" role="radiogroup" aria-label="T-shirt color">
-              {TSHIRT_COLORS.map((c) => {
-                const isSelected = orderBumpColor === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    title={c.label}
-                    onClick={() => setOrderBumpColor(c.id)}
-                    className={cn(
-                      'w-5 h-5 rounded-full transition-all cursor-pointer relative flex items-center justify-center',
-                      c.id === 'white' && 'bg-white border border-black/20',
-                      c.id === 'grey' && 'bg-[#D1D5DB] border border-black/10',
-                      c.id === 'black' && 'bg-[#242424] border border-black/30',
-                      isSelected
-                        ? 'ring-2 ring-[--accent] ring-offset-2 ring-offset-white shadow-xs scale-110'
-                        : 'opacity-80 hover:opacity-100 hover:scale-105'
-                    )}
-                  >
-                    {isSelected && (
-                      <span
-                        className={cn(
-                          'w-1.5 h-1.5 rounded-full',
-                          c.id === 'black' ? 'bg-white' : 'bg-[--accent]'
-                        )}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── Size Pills (S, M, L, XL, 2XL) ───────────────────────── */}
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] font-medium text-[--text-secondary] font-jakarta mr-1">
-              Size:
+            <span className="bg-white/80 px-2 py-0.5 rounded border border-[#E8E3DA]">
+              Double-ring swivel
             </span>
-            {TSHIRT_SIZES.map((sz) => {
-              const isSelected = orderBumpSize === sz;
-              return (
-                <button
-                  key={sz}
-                  type="button"
-                  onClick={() => setOrderBumpSize(sz)}
-                  className={cn(
-                    'w-6 h-6 rounded text-[10.5px] font-semibold font-jakarta flex items-center justify-center transition-all cursor-pointer border',
-                    isSelected
-                      ? 'bg-[--accent] text-white border-[--accent]'
-                      : 'bg-white text-[--text-secondary] border-[--border-default] hover:border-[--accent]/60'
-                  )}
-                >
-                  {sz}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>
@@ -293,17 +157,17 @@ export function InCartOrderBump() {
             checked={hasOrderBump}
             onChange={handleToggle}
             className="w-4 h-4 rounded accent-[#B88A58] cursor-pointer shrink-0"
-            aria-label="Add matching t-shirt to order"
+            aria-label="Add matching keepsake keyring to order"
           />
           <span className="text-xs font-semibold text-[--text-primary] font-jakarta truncate">
             {hasOrderBump ? (
               <span className="text-emerald-700 font-bold flex items-center gap-1 min-w-0 text-[11px] sm:text-xs">
                 <Check size={13} strokeWidth={2.5} className="shrink-0" />
-                <span className="truncate">Tee added ({selectedColorConfig.label}, {orderBumpSize})</span>
+                <span className="truncate">Keyring added ({petName}&apos;s Edition)</span>
               </span>
             ) : (
               <span className="font-bold text-[--text-primary] tracking-tight text-[11px] sm:text-xs">
-                + ADD MATCHING T-SHIRT (+${SALE_PRICE})
+                + ADD MATCHING KEYRING (+{formatPrice(SALE_PRICE)})
               </span>
             )}
           </span>
@@ -313,7 +177,7 @@ export function InCartOrderBump() {
           type="button"
           onClick={handleToggle}
           className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer border shrink-0',
+            'px-3.5 py-1.5 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer border shrink-0',
             hasOrderBump
               ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
               : 'bg-[--accent] text-white border-[--accent] hover:bg-[#A67A49]'

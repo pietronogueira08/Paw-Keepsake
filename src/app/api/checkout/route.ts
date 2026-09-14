@@ -76,23 +76,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
 
     if (validated.hasOrderBump) {
-      const bumpColor = validated.orderBumpDetails?.color?.toUpperCase() || 'WHITE';
-      const bumpSize = validated.orderBumpDetails?.size || 'L';
-      const firstPet = validated.items[0]?.petName || 'Pet';
+      const firstPet = validated.items[0]?.petName || 'Beloved Pet';
       lineItems.push({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Matching Comfort Colors T-Shirt — ${firstPet} (${bumpColor}, Size ${bumpSize})`,
-            description: `Custom ${firstPet}'s watercolor art on chest · 100% Ring-Spun Cotton · ${bumpColor} · Size ${bumpSize}`,
+            name: `Matching Memorial Keepsake Keyring — ${firstPet}`,
+            description: `Polished stainless steel medallion keyring featuring ${firstPet}'s custom watercolor portrait`,
             metadata: {
-              product_type: 'apparel-tshirt',
-              color: bumpColor.toLowerCase(),
-              size: bumpSize,
+              product_type: 'keepsake-keyring',
               pet_name: firstPet,
             },
           },
-          unit_amount: 2900,
+          unit_amount: 1990, // $19.90 (in cents)
         },
         quantity: 1,
       });
@@ -115,19 +111,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    if (validated.hasOrderBump && !inventory.tshirt.available) {
-      return NextResponse.json(
-        {
-          error: 'The matching memorial t-shirt is temporarily out of stock.',
-          outOfStockItem: 'tshirt',
-        },
-        { status: 409 },
-      );
-    }
+    // Calculate total merchandise to determine Free Shipping ($50+ threshold)
+    const itemsSubtotal = validated.items.reduce(
+      (sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1),
+      0,
+    );
+    const merchandiseTotal = itemsSubtotal + (validated.hasOrderBump ? 19.9 : 0);
+    const isFreeShipping = merchandiseTotal >= 50;
+
+    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = isFreeShipping
+      ? [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 0, currency: 'usd' },
+              display_name: 'Free Insured Tracked Shipping (Orders $50+)',
+              delivery_estimate: {
+                minimum: { unit: 'business_day', value: 3 },
+                maximum: { unit: 'business_day', value: 5 },
+              },
+            },
+          },
+        ]
+      : [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 946, currency: 'usd' }, // $9.46 standard shipping
+              display_name: 'Standard Insured Shipping',
+              delivery_estimate: {
+                minimum: { unit: 'business_day', value: 3 },
+                maximum: { unit: 'business_day', value: 5 },
+              },
+            },
+          },
+        ];
 
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: 'payment',
+      shipping_options: shippingOptions,
       success_url: validated.successUrl,
       cancel_url: validated.cancelUrl,
       shipping_address_collection: {
@@ -151,8 +174,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         selected_coat: validated.items[0]?.selectedCoat || '',
         quote: (validated.items[0]?.quote || '').slice(0, 200),
         date_range: validated.items[0]?.dateRange || '',
-        bump_size: validated.orderBumpDetails?.size || 'L',
-        bump_color: validated.orderBumpDetails?.color || 'WHITE',
       },
     });
 

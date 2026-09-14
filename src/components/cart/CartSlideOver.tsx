@@ -189,8 +189,8 @@ export function CartSlideOver() {
   const subtotal = useCartStore((s) => s.subtotal);
   const total = useCartStore((s) => s.total);
   const hasOrderBump = useCartStore((s) => s.hasOrderBump);
-  const orderBumpColor = useCartStore((s) => s.orderBumpColor);
-  const orderBumpSize = useCartStore((s) => s.orderBumpSize);
+  const hasFreeShipping = useCartStore((s) => s.hasFreeShipping);
+  const shippingFee = useCartStore((s) => s.shippingFee);
   const itemCount = useCartStore((s) => s.itemCount);
 
   const hasItems = items.length > 0;
@@ -209,12 +209,6 @@ export function CartSlideOver() {
         body: JSON.stringify({
           items,
           hasOrderBump,
-          orderBumpDetails: hasOrderBump
-            ? {
-                color: orderBumpColor,
-                size: orderBumpSize,
-              }
-            : undefined,
           successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: window.location.href,
         }),
@@ -238,7 +232,7 @@ export function CartSlideOver() {
       toast.error('Unable to connect to checkout. Please check your connection and try again.');
       setIsCheckingOut(false);
     }
-  }, [items, total, hasOrderBump, orderBumpColor, orderBumpSize, isCheckingOut]);
+  }, [items, total, hasOrderBump, isCheckingOut]);
 
   return (
     <Drawer isOpen={isOpen} onClose={closeCart} title="Your Order">
@@ -293,14 +287,36 @@ export function CartSlideOver() {
               {hasOrderBump && (
                 <div className="flex items-center justify-between text-[--accent] font-medium text-xs sm:text-sm">
                   <span className="flex items-center gap-1.5">
-                    <span>👕 Matching Tee</span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted bg-surface-subtle px-1.5 py-0.5 rounded border border-border">
-                      {orderBumpColor} · {orderBumpSize}
+                    <span>🔑 Keepsake Keyring</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[--accent] bg-[--accent]/10 px-1.5 py-0.5 rounded border border-[--accent]/20">
+                      Memorial Edition
                     </span>
                   </span>
-                  <span>{formatPrice(29)}</span>
+                  <span>{formatPrice(19.9)}</span>
                 </div>
               )}
+
+              <div className="flex items-center justify-between text-muted text-xs sm:text-sm">
+                <span className="flex items-center gap-1.5">
+                  <span>Shipping</span>
+                  {hasFreeShipping ? (
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      Orders $50+ Free
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-muted font-normal">
+                      (Insured & Tracked)
+                    </span>
+                  )}
+                </span>
+                <span>
+                  {hasFreeShipping ? (
+                    <span className="text-emerald-700 font-bold uppercase text-xs">FREE</span>
+                  ) : (
+                    <span className="text-foreground font-medium">{formatPrice(shippingFee || 9.46)}</span>
+                  )}
+                </span>
+              </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-border/70 text-base font-bold text-foreground">
                 <span>Total</span>

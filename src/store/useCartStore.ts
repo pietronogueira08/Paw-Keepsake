@@ -2,24 +2,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, OrderBumpItem } from '@/types/ecommerce';
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/utils';
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const DEFAULT_ORDER_BUMP: OrderBumpItem = {
-  id: 'comfort-tshirt',
-  name: 'Matching Comfort Colors T-Shirt',
+  id: 'memorial-keyring',
+  name: 'Matching Memorial Keepsake Keyring',
   description:
-    "Premium unisex tee with your pet's watercolor art printed on the chest",
-  discountPercent: 35,
-  originalPrice: 45,
-  salePrice: 29,
+    "Polished stainless steel medallion keyring featuring your pet's custom watercolor portrait",
+  discountPercent: 31,
+  originalPrice: 29,
+  salePrice: 19.9,
 };
 
-export type OrderBumpColor = 'black' | 'grey' | 'white';
-export type OrderBumpSize = 'S' | 'M' | 'L' | 'XL' | '2XL';
+export type OrderBumpColor = 'silver' | 'black' | 'grey' | 'white';
+export type OrderBumpSize = 'One Size' | 'S' | 'M' | 'L' | 'XL' | '2XL';
 
 // ---------------------------------------------------------------------------
 // Store shape
@@ -52,6 +52,7 @@ interface CartStore {
   readonly itemCount: number;
   readonly freeShippingRemaining: number;
   readonly hasFreeShipping: boolean;
+  readonly shippingFee: number;
   readonly total: number;
 }
 
@@ -64,21 +65,25 @@ function computeTotals(
   hasOrderBump: boolean,
   orderBump: OrderBumpItem | null,
 ) {
-  const subtotal = items.reduce(
+  const itemsSubtotal = items.reduce(
     (sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1),
     0,
   );
-  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const total = subtotal + (hasOrderBump && orderBump ? orderBump.salePrice : 0);
+  const bumpPrice = hasOrderBump && orderBump ? orderBump.salePrice : 0;
+  const merchandiseTotal = itemsSubtotal + bumpPrice;
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0) + (hasOrderBump ? 1 : 0);
+  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - merchandiseTotal);
+  const hasFreeShipping = merchandiseTotal >= FREE_SHIPPING_THRESHOLD;
+  const shippingFee = items.length > 0 ? (hasFreeShipping ? 0 : STANDARD_SHIPPING_FEE) : 0;
+  const total = merchandiseTotal + shippingFee;
 
   return {
-    subtotal,
+    subtotal: itemsSubtotal,
     itemCount,
     freeShippingRemaining,
     hasFreeShipping,
-    total,
+    shippingFee,
+    total: Math.round(total * 100) / 100,
   };
 }
 
@@ -89,13 +94,14 @@ export const useCartStore = create<CartStore>()(
       items: [],
       orderBump: null,
       hasOrderBump: false,
-      orderBumpColor: 'white',
-      orderBumpSize: 'L',
+      orderBumpColor: 'silver',
+      orderBumpSize: 'One Size',
       isOpen: false,
       subtotal: 0,
       itemCount: 0,
       freeShippingRemaining: FREE_SHIPPING_THRESHOLD,
       hasFreeShipping: false,
+      shippingFee: 0,
       total: 0,
 
       // Actions
@@ -171,6 +177,7 @@ export const useCartStore = create<CartStore>()(
           itemCount: 0,
           freeShippingRemaining: FREE_SHIPPING_THRESHOLD,
           hasFreeShipping: false,
+          shippingFee: 0,
           total: 0,
         }),
     }),

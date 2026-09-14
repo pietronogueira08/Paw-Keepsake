@@ -9,13 +9,17 @@ export function cn(...inputs: ClassValue[]): string {
 /** Free shipping threshold in dollars */
 export const FREE_SHIPPING_THRESHOLD = 50;
 
-/** Format a price in dollars to a USD display string, e.g. "$68" or "$89.99" */
+/** Standard shipping fee in dollars for orders below threshold */
+export const STANDARD_SHIPPING_FEE = 9.46;
+
+/** Format a price in dollars to a USD display string, e.g. "$68" or "$19.90" */
 export function formatPrice(dollars: number): string {
+  const hasCents = Math.abs(dollars % 1) > 0.001;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: hasCents ? 2 : 0,
   }).format(dollars);
 }
 

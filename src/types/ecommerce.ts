@@ -86,7 +86,7 @@ export interface CartItem {
 }
 
 export interface OrderBumpItem {
-  id: 'comfort-tshirt';
+  id: 'memorial-keyring';
   name: string;
   description: string;
   discountPercent: number;
