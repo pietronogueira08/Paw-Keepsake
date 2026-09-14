@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Heart, Check, RefreshCw, Feather, Quote } from 'lucide-react';
+import { Sparkles, X, Heart, Check, RefreshCw, Feather, Quote, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,8 @@ interface AiTributeModalProps {
   onClose: () => void;
   onQuoteApplied?: (quote: string) => void;
 }
+
+const MAX_FREE_USES = 5;
 
 const TONES = [
   { id: 'heartfelt', label: 'Heartfelt & Comforting', icon: Heart },
@@ -39,8 +41,27 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
   const [generatedQuotes, setGeneratedQuotes] = useState<string[]>([]);
   const [appliedQuote, setAppliedQuote] = useState<string | null>(null);
 
+  // Rate Limiting: 5 free uses per user
+  const [remainingUses, setRemainingUses] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('paw_ai_remaining_uses');
+      if (saved !== null) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed)) return Math.max(0, Math.min(MAX_FREE_USES, parsed));
+      }
+    }
+    return MAX_FREE_USES;
+  });
+
   const displayName = petName.trim() || 'Your Dog';
   const breedName = breed?.name || '';
+
+  // Synchronize localStorage when remainingUses changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('paw_ai_remaining_uses', String(remainingUses));
+    }
+  }, [remainingUses]);
 
   const toggleMemory = (mem: string) => {
     setSelectedMemories((prev) =>
@@ -49,6 +70,13 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
   };
 
   const handleGenerate = async () => {
+    if (remainingUses <= 0) {
+      toast.error('Free limit reached (5 of 5 uses). Please select one of your tributes below or write a custom message.', {
+        icon: '🐾',
+      });
+      return;
+    }
+
     setIsLoading(true);
     setAppliedQuote(null);
 
@@ -69,18 +97,34 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
         }),
       });
 
+      if (res.status === 429) {
+        setRemainingUses(0);
+        toast.error('Free generation limit reached (5 uses). Pick one of your tributes or write a custom tribute.', {
+          icon: '🐾',
+        });
+        return;
+      }
+
       if (!res.ok) {
         throw new Error('Failed to generate quotes');
       }
 
       const data = await res.json();
+
+      if (typeof data.remainingUses === 'number') {
+        setRemainingUses(data.remainingUses);
+      } else {
+        setRemainingUses((prev) => Math.max(0, prev - 1));
+      }
+
       if (Array.isArray(data.quotes) && data.quotes.length > 0) {
         setGeneratedQuotes(data.quotes);
+        toast.success('New personalized tributes generated! ✨', { icon: '🐾' });
       } else {
         toast.error('Could not generate quotes. Please try again.');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Generation error:', err);
       toast.error('Connection issue. Please try again.');
     } finally {
       setIsLoading(false);
@@ -98,6 +142,8 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
   };
 
   if (!isOpen) return null;
+
+  const isOutOfUses = remainingUses <= 0;
 
   return (
     <AnimatePresence>
@@ -136,18 +182,43 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
 
           {/* Header */}
           <div className="text-center mb-5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/10 text-[#B88A58] text-xs font-semibold font-jakarta mb-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#B88A58]/10 text-[#B88A58] text-xs font-semibold font-jakarta mb-2.5">
               <Sparkles size={13} className="text-[#B88A58]" />
               <span>AI Memorial Tribute Writer</span>
+              <span className={cn(
+                "text-[10px] px-2 py-0.5 rounded-full border font-medium",
+                isOutOfUses
+                  ? "bg-red-50 text-red-600 border-red-200"
+                  : "bg-white text-[#B88A58] border-[#B88A58]/30"
+              )}>
+                {isOutOfUses ? '5/5 used' : `${remainingUses} of 5 free left`}
+              </span>
             </div>
             <h3 id="ai-tribute-title" className="font-fraunces text-2xl sm:text-3xl font-normal text-[--text-primary] leading-tight">
               Words Worthy of <span className="italic text-[#B88A58]">{displayName}</span>
             </h3>
             <p className="text-xs sm:text-sm text-[--text-secondary] font-jakarta mt-1.5 max-w-[440px] mx-auto leading-relaxed">
               {breedName ? `Tailored for your beloved ${breedName}. ` : ''}
-              Choose a tone and select a trait or memory below to craft personalized inscriptions for your memorial canvas.
+              Choose a tone and select traits below to craft unique inscriptions for your canvas preview.
             </p>
           </div>
+
+          {/* Rate Limit Notice if exhausted */}
+          {isOutOfUses && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs font-jakarta flex items-start gap-2 mb-4"
+            >
+              <AlertCircle size={15} className="shrink-0 text-amber-700 mt-0.5" />
+              <div>
+                <p className="font-semibold">Free limit reached (5/5 uses)</p>
+                <p className="text-amber-800 text-[11px] mt-0.5 leading-relaxed">
+                  You can still select any of your generated tributes below, or enter your own custom message on the canvas.
+                </p>
+              </div>
+            </motion.div>
+          )}
 
           {/* Quiz Step 1: Tone Selector */}
           <div className="mb-4">
@@ -227,7 +298,7 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
             <input
               id="custom-memory-input"
               type="text"
-              placeholder={`e.g. Loved chasing frisbees at sunset, sleeping by the fireplace...`}
+              placeholder="e.g. Loved chasing frisbees at sunset, sleeping by the fireplace..."
               value={customMemory}
               onChange={(e) => setCustomMemory(e.target.value)}
               maxLength={150}
@@ -235,13 +306,16 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
             />
           </div>
 
-          {/* Generate Action Button */}
+          {/* Primary Action Button */}
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={isLoading}
+            disabled={isLoading || isOutOfUses}
             className={cn(
-              'w-full h-11 sm:h-12 rounded-xl bg-[#B88A58] hover:bg-[#A37747] text-white font-jakarta font-semibold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#B88A58] focus-visible:ring-offset-2',
+              'w-full h-11 sm:h-12 rounded-xl font-jakarta font-semibold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-[#B88A58] focus-visible:ring-offset-2',
+              isOutOfUses
+                ? 'bg-[#EBE6DE] text-[--text-secondary] cursor-not-allowed shadow-none'
+                : 'bg-[#B88A58] hover:bg-[#A37747] text-white cursor-pointer',
               isLoading && 'opacity-70 cursor-wait'
             )}
           >
@@ -250,10 +324,19 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
                 <RefreshCw size={15} className="animate-spin" />
                 <span>Crafting Memorial Tributes with Gemini...</span>
               </>
+            ) : isOutOfUses ? (
+              <>
+                <Check size={15} />
+                <span>Limit Reached (5/5 Free Uses)</span>
+              </>
             ) : (
               <>
                 <Sparkles size={15} />
-                <span>{generatedQuotes.length > 0 ? '✨ Regenerate Inscriptions with Traits' : '✨ Generate Memorial Inscriptions'}</span>
+                <span>
+                  {generatedQuotes.length > 0
+                    ? `✨ Regenerate Inscriptions with Traits (${remainingUses} left)`
+                    : `✨ Generate Memorial Inscriptions (${remainingUses} free left)`}
+                </span>
               </>
             )}
           </button>
@@ -337,15 +420,21 @@ export function AiTributeModal({ isOpen, onClose, onQuoteApplied }: AiTributeMod
 
                 {/* Footer in results */}
                 <div className="flex items-center justify-between pt-2">
-                  <button
-                    type="button"
-                    onClick={handleGenerate}
-                    disabled={isLoading}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B88A58] hover:text-[#A37747] font-jakarta cursor-pointer"
-                  >
-                    <RefreshCw size={12} className={cn(isLoading && 'animate-spin')} />
-                    <span>Generate 3 More</span>
-                  </button>
+                  {!isOutOfUses ? (
+                    <button
+                      type="button"
+                      onClick={handleGenerate}
+                      disabled={isLoading}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B88A58] hover:text-[#A37747] font-jakarta cursor-pointer"
+                    >
+                      <RefreshCw size={12} className={cn(isLoading && 'animate-spin')} />
+                      <span>Generate 3 More ({remainingUses} left)</span>
+                    </button>
+                  ) : (
+                    <span className="text-xs text-[--text-secondary] font-jakarta">
+                      5 of 5 free uses completed
+                    </span>
+                  )}
 
                   <button
                     type="button"
