@@ -9,7 +9,8 @@ const CartItemSchema = z.object({
   id: z.string(),
   productTitle: z.string(),
   productType: z.string(),
-  breed: z.object({ name: z.string(), id: z.string() }).nullable(),
+  breed: z.object({ name: z.string(), id: z.string() }).passthrough().nullable(),
+  selectedCoat: z.string().optional(),
   petName: z.string(),
   dateRange: z.string(),
   quote: z.string(),
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const features = [];
         if (item.breed) features.push(item.breed.name);
         features.push(`Size: ${item.size}`);
+        if (item.selectedCoat) features.push(`Coat: ${item.selectedCoat}`);
         if (item.color) features.push(`Color: ${item.color}`);
         if (item.dateRange) features.push(item.dateRange);
 
@@ -58,6 +60,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 product_type: item.productType,
                 breed_id: item.breed?.id || '',
                 breed_name: item.breed?.name || '',
+                selected_coat: item.selectedCoat || '',
                 pet_name: item.petName,
                 date_range: item.dateRange,
                 quote: item.quote.slice(0, 500),
