@@ -144,6 +144,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         source: 'paw-keepsake-web',
         item_count: String(validated.items.length),
         has_order_bump: String(validated.hasOrderBump),
+        canvas_size: validated.items[0]?.size || '12x16',
+        pet_name: validated.items[0]?.petName || '',
+        breed_name: validated.items[0]?.breed?.name || '',
+        breed_id: validated.items[0]?.breed?.id || '',
+        selected_coat: validated.items[0]?.selectedCoat || '',
+        quote: (validated.items[0]?.quote || '').slice(0, 200),
+        date_range: validated.items[0]?.dateRange || '',
+        bump_size: validated.orderBumpDetails?.size || 'L',
+        bump_color: validated.orderBumpDetails?.color || 'WHITE',
       },
     });
 

@@ -54,6 +54,34 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
           try {
             const { createPrintifyOrder } = await import('@/lib/printify');
+            const canvasSize = (session.metadata?.canvas_size as string) || '12x16';
+            const hasOrderBump = session.metadata?.has_order_bump === 'true';
+            const bumpSize = (session.metadata?.bump_size as string) || 'L';
+
+            const printifyItems: Array<{
+              productType: 'museum-canvas' | 'framed-print' | 'apparel';
+              size: string;
+              quantity: number;
+              printFileUrl?: string;
+              apparelSize?: string;
+            }> = [
+              {
+                productType: 'museum-canvas',
+                size: canvasSize,
+                quantity: 1,
+                printFileUrl: session.metadata?.print_file_url,
+              },
+            ];
+
+            if (hasOrderBump) {
+              printifyItems.push({
+                productType: 'apparel',
+                size: bumpSize,
+                quantity: 1,
+                apparelSize: bumpSize,
+              });
+            }
+
             await createPrintifyOrder({
               externalId: session.id,
               shippingAddress: {
@@ -68,14 +96,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 city: addr.city || '',
                 zip: addr.postal_code || '',
               },
-              items: [
-                {
-                  productType: 'museum-canvas',
-                  size: (session.metadata?.size as string) || '12x16',
-                  quantity: 1,
-                  printFileUrl: session.metadata?.print_file_url,
-                },
-              ],
+              items: printifyItems,
               autoSubmit: false, // Saves as Draft in Printify for instant review & 1-click fulfillment
             });
             console.info('[stripe-webhook] ✅ Printify order dispatched successfully for session:', session.id);
