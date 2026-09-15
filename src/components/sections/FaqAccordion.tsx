@@ -107,7 +107,7 @@ function AccordionItem({ item, index }: { item: FaqItem; index: number }) {
 
 export function FaqAccordion() {
   return (
-    <section className="w-full bg-surface-subtle py-16 md:py-24" aria-labelledby="faq-heading">
+    <section id="faq" className="w-full bg-surface-subtle py-16 md:py-24 scroll-mt-16" aria-labelledby="faq-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <motion.div

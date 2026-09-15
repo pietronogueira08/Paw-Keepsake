@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: 'Custom Canvas',      href: '/' },
   { label: 'Our Story',          href: '/our-story' },
   { label: 'Reviews',            href: '/#reviews' },
-  { label: 'FAQ',                href: '/#faq-heading' },
+  { label: 'FAQ',                href: '/#faq' },
 ];
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -114,6 +114,23 @@ export function Header() {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      const targetId = href.replace('/#', '').replace('#', '');
+      const element = document.getElementById(targetId);
+      if (element) {
+        e.preventDefault();
+        setMobileOpen(false);
+        element.scrollIntoView({ behavior: 'smooth' });
+        window.history.pushState(null, '', `#${targetId}`);
+      } else {
+        setMobileOpen(false);
+      }
+    } else {
+      setMobileOpen(false);
+    }
+  };
+
   return (
     <header
       ref={headerRef}
@@ -177,6 +194,7 @@ export function Header() {
             <li key={link.href}>
               <Link
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="relative px-3.5 py-2 rounded-full text-sm font-jakarta font-medium text-muted hover:text-foreground hover:bg-surface-subtle transition-all duration-150"
               >
                 {link.label}
@@ -231,7 +249,7 @@ export function Header() {
                 >
                   <Link
                     href={link.href}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => handleNavClick(e, link.href)}
                     className="flex items-center py-3 text-base font-jakarta font-medium text-foreground border-b border-border/50 last:border-0 hover:text-accent transition-colors"
                   >
                     {link.label}

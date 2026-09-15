@@ -119,6 +119,67 @@ const ROOM_CANVAS_CONFIG: Record<string, RoomCanvasConfig> = {
   },
 };
 
+interface DetailCanvasConfig {
+  width: string;
+  height: string;
+  scale: number;
+  badge: string;
+  dimensionsCm: string;
+}
+
+const DETAIL_CANVAS_CONFIG: Record<string, DetailCanvasConfig> = {
+  '8x12': {
+    width: '78%',
+    height: '80%',
+    scale: 0.85,
+    badge: '8×12" Petite (20×30 cm)',
+    dimensionsCm: '20 × 30 cm',
+  },
+  '12x16': {
+    width: '88%',
+    height: '89%',
+    scale: 0.92,
+    badge: '12×16" Gallery (30×40 cm)',
+    dimensionsCm: '30 × 40 cm',
+  },
+  '16x20': {
+    width: '95%',
+    height: '95%',
+    scale: 0.97,
+    badge: '16×20" Statement (40×50 cm)',
+    dimensionsCm: '40 × 50 cm',
+  },
+  '16x24': {
+    width: '100%',
+    height: '100%',
+    scale: 1.0,
+    badge: '16×24" Grand Masterpiece (40×60 cm)',
+    dimensionsCm: '40 × 60 cm',
+  },
+  // Legacy fallbacks
+  entry: {
+    width: '78%',
+    height: '80%',
+    scale: 0.85,
+    badge: '8×12" Petite (20×30 cm)',
+    dimensionsCm: '20 × 30 cm',
+  },
+  gallery: {
+    width: '88%',
+    height: '89%',
+    scale: 0.92,
+    badge: '12×16" Gallery (30×40 cm)',
+    dimensionsCm: '30 × 40 cm',
+  },
+  heritage: {
+    width: '100%',
+    height: '100%',
+    scale: 1.0,
+    badge: '16×24" Grand Masterpiece (40×60 cm)',
+    dimensionsCm: '40 × 60 cm',
+  },
+};
+
 /** Placeholder silhouette when no breed is selected */
 function PlaceholderSilhouette() {
   return (
@@ -151,6 +212,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
 
   const resolvedSize = getPackageSize(selectedPackage);
   const currentRoomConfig = ROOM_CANVAS_CONFIG[resolvedSize] || ROOM_CANVAS_CONFIG['12x16'];
+  const currentDetailConfig = DETAIL_CANVAS_CONFIG[resolvedSize] || DETAIL_CANVAS_CONFIG['12x16'];
 
   const sizeLabels: Record<string, string> = {
     '8x12': '8×12" Petite Canvas • 1.5" Museum Depth',
@@ -175,13 +237,13 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
   return (
     <div className={cn('flex flex-col items-center gap-4 w-full max-w-[420px]', className)}>
       
-      {/* ── View Mode Switcher ────────────────────────────────────── */}
-      <div className="w-full flex items-center justify-between p-1 bg-white rounded-xl border border-[--border-default] shadow-xs">
+      {/* ── View Mode Switcher (Enlarged with Prominent Tap Targets & Visual Polish) ── */}
+      <div className="w-full flex items-center justify-between p-1.5 bg-white rounded-2xl border border-[--border-default] shadow-xs">
         <button
           type="button"
           onClick={() => setViewMode('detail')}
           className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold font-jakarta transition-all cursor-pointer relative',
+            'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold font-jakarta transition-all cursor-pointer relative',
             viewMode === 'detail'
               ? 'text-[--text-primary] shadow-xs'
               : 'text-[--text-secondary] hover:text-[--text-primary]'
@@ -191,11 +253,11 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
           {viewMode === 'detail' && (
             <motion.div
               layoutId="viewModePill"
-              className="absolute inset-0 bg-[#F5F1EB] rounded-lg -z-0"
+              className="absolute inset-0 bg-[#F5F1EB] rounded-xl -z-0"
               transition={{ type: 'spring', stiffness: 350, damping: 28 }}
             />
           )}
-          <Eye size={14} className="relative z-10 text-[--accent]" />
+          <Eye size={18} className="relative z-10 text-[--accent]" />
           <span className="relative z-10">Canvas Detail</span>
         </button>
 
@@ -203,7 +265,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
           type="button"
           onClick={() => setViewMode('room')}
           className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold font-jakarta transition-all cursor-pointer relative',
+            'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold font-jakarta transition-all cursor-pointer relative',
             viewMode === 'room'
               ? 'text-[--text-primary] shadow-xs'
               : 'text-[--text-secondary] hover:text-[--text-primary]'
@@ -213,11 +275,11 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
           {viewMode === 'room' && (
             <motion.div
               layoutId="viewModePill"
-              className="absolute inset-0 bg-[#F5F1EB] rounded-lg -z-0"
+              className="absolute inset-0 bg-[#F5F1EB] rounded-xl -z-0"
               transition={{ type: 'spring', stiffness: 350, damping: 28 }}
             />
           )}
-          <Home size={14} className="relative z-10 text-[--accent]" />
+          <Home size={18} className="relative z-10 text-[--accent]" />
           <span className="relative z-10">View in Room</span>
         </button>
       </div>
@@ -227,7 +289,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
         <AnimatePresence mode="wait">
           {viewMode === 'detail' ? (
             /* ══════════════════════════════════════════════════════
-               1. DETAIL VIEW: Close-up 1.5" Depth Museum Canvas
+               1. DETAIL VIEW: Close-up 1.5" Depth Museum Canvas with Dynamic Scale
                ══════════════════════════════════════════════════════ */
             <motion.div
               key="detail-view"
@@ -235,11 +297,28 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 p-4 sm:p-6 flex items-center justify-center bg-[#F4EFE6]"
+              className="absolute inset-0 p-3 sm:p-5 flex items-center justify-center bg-[#F4EFE6]"
             >
-              {/* Museum Gallery-Wrapped Canvas Mockup */}
-              <div
-                className="relative w-full h-full rounded-[3px] bg-[#FDFBF7] flex flex-col justify-between p-4 sm:p-5 overflow-hidden transition-all"
+              {/* Dynamic Size Floating Badge Pill in Detail View */}
+              <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-30 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-semibold font-jakarta shadow-md border border-white/20">
+                <Sparkles size={11} className="text-[--accent]" />
+                <span>{currentDetailConfig.badge}</span>
+              </div>
+
+              {/* Museum Gallery-Wrapped Canvas Mockup - Dynamically Animated to Convey Physical Scale */}
+              <motion.div
+                className="relative rounded-[3px] bg-[#FDFBF7] flex flex-col justify-between p-3.5 sm:p-5 overflow-hidden origin-center"
+                animate={{
+                  width: currentDetailConfig.width,
+                  height: currentDetailConfig.height,
+                  scale: currentDetailConfig.scale,
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 280,
+                  damping: 24,
+                  mass: 0.85,
+                }}
                 style={{
                   boxShadow:
                     '10px 18px 32px -8px rgba(45,35,25,0.22), 2px 6px 14px -2px rgba(45,35,25,0.12), inset 0 0 0 1px rgba(0,0,0,0.05)',
@@ -348,7 +427,7 @@ export function LivePreviewCanvas({ onEmailPreview, className }: LivePreviewCanv
                 >
                   PREVIEW • PAW & KEEPSAKE
                 </span>
-              </div>
+              </motion.div>
             </motion.div>
           ) : (
             /* ══════════════════════════════════════════════════════

@@ -24,10 +24,12 @@ const CartItemSchema = z.object({
 const CheckoutRequestSchema = z.object({
   items: z.array(CartItemSchema).min(1),
   hasOrderBump: z.boolean(),
+  orderBumpType: z.enum(['keyring', 'mug']).optional(),
   orderBumpDetails: z
     .object({
       color: z.string().optional(),
       size: z.string().optional(),
+      type: z.string().optional(),
     })
     .optional(),
   successUrl: z.string().url(),
@@ -75,20 +77,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         };
       });
 
+    const bumpType = validated.orderBumpType || 'keyring';
+    const bumpPrice = bumpType === 'mug' ? 22.9 : 19.9;
+    const bumpAmount = bumpType === 'mug' ? 2290 : 1990;
+
     if (validated.hasOrderBump) {
       const firstPet = validated.items[0]?.petName || 'Beloved Pet';
       lineItems.push({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Matching Memorial Keepsake Keyring — ${firstPet}`,
-            description: `Polished stainless steel medallion keyring featuring ${firstPet}'s custom watercolor portrait`,
+            name:
+              bumpType === 'mug'
+                ? `Matching Memorial Ceramic Mug (15 oz) — ${firstPet}`
+                : `Matching Memorial Keepsake Keyring — ${firstPet}`,
+            description:
+              bumpType === 'mug'
+                ? `Premium 15 oz glossy ceramic mug with black accent handle featuring ${firstPet}'s custom watercolor portrait`
+                : `Polished stainless steel medallion keyring featuring ${firstPet}'s custom watercolor portrait`,
             metadata: {
-              product_type: 'keepsake-keyring',
+              product_type: bumpType === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',
               pet_name: firstPet,
             },
           },
-          unit_amount: 1990, // $19.90 (in cents)
+          unit_amount: bumpAmount,
         },
         quantity: 1,
       });
@@ -116,7 +128,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       (sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1),
       0,
     );
-    const merchandiseTotal = itemsSubtotal + (validated.hasOrderBump ? 19.9 : 0);
+    const merchandiseTotal = itemsSubtotal + (validated.hasOrderBump ? bumpPrice : 0);
     const isFreeShipping = merchandiseTotal >= 50;
 
     const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = isFreeShipping

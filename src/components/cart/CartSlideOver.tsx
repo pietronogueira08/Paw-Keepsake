@@ -189,6 +189,7 @@ export function CartSlideOver() {
   const subtotal = useCartStore((s) => s.subtotal);
   const total = useCartStore((s) => s.total);
   const hasOrderBump = useCartStore((s) => s.hasOrderBump);
+  const orderBump = useCartStore((s) => s.orderBump);
   const hasFreeShipping = useCartStore((s) => s.hasFreeShipping);
   const shippingFee = useCartStore((s) => s.shippingFee);
   const itemCount = useCartStore((s) => s.itemCount);
@@ -209,6 +210,7 @@ export function CartSlideOver() {
         body: JSON.stringify({
           items,
           hasOrderBump,
+          orderBumpType: orderBump?.type || 'keyring',
           successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: window.location.href,
         }),
@@ -232,7 +234,7 @@ export function CartSlideOver() {
       toast.error('Unable to connect to checkout. Please check your connection and try again.');
       setIsCheckingOut(false);
     }
-  }, [items, total, hasOrderBump, isCheckingOut]);
+  }, [items, total, hasOrderBump, orderBump, isCheckingOut]);
 
   return (
     <Drawer isOpen={isOpen} onClose={closeCart} title="Your Order">
@@ -284,15 +286,15 @@ export function CartSlideOver() {
                 <span>{formatPrice(subtotal)}</span>
               </div>
 
-              {hasOrderBump && (
+              {hasOrderBump && orderBump && (
                 <div className="flex items-center justify-between text-[--accent] font-medium text-xs sm:text-sm">
                   <span className="flex items-center gap-1.5">
-                    <span>🔑 Keepsake Keyring</span>
+                    <span>{orderBump.type === 'mug' ? '☕ Memorial Ceramic Mug' : '🔑 Keepsake Keyring'}</span>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[--accent] bg-[--accent]/10 px-1.5 py-0.5 rounded border border-[--accent]/20">
-                      Memorial Edition
+                      {orderBump.type === 'mug' ? '15 oz' : 'Memorial'}
                     </span>
                   </span>
-                  <span>{formatPrice(19.9)}</span>
+                  <span>{formatPrice(orderBump.salePrice)}</span>
                 </div>
               )}
 

@@ -85,8 +85,11 @@ export interface CartItem {
   unitPrice: number;
 }
 
+export type OrderBumpType = 'keyring' | 'mug';
+
 export interface OrderBumpItem {
-  id: 'memorial-keyring';
+  id: 'memorial-keyring' | 'memorial-mug';
+  type: OrderBumpType;
   name: string;
   description: string;
   discountPercent: number;

@@ -1,22 +1,37 @@
 'use client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CartItem, OrderBumpItem } from '@/types/ecommerce';
+import type { CartItem, OrderBumpItem, OrderBumpType } from '@/types/ecommerce';
 import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_FEE } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEFAULT_ORDER_BUMP: OrderBumpItem = {
-  id: 'memorial-keyring',
-  name: 'Matching Memorial Keepsake Keyring',
-  description:
-    "Polished stainless steel medallion keyring featuring your pet's custom watercolor portrait",
-  discountPercent: 31,
-  originalPrice: 29,
-  salePrice: 19.9,
+export const ORDER_BUMP_OPTIONS: Record<OrderBumpType, OrderBumpItem> = {
+  keyring: {
+    id: 'memorial-keyring',
+    type: 'keyring',
+    name: 'Matching Memorial Keepsake Keyring',
+    description:
+      "Polished stainless steel medallion keyring featuring your pet's custom watercolor portrait",
+    discountPercent: 31,
+    originalPrice: 29,
+    salePrice: 19.9,
+  },
+  mug: {
+    id: 'memorial-mug',
+    type: 'mug',
+    name: 'Matching Memorial Ceramic Mug (15 oz)',
+    description:
+      "Premium glossy ceramic accent mug with black handle & your pet's custom watercolor portrait",
+    discountPercent: 33,
+    originalPrice: 34,
+    salePrice: 22.9,
+  },
 };
+
+const DEFAULT_ORDER_BUMP = ORDER_BUMP_OPTIONS.keyring;
 
 export type OrderBumpColor = 'silver' | 'black' | 'grey' | 'white';
 export type OrderBumpSize = 'One Size' | 'S' | 'M' | 'L' | 'XL' | '2XL';
@@ -30,6 +45,7 @@ interface CartStore {
   items: CartItem[];
   orderBump: OrderBumpItem | null;
   hasOrderBump: boolean;
+  activeBumpType: OrderBumpType;
   orderBumpColor: OrderBumpColor;
   orderBumpSize: OrderBumpSize;
   isOpen: boolean;
@@ -41,8 +57,9 @@ interface CartStore {
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  addOrderBump: () => void;
+  addOrderBump: (type?: OrderBumpType) => void;
   removeOrderBump: () => void;
+  setActiveBumpType: (type: OrderBumpType) => void;
   setOrderBumpColor: (color: OrderBumpColor) => void;
   setOrderBumpSize: (size: OrderBumpSize) => void;
   clearCart: () => void;
@@ -94,6 +111,7 @@ export const useCartStore = create<CartStore>()(
       items: [],
       orderBump: null,
       hasOrderBump: false,
+      activeBumpType: 'keyring',
       orderBumpColor: 'silver',
       orderBumpSize: 'One Size',
       isOpen: false,
@@ -149,12 +167,17 @@ export const useCartStore = create<CartStore>()(
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
 
-      addOrderBump: () =>
-        set((state) => ({
-          orderBump: DEFAULT_ORDER_BUMP,
-          hasOrderBump: true,
-          ...computeTotals(state.items, true, DEFAULT_ORDER_BUMP),
-        })),
+      addOrderBump: (type?: OrderBumpType) =>
+        set((state) => {
+          const bumpType = type || state.activeBumpType || 'keyring';
+          const bumpItem = ORDER_BUMP_OPTIONS[bumpType];
+          return {
+            activeBumpType: bumpType,
+            orderBump: bumpItem,
+            hasOrderBump: true,
+            ...computeTotals(state.items, true, bumpItem),
+          };
+        }),
 
       removeOrderBump: () =>
         set((state) => ({
@@ -162,6 +185,18 @@ export const useCartStore = create<CartStore>()(
           hasOrderBump: false,
           ...computeTotals(state.items, false, null),
         })),
+
+      setActiveBumpType: (activeBumpType: OrderBumpType) =>
+        set((state) => {
+          const bumpItem = ORDER_BUMP_OPTIONS[activeBumpType];
+          return {
+            activeBumpType,
+            orderBump: state.hasOrderBump ? bumpItem : state.orderBump,
+            ...(state.hasOrderBump
+              ? computeTotals(state.items, true, bumpItem)
+              : {}),
+          };
+        }),
 
       setOrderBumpColor: (orderBumpColor: OrderBumpColor) => set({ orderBumpColor }),
 
@@ -172,6 +207,7 @@ export const useCartStore = create<CartStore>()(
           items: [],
           orderBump: null,
           hasOrderBump: false,
+          activeBumpType: 'keyring',
           isOpen: false,
           subtotal: 0,
           itemCount: 0,

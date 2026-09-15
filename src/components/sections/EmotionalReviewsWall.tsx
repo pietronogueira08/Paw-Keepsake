@@ -39,7 +39,7 @@ const REVIEWS: MemorialReview[] = [
     datePosted: 'September 2026',
     imageSrc: '/images/reviews/review-bailey-unboxing.webp',
     imageAlt: 'Verified customer unboxing custom watercolor memorial canvas of Bailey the Cavalier King Charles Spaniel',
-    memorialSetup: 'Delivered Memorial & Unboxing',
+    memorialSetup: "Unboxing Bailey's Memorial Canvas",
   },
   {
     id: 'r2',
