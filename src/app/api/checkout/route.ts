@@ -148,6 +148,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         ];
 
     const session = await stripe.checkout.sessions.create({
+      locale: 'en',
       line_items: lineItems,
       mode: 'payment',
       shipping_options: shippingOptions,
