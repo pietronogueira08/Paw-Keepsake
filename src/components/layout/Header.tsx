@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
 import { cn } from '@/lib/utils';
@@ -87,6 +88,9 @@ export function Header() {
   const [scrolled, setScrolled]     = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
+  const pathname = usePathname();
+  const router = useRouter();
+
   const [mobileMessageIndex, setMobileMessageIndex] = useState(0);
   const MOBILE_MESSAGES = [
     'Free Insured US Shipping on Orders $50+',
@@ -115,19 +119,43 @@ export function Header() {
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // 1. Prevent browser native download shortcuts (Alt+Click on Chrome/Edge downloads the target HTML)
+    if (e.altKey) {
+      e.preventDefault();
+    }
+
+    setMobileOpen(false);
+
+    // 2. Hash anchor in-page smooth scrolling (e.g. /#reviews, /#faq)
     if (href.startsWith('/#') || href.startsWith('#')) {
       const targetId = href.replace('/#', '').replace('#', '');
-      const element = document.getElementById(targetId);
-      if (element) {
+      
+      if (pathname === '/') {
         e.preventDefault();
-        setMobileOpen(false);
-        element.scrollIntoView({ behavior: 'smooth' });
-        window.history.pushState(null, '', `#${targetId}`);
-      } else {
-        setMobileOpen(false);
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          window.history.pushState(null, '', `#${targetId}`);
+        }
+        return;
       }
-    } else {
-      setMobileOpen(false);
+      // If we are on another page, let the router navigate cleanly to the homepage hash
+      e.preventDefault();
+      router.push(`/#${targetId}`);
+      return;
+    }
+
+    // 3. Scroll to top if clicking Home ("/") while already on the homepage
+    if (href === '/' && pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 4. For page routes like /our-story, if e.altKey was pressed, use programmatic navigation
+    if (e.altKey) {
+      e.preventDefault();
+      router.push(href);
     }
   };
 
@@ -172,6 +200,8 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
+          prefetch={false}
+          onClick={(e) => handleNavClick(e, '/')}
           className="flex items-center gap-2.5 sm:gap-3.5 group shrink-0"
           aria-label="Paw & Keepsake — Home"
         >
@@ -194,6 +224,7 @@ export function Header() {
             <li key={link.href}>
               <Link
                 href={link.href}
+                prefetch={false}
                 onClick={(e) => handleNavClick(e, link.href)}
                 className="relative px-3.5 py-2 rounded-full text-sm font-jakarta font-medium text-muted hover:text-foreground hover:bg-surface-subtle transition-all duration-150"
               >
@@ -249,6 +280,7 @@ export function Header() {
                 >
                   <Link
                     href={link.href}
+                    prefetch={false}
                     onClick={(e) => handleNavClick(e, link.href)}
                     className="flex items-center py-3 text-base font-jakarta font-medium text-foreground border-b border-border/50 last:border-0 hover:text-accent transition-colors"
                   >

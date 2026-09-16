@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Header } from '@/components/layout/Header';
@@ -90,17 +91,17 @@ function Footer() {
           <div>
             <h4 className="text-xs uppercase tracking-widest text-white/40 font-jakarta mb-3">Memorials</h4>
             <ul className="flex flex-col gap-2 text-sm font-jakarta">
-              <li><a href="/" className="hover:text-white transition-colors">Custom Canvas Portrait</a></li>
-              <li><a href="/#reviews" className="hover:text-white transition-colors">Customer Tributes</a></li>
-              <li><a href="/our-story" className="hover:text-white transition-colors">Our Story & Mission</a></li>
+              <li><Link href="/" prefetch={false} className="hover:text-white transition-colors">Custom Canvas Portrait</Link></li>
+              <li><Link href="/#reviews" prefetch={false} className="hover:text-white transition-colors">Customer Tributes</Link></li>
+              <li><Link href="/our-story" prefetch={false} className="hover:text-white transition-colors">Our Story & Mission</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-xs uppercase tracking-widest text-white/40 font-jakarta mb-3">Orders & Legal</h4>
             <ul className="flex flex-col gap-2 text-sm font-jakarta">
-              <li><a href="/shipping" className="hover:text-white transition-colors">Shipping & Delivery</a></li>
-              <li><a href="/refund" className="hover:text-white transition-colors">Refund & Replacement</a></li>
-              <li><a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><Link href="/shipping" prefetch={false} className="hover:text-white transition-colors">Shipping & Delivery</Link></li>
+              <li><Link href="/refund" prefetch={false} className="hover:text-white transition-colors">Refund & Replacement</Link></li>
+              <li><Link href="/privacy" prefetch={false} className="hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
           <div>
