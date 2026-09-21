@@ -9,7 +9,7 @@ export type AnyProductType = ProductType | ApparelProductType | MerchandiseProdu
 
 export type CanvasSize = '8x12' | '12x16' | '16x20' | '16x24' | '8x10' | '18x24' | '24x36';
 export type ApparelSize = 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
-export type MerchandiseSize = '15 oz' | 'One Size';
+export type MerchandiseSize = '11 oz' | 'One Size';
 
 export type FrameStyle = 'none' | 'natural-oak' | 'black-walnut' | 'white-gallery';
 export type ApparelColor = 'sand' | 'off-white' | 'heather-grey';

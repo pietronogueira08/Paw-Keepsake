@@ -235,11 +235,11 @@ export function CartSlideOver() {
       const petName = items[0]?.petName || 'your pet';
       toast.success(
         type === 'mug'
-          ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($22.90)!`
-          : `Cart updated to ${petName}'s Keepsake Keyring ($19.90)!`
+          ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($24.90)!`
+          : `Cart updated to ${petName}'s Keepsake Keyring ($24.90)!`
       );
       trackAddToCart({
-        value: type === 'mug' ? 22.9 : 19.9,
+        value: 24.9,
         currency: 'USD',
         productType: type === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',
         petName,
@@ -380,7 +380,7 @@ export function CartSlideOver() {
                   <span className="flex items-center gap-1.5">
                     <span>{orderBump.type === 'mug' ? '☕ Memorial Ceramic Mug' : '🔑 Keepsake Keyring'}</span>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[--accent] bg-[--accent]/10 px-1.5 py-0.5 rounded border border-[--accent]/20">
-                      {orderBump.type === 'mug' ? '15 oz' : 'Memorial'}
+                      {orderBump.type === 'mug' ? '11 oz' : 'Memorial'}
                     </span>
                   </span>
                   <span>{formatPrice(orderBump.salePrice)}</span>

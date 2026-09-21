@@ -16,18 +16,18 @@ export const ORDER_BUMP_OPTIONS: Record<OrderBumpType, OrderBumpItem> = {
     description:
       "Polished stainless steel medallion keyring featuring your pet's custom watercolor portrait",
     discountPercent: 31,
-    originalPrice: 29,
-    salePrice: 19.9,
+    originalPrice: 36,
+    salePrice: 24.9,
   },
   mug: {
     id: 'memorial-mug',
     type: 'mug',
-    name: 'Matching Memorial Ceramic Mug (15 oz)',
+    name: 'Matching Memorial Ceramic Mug (11 oz)',
     description:
       "Premium glossy ceramic accent mug with black handle & your pet's custom watercolor portrait",
-    discountPercent: 33,
-    originalPrice: 34,
-    salePrice: 22.9,
+    discountPercent: 35,
+    originalPrice: 38,
+    salePrice: 24.9,
   },
 };
 
@@ -216,7 +216,7 @@ export const useCartStore = create<CartStore>()(
           const downsellItem: CartItem = {
             id: `downsell-${type}-${Date.now()}`,
             productTitle: isMug
-              ? 'Matching Memorial Ceramic Mug (15 oz)'
+              ? 'Matching Memorial Ceramic Mug (11 oz)'
               : 'Matching Memorial Keepsake Keyring',
             productType: isMug ? 'ceramic-mug' : 'keepsake-keyring',
             breed,
@@ -224,10 +224,10 @@ export const useCartStore = create<CartStore>()(
             petName,
             dateRange,
             quote,
-            size: isMug ? '15 oz' : 'One Size',
+            size: isMug ? '11 oz' : 'One Size',
             frameStyle: null,
             quantity: 1,
-            unitPrice: isMug ? 22.9 : 19.9,
+            unitPrice: 24.9,
           };
 
           const nextItems = [downsellItem];

@@ -96,7 +96,7 @@ export function ExitIntentDownsellModal({
             <div className="bg-gradient-to-r from-[#2B241D] via-[#3A3127] to-[#2B241D] px-6 py-3 text-center text-white">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase font-jakarta text-[#E2C499]">
                 <Heart size={12} className="fill-[#E2C499]" />
-                Exclusive Memorial Downsell • 33% OFF
+                Special Memorial Tribute • Limited Time Offer
               </span>
             </div>
 
@@ -110,7 +110,10 @@ export function ExitIntentDownsellModal({
                   Keep {petName}&apos;s Memory Close — Without the Gallery Price
                 </h3>
                 <p className="font-jakarta text-xs sm:text-sm text-[--text-secondary] mt-2 leading-relaxed max-w-md mx-auto">
-                  We understand a fine-art canvas might not fit right now. Keep {petName}&apos;s loving spirit right beside you every morning for just <strong className="text-[--text-primary] font-semibold">{formatPrice(currentOption.salePrice)}</strong>.
+                  {isMug
+                    ? `We understand a fine-art canvas might not fit right now. Keep ${petName}'s loving spirit right beside you every morning for just `
+                    : `We understand a fine-art canvas might not fit right now. Carry ${petName}'s loving spirit everywhere you go for just `}
+                  <strong className="text-[--text-primary] font-semibold">{formatPrice(currentOption.salePrice)}</strong>.
                 </p>
               </div>
 
@@ -146,7 +149,7 @@ export function ExitIntentDownsellModal({
               </div>
 
               {/* Photorealistic Product Preview */}
-              <div className="relative w-full h-44 sm:h-48 rounded-2xl bg-gradient-to-b from-[#FAF8F5] to-[#EFECE5] border border-[#E2DDD3] flex items-center justify-center overflow-hidden shadow-inner p-3 mb-5">
+              <div className="relative w-full h-52 sm:h-56 rounded-2xl bg-gradient-to-b from-[#FAF8F5] to-[#EFECE5] border border-[#E2DDD3] flex items-center justify-center overflow-hidden shadow-inner p-3 sm:p-4 mb-5">
                 <AnimatePresence mode="wait">
                   {isMug ? (
                     /* ── Ceramic Mug Preview ────────────────────────────── */
@@ -158,37 +161,40 @@ export function ExitIntentDownsellModal({
                       transition={{ duration: 0.2 }}
                       className="relative w-full h-full flex items-center justify-center"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/images/mugs/mug-mockup.webp"
-                        alt={`${petName}'s Memorial Mug`}
-                        className="h-full w-auto object-contain filter drop-shadow-[0_6px_16px_rgba(0,0,0,0.18)]"
-                      />
-
-                      {/* Printed Dog Artwork on the Cylindrical Face */}
-                      <div
-                        className="absolute flex flex-col items-center justify-center pointer-events-none text-center"
-                        style={{
-                          left: '54.5%',
-                          top: '51%',
-                          width: '38%',
-                          height: '46%',
-                          transform: 'translate(-50%, -50%)',
-                        }}
-                      >
+                      {/* Aspect-square wrapper locked strictly to 1:1 image pixels */}
+                      <div className="relative h-full aspect-square flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={activeDogImage}
-                          alt={`${petName}'s portrait`}
-                          className="w-[78%] h-[78%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.12)]"
+                          src="/images/mugs/mug-mockup.webp"
+                          alt={`${petName}'s Memorial Mug`}
+                          className="w-full h-full object-contain filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.18)]"
                         />
-                        <span className="font-fraunces text-[8px] sm:text-[9px] font-semibold tracking-wider text-[#2B2723] uppercase mt-0.5 truncate max-w-full leading-tight">
-                          {petName}
-                        </span>
+
+                        {/* Printed Dog Artwork on the Cylindrical Face */}
+                        <div
+                          className="absolute flex flex-col items-center justify-center pointer-events-none text-center"
+                          style={{
+                            left: '54.5%',
+                            top: '51%',
+                            width: '38%',
+                            height: '46%',
+                            transform: 'translate(-50%, -50%)',
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={activeDogImage}
+                            alt={`${petName}'s portrait`}
+                            className="w-[82%] h-[82%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.12)]"
+                          />
+                          <span className="font-fraunces text-[9px] sm:text-[10px] font-semibold tracking-wider text-[#2B2723] uppercase mt-0.5 truncate max-w-full leading-tight">
+                            {petName}
+                          </span>
+                        </div>
                       </div>
 
                       <span className="absolute bottom-2 right-2 text-[9px] font-bold text-[#7A7163] bg-white/90 px-2 py-0.5 rounded-full backdrop-blur-xs font-jakarta tracking-tight border border-black/5 shadow-xs">
-                        15 oz Glossy Ceramic
+                        11 oz Glossy Ceramic
                       </span>
                     </motion.div>
                   ) : (
@@ -201,34 +207,37 @@ export function ExitIntentDownsellModal({
                       transition={{ duration: 0.2 }}
                       className="relative w-full h-full flex items-center justify-center"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/images/keyring/keyring-mockup.webp"
-                        alt={`${petName}'s Memorial Keyring`}
-                        className="h-full w-auto object-contain filter drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)]"
-                      />
-
-                      {/* Circular Medallion Mask */}
-                      <div
-                        className="absolute rounded-full overflow-hidden flex items-center justify-center pointer-events-none bg-white shadow-[inset_0_2px_5px_rgba(0,0,0,0.3)]"
-                        style={{
-                          left: '44.8%',
-                          top: '65.6%',
-                          width: '34%',
-                          height: '34%',
-                          transform: 'translate(-50%, -50%)',
-                        }}
-                      >
+                      {/* Aspect-[567/597] wrapper locked strictly to keyring image pixels */}
+                      <div className="relative h-full aspect-[567/597] flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={activeDogImage}
-                          alt={`${petName}'s portrait`}
-                          className="w-[88%] h-[88%] object-contain rounded-full filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
+                          src="/images/keyring/keyring-mockup.webp"
+                          alt={`${petName}'s Memorial Keyring`}
+                          className="w-full h-full object-contain filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.22)]"
                         />
+
+                        {/* Circular Medallion Mask - mathematically true circle matching metallic recess */}
                         <div
-                          className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-black/15 via-transparent to-white/45 opacity-80"
-                          aria-hidden="true"
-                        />
+                          className="absolute rounded-full overflow-hidden flex items-center justify-center pointer-events-none bg-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)]"
+                          style={{
+                            left: '44.8%',
+                            top: '65.6%',
+                            width: '38.8%',
+                            height: '36.9%',
+                            transform: 'translate(-50%, -50%)',
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={activeDogImage}
+                            alt={`${petName}'s portrait`}
+                            className="w-[90%] h-[90%] object-contain rounded-full filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
+                          />
+                          <div
+                            className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-black/15 via-transparent to-white/45 opacity-80"
+                            aria-hidden="true"
+                          />
+                        </div>
                       </div>
 
                       <span className="absolute bottom-2 right-2 text-[9px] font-bold text-[#7A7163] bg-white/90 px-2 py-0.5 rounded-full backdrop-blur-xs font-jakarta tracking-tight border border-black/5 shadow-xs">

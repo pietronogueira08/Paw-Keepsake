@@ -78,8 +78,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
 
     const bumpType = validated.orderBumpType || 'keyring';
-    const bumpPrice = bumpType === 'mug' ? 22.9 : 19.9;
-    const bumpAmount = bumpType === 'mug' ? 2290 : 1990;
+    const bumpPrice = 24.9;
+    const bumpAmount = 2490;
 
     if (validated.hasOrderBump) {
       const firstPet = validated.items[0]?.petName || 'Beloved Pet';
@@ -89,11 +89,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           product_data: {
             name:
               bumpType === 'mug'
-                ? `Matching Memorial Ceramic Mug (15 oz) — ${firstPet}`
+                ? `Matching Memorial Ceramic Mug (11 oz) — ${firstPet}`
                 : `Matching Memorial Keepsake Keyring — ${firstPet}`,
             description:
               bumpType === 'mug'
-                ? `Premium 15 oz glossy ceramic mug with black accent handle featuring ${firstPet}'s custom watercolor portrait`
+                ? `Premium 11 oz glossy ceramic mug with black accent handle featuring ${firstPet}'s custom watercolor portrait`
                 : `Polished stainless steel medallion keyring featuring ${firstPet}'s custom watercolor portrait`,
             metadata: {
               product_type: bumpType === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',

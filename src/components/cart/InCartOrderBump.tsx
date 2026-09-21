@@ -127,37 +127,39 @@ export function InCartOrderBump() {
                 transition={{ duration: 0.2 }}
                 className="relative w-full h-full flex items-center justify-center"
               >
-                {/* Photorealistic Stainless Steel Keyring Base */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/keyring/keyring-mockup.webp"
-                  alt="Custom Memorial Keepsake Keyring"
-                  className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.18)]"
-                />
-
-                {/* Circular Medallion Mask (rounded-full overflow-hidden) */}
-                <div
-                  className="absolute rounded-full overflow-hidden flex items-center justify-center pointer-events-none bg-white shadow-[inset_0_2px_5px_rgba(0,0,0,0.3)]"
-                  style={{
-                    left: '44.8%',
-                    top: '65.6%',
-                    width: '38.8%',
-                    height: '36.8%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                  aria-label={`${petName}'s portrait medallion`}
-                >
+                {/* Locked Aspect Container */}
+                <div className="relative h-full aspect-[567/597] flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={activeDogImage}
-                    alt={`${petName}'s artwork`}
-                    className="w-[88%] h-[88%] object-contain rounded-full filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform duration-300"
+                    src="/images/keyring/keyring-mockup.webp"
+                    alt="Custom Memorial Keepsake Keyring"
+                    className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.18)]"
                   />
-                  {/* Protective Domed Resin Glass Highlight */}
+
+                  {/* Circular Medallion Mask (rounded-full overflow-hidden) */}
                   <div
-                    className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-black/15 via-transparent to-white/45 opacity-80"
-                    aria-hidden="true"
-                  />
+                    className="absolute rounded-full overflow-hidden flex items-center justify-center pointer-events-none bg-white shadow-[inset_0_2px_5px_rgba(0,0,0,0.3)]"
+                    style={{
+                      left: '44.8%',
+                      top: '65.6%',
+                      width: '38.8%',
+                      height: '36.9%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    aria-label={`${petName}'s portrait medallion`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={activeDogImage}
+                      alt={`${petName}'s artwork`}
+                      className="w-[90%] h-[90%] object-contain rounded-full filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-transform duration-300"
+                    />
+                    {/* Protective Domed Resin Glass Highlight */}
+                    <div
+                      className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-black/15 via-transparent to-white/45 opacity-80"
+                      aria-hidden="true"
+                    />
+                  </div>
                 </div>
 
                 {/* Micro Tag */}
@@ -175,41 +177,43 @@ export function InCartOrderBump() {
                 transition={{ duration: 0.2 }}
                 className="relative w-full h-full flex items-center justify-center"
               >
-                {/* Photorealistic 15 oz Ceramic Mug Base */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/mugs/mug-mockup.webp"
-                  alt="Custom Memorial Ceramic Mug"
-                  className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.16)]"
-                />
-
-                {/* Printed Dog Artwork on the Cylindrical Face of the Mug */}
-                <div
-                  className="absolute flex flex-col items-center justify-center pointer-events-none text-center"
-                  style={{
-                    left: '54.5%',
-                    top: '51%',
-                    width: '42%',
-                    height: '48%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                  aria-label={`${petName}'s mug artwork`}
-                >
+                {/* Locked Aspect Container */}
+                <div className="relative h-full aspect-square flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={activeDogImage}
-                    alt={`${petName}'s artwork on mug`}
-                    className="w-[74%] h-[74%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-transform duration-300"
+                    src="/images/mugs/mug-mockup.webp"
+                    alt="Custom Memorial Ceramic Mug"
+                    className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.16)]"
                   />
-                  {/* Pet Name underneath artwork */}
-                  <span className="font-fraunces text-[7px] sm:text-[8px] font-semibold tracking-wider text-[#2B2723] uppercase mt-0.5 truncate max-w-full leading-tight">
-                    {petName}
-                  </span>
+
+                  {/* Printed Dog Artwork on the Cylindrical Face of the Mug */}
+                  <div
+                    className="absolute flex flex-col items-center justify-center pointer-events-none text-center"
+                    style={{
+                      left: '54.5%',
+                      top: '51%',
+                      width: '38%',
+                      height: '46%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    aria-label={`${petName}'s mug artwork`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={activeDogImage}
+                      alt={`${petName}'s artwork on mug`}
+                      className="w-[78%] h-[78%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-transform duration-300"
+                    />
+                    {/* Pet Name underneath artwork */}
+                    <span className="font-fraunces text-[7px] sm:text-[8px] font-semibold tracking-wider text-[#2B2723] uppercase mt-0.5 truncate max-w-full leading-tight">
+                      {petName}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Micro Tag */}
                 <span className="absolute bottom-1 right-1.5 text-[7px] font-bold text-[#7A7163] bg-white/90 px-1 py-0.2 rounded backdrop-blur-xs font-jakarta tracking-tight border border-black/5">
-                  15 oz Ceramic
+                  11 oz Ceramic
                 </span>
               </motion.div>
             )}
