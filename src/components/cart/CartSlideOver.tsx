@@ -8,7 +8,7 @@
  * order bump, trust seals, and the primary checkout CTA.
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useCartStore } from '@/store/useCartStore';
@@ -17,7 +17,8 @@ import { trackInitiateCheckout } from '@/lib/analytics';
 import { Drawer } from '@/components/ui/Drawer';
 import { FreeShippingBar } from '@/components/cart/FreeShippingBar';
 import { InCartOrderBump } from '@/components/cart/InCartOrderBump';
-import type { CartItem } from '@/types/ecommerce';
+import { ExitIntentDownsellModal } from '@/components/cart/ExitIntentDownsellModal';
+import type { CartItem, OrderBumpType } from '@/types/ecommerce';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -185,6 +186,7 @@ function EmptyCartState({ onClose }: { onClose: () => void }) {
 export function CartSlideOver() {
   const isOpen = useCartStore((s) => s.isOpen);
   const closeCart = useCartStore((s) => s.closeCart);
+  const switchToDownsellItem = useCartStore((s) => s.switchToDownsellItem);
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal);
   const total = useCartStore((s) => s.total);
@@ -196,6 +198,72 @@ export function CartSlideOver() {
 
   const hasItems = items.length > 0;
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showDownsell, setShowDownsell] = useState(false);
+
+  // ─── Exit Intent & Close Interception ───────────────────────────────────────
+  const handleAttemptClose = useCallback(() => {
+    const hasCanvas = items.some(
+      (item) => item.productType === 'museum-canvas' || item.productType === 'framed-print'
+    );
+    const alreadyDismissed =
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem('paw_exit_downsell_dismissed') === 'true';
+
+    if (hasCanvas && !alreadyDismissed) {
+      setShowDownsell(true);
+      return;
+    }
+
+    closeCart();
+  }, [items, closeCart]);
+
+  const handleCloseDownsell = useCallback(() => {
+    setShowDownsell(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('paw_exit_downsell_dismissed', 'true');
+    }
+    closeCart();
+  }, [closeCart]);
+
+  const handleAcceptDownsell = useCallback(
+    (type: OrderBumpType) => {
+      setShowDownsell(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('paw_exit_downsell_dismissed', 'true');
+      }
+      switchToDownsellItem(type);
+      const petName = items[0]?.petName || 'your pet';
+      toast.success(
+        type === 'mug'
+          ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($22.90)!`
+          : `Cart updated to ${petName}'s Keepsake Keyring ($19.90)!`
+      );
+    },
+    [items, switchToDownsellItem],
+  );
+
+  // Desktop exit-intent detection (cursor leaving top of viewport while cart has items)
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 12) {
+        const hasCanvas = items.some(
+          (item) => item.productType === 'museum-canvas' || item.productType === 'framed-print'
+        );
+        const alreadyDismissed =
+          typeof window !== 'undefined' &&
+          sessionStorage.getItem('paw_exit_downsell_dismissed') === 'true';
+
+        if (hasCanvas && !alreadyDismissed) {
+          setShowDownsell(true);
+        }
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
+  }, [isOpen, items]);
 
   const handleCheckout = useCallback(async () => {
     if (isCheckingOut) return;
@@ -237,30 +305,31 @@ export function CartSlideOver() {
   }, [items, total, hasOrderBump, orderBump, isCheckingOut]);
 
   return (
-    <Drawer isOpen={isOpen} onClose={closeCart} title="Your Order">
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between px-4 py-3.5 border-b border-border bg-surface">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-base font-bold text-foreground font-fraunces tracking-tight">
-            Your Order
-          </h2>
-          {hasItems && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white font-jakarta">
-              {itemCount}
-            </span>
-          )}
-        </div>
-        <button
-          onClick={closeCart}
-          aria-label="Close cart"
-          className="rounded-full p-1.5 text-muted hover:text-foreground hover:bg-surface-subtle transition-colors"
-        >
-          <XIcon />
-        </button>
-      </header>
+    <>
+      <Drawer isOpen={isOpen} onClose={handleAttemptClose} title="Your Order">
+        {/* ── Header ── */}
+        <header className="flex items-center justify-between px-4 py-3.5 border-b border-border bg-surface">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-base font-bold text-foreground font-fraunces tracking-tight">
+              Your Order
+            </h2>
+            {hasItems && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white font-jakarta">
+                {itemCount}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={handleAttemptClose}
+            aria-label="Close cart"
+            className="rounded-full p-1.5 text-muted hover:text-foreground hover:bg-surface-subtle transition-colors cursor-pointer"
+          >
+            <XIcon />
+          </button>
+        </header>
 
-      {/* ── Free Shipping Bar ── */}
-      {hasItems && <FreeShippingBar />}
+        {/* ── Free Shipping Bar ── */}
+        {hasItems && <FreeShippingBar />}
 
       {/* ── Body ── */}
       {hasItems ? (
@@ -358,8 +427,8 @@ export function CartSlideOver() {
             {/* Secondary link */}
             <div className="text-center">
               <button
-                onClick={closeCart}
-                className="text-xs text-muted hover:text-foreground font-jakarta underline underline-offset-2 transition-colors"
+                onClick={handleAttemptClose}
+                className="text-xs text-muted hover:text-foreground font-jakarta underline underline-offset-2 transition-colors cursor-pointer"
               >
                 Continue Shopping
               </button>
@@ -370,5 +439,13 @@ export function CartSlideOver() {
         <EmptyCartState onClose={closeCart} />
       )}
     </Drawer>
-  );
+
+    {/* Exit-Intent Downsell Modal (triggers on cart abandonment / close attempt) */}
+    <ExitIntentDownsellModal
+      isOpen={showDownsell}
+      onClose={handleCloseDownsell}
+      onAccept={handleAcceptDownsell}
+    />
+  </>
+);
 }

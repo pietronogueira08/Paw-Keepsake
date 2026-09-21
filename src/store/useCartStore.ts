@@ -62,6 +62,7 @@ interface CartStore {
   setActiveBumpType: (type: OrderBumpType) => void;
   setOrderBumpColor: (color: OrderBumpColor) => void;
   setOrderBumpSize: (size: OrderBumpSize) => void;
+  switchToDownsellItem: (type?: OrderBumpType) => void;
   clearCart: () => void;
 
   // Derived (computed inline via getters — not stored)
@@ -201,6 +202,43 @@ export const useCartStore = create<CartStore>()(
       setOrderBumpColor: (orderBumpColor: OrderBumpColor) => set({ orderBumpColor }),
 
       setOrderBumpSize: (orderBumpSize: OrderBumpSize) => set({ orderBumpSize }),
+
+      switchToDownsellItem: (type: OrderBumpType = 'mug') =>
+        set((state) => {
+          const firstItem = state.items[0];
+          const petName = firstItem?.petName || 'Beloved Pet';
+          const breed = firstItem?.breed || null;
+          const selectedCoat = firstItem?.selectedCoat;
+          const dateRange = firstItem?.dateRange || '';
+          const quote = firstItem?.quote || '';
+
+          const isMug = type === 'mug';
+          const downsellItem: CartItem = {
+            id: `downsell-${type}-${Date.now()}`,
+            productTitle: isMug
+              ? 'Matching Memorial Ceramic Mug (15 oz)'
+              : 'Matching Memorial Keepsake Keyring',
+            productType: isMug ? 'ceramic-mug' : 'keepsake-keyring',
+            breed,
+            selectedCoat,
+            petName,
+            dateRange,
+            quote,
+            size: isMug ? '15 oz' : 'One Size',
+            frameStyle: null,
+            quantity: 1,
+            unitPrice: isMug ? 22.9 : 19.9,
+          };
+
+          const nextItems = [downsellItem];
+          return {
+            items: nextItems,
+            hasOrderBump: false,
+            orderBump: null,
+            activeBumpType: type,
+            ...computeTotals(nextItems, false, null),
+          };
+        }),
 
       clearCart: () =>
         set({

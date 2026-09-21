@@ -4,10 +4,12 @@
 
 export type ProductType = 'museum-canvas' | 'framed-print';
 export type ApparelProductType = 'memorial-crewneck' | 'memorial-tshirt';
-export type AnyProductType = ProductType | ApparelProductType;
+export type MerchandiseProductType = 'ceramic-mug' | 'keepsake-keyring';
+export type AnyProductType = ProductType | ApparelProductType | MerchandiseProductType;
 
 export type CanvasSize = '8x12' | '12x16' | '16x20' | '16x24' | '8x10' | '18x24' | '24x36';
 export type ApparelSize = 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
+export type MerchandiseSize = '15 oz' | 'One Size';
 
 export type FrameStyle = 'none' | 'natural-oak' | 'black-walnut' | 'white-gallery';
 export type ApparelColor = 'sand' | 'off-white' | 'heather-grey';
@@ -75,8 +77,8 @@ export interface CartItem {
   petName: string;
   dateRange: string;
   quote: string;
-  /** CanvasSize for wall art; ApparelSize for apparel */
-  size: CanvasSize | ApparelSize;
+  /** CanvasSize for wall art; ApparelSize for apparel; MerchandiseSize for mugs/keyrings */
+  size: CanvasSize | ApparelSize | MerchandiseSize | string;
   /** null for apparel */
   frameStyle: FrameStyle | null;
   /** Apparel color — undefined for wall art */

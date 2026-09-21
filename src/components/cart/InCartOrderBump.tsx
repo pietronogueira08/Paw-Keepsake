@@ -5,6 +5,7 @@ import { Check, Sparkles, Shield, Key, Coffee } from 'lucide-react';
 import { useCartStore, ORDER_BUMP_OPTIONS } from '@/store/useCartStore';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
 import { formatPrice, cn } from '@/lib/utils';
+import type { OrderBumpType } from '@/types/ecommerce';
 
 export function InCartOrderBump() {
   const customizerPetName = useCustomizerStore((s) => s.petName);
@@ -31,14 +32,25 @@ export function InCartOrderBump() {
     ? `/breeds/${selectedCoat}.webp`
     : breed?.image || (breed ? `/breeds/${breed.slug}.webp` : '/breeds/french-bulldog-fawn.webp');
 
-  const currentOption = ORDER_BUMP_OPTIONS[activeBumpType] || ORDER_BUMP_OPTIONS.keyring;
-  const isKeyring = activeBumpType === 'keyring';
+  const hasMugInCart = cartItems.some((i) => i.productType === 'ceramic-mug');
+  const hasKeyringInCart = cartItems.some((i) => i.productType === 'keepsake-keyring');
+
+  // If both are already in the cart, no additional order bump is needed
+  if (hasMugInCart && hasKeyringInCart) return null;
+
+  const effectiveBumpType: OrderBumpType = hasMugInCart
+    ? 'keyring'
+    : hasKeyringInCart
+    ? 'mug'
+    : activeBumpType;
+  const currentOption = ORDER_BUMP_OPTIONS[effectiveBumpType] || ORDER_BUMP_OPTIONS.keyring;
+  const isKeyring = effectiveBumpType === 'keyring';
 
   function handleToggle() {
     if (hasOrderBump) {
       removeOrderBump();
     } else {
-      addOrderBump(activeBumpType);
+      addOrderBump(effectiveBumpType);
     }
   }
 
@@ -62,36 +74,43 @@ export function InCartOrderBump() {
         </span>
       </div>
 
-      {/* ── Product Switcher Pills: Keyring vs Ceramic Mug ──────────── */}
-      <div className="flex items-center gap-1.5 p-1 bg-[#EFE9DD]/70 rounded-xl mb-3 border border-[#E2DDD3]">
-        <button
-          type="button"
-          onClick={() => setActiveBumpType('keyring')}
-          className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer',
-            isKeyring
-              ? 'bg-white text-[--text-primary] shadow-xs border border-black/5'
-              : 'text-[--text-secondary] hover:text-[--text-primary]'
-          )}
-        >
-          <Key size={13} className={isKeyring ? 'text-[--accent]' : 'text-muted'} />
-          <span className="truncate">Keyring ({formatPrice(ORDER_BUMP_OPTIONS.keyring.salePrice)})</span>
-        </button>
+      {/* ── Product Switcher Pills: Keyring vs Ceramic Mug (Hidden if one is already in cart) ──────────── */}
+      {!hasMugInCart && !hasKeyringInCart ? (
+        <div className="flex items-center gap-1.5 p-1 bg-[#EFE9DD]/70 rounded-xl mb-3 border border-[#E2DDD3]">
+          <button
+            type="button"
+            onClick={() => setActiveBumpType('keyring')}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer',
+              isKeyring
+                ? 'bg-white text-[--text-primary] shadow-xs border border-black/5'
+                : 'text-[--text-secondary] hover:text-[--text-primary]'
+            )}
+          >
+            <Key size={13} className={isKeyring ? 'text-[--accent]' : 'text-muted'} />
+            <span className="truncate">Keyring ({formatPrice(ORDER_BUMP_OPTIONS.keyring.salePrice)})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveBumpType('mug')}
-          className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer',
-            !isKeyring
-              ? 'bg-white text-[--text-primary] shadow-xs border border-black/5'
-              : 'text-[--text-secondary] hover:text-[--text-primary]'
-          )}
-        >
-          <Coffee size={13} className={!isKeyring ? 'text-[--accent]' : 'text-muted'} />
-          <span className="truncate">Ceramic Mug ({formatPrice(ORDER_BUMP_OPTIONS.mug.salePrice)})</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setActiveBumpType('mug')}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold font-jakarta transition-all cursor-pointer',
+              !isKeyring
+                ? 'bg-white text-[--text-primary] shadow-xs border border-black/5'
+                : 'text-[--text-secondary] hover:text-[--text-primary]'
+            )}
+          >
+            <Coffee size={13} className={!isKeyring ? 'text-[--accent]' : 'text-muted'} />
+            <span className="truncate">Ceramic Mug ({formatPrice(ORDER_BUMP_OPTIONS.mug.salePrice)})</span>
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF6F0] rounded-xl mb-3 border border-[--accent]/30 text-xs font-bold font-jakarta text-[--text-primary]">
+          {isKeyring ? <Key size={13} className="text-[--accent]" /> : <Coffee size={13} className="text-[--accent]" />}
+          <span>Matching Add-on: {currentOption.name}</span>
+        </div>
+      )}
 
       {/* Main Row: Photorealistic Mockup on Left, Offer Details on Right */}
       <div className="flex gap-3 sm:gap-4 items-center">
