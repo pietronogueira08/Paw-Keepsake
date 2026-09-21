@@ -1,17 +1,56 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
+import { trackPurchase } from '@/lib/analytics';
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const clearCart = useCartStore((s) => s.clearCart);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const [petName, setPetName] = useState<string | null>(null);
 
   useEffect(() => {
-    // Clear cart once order is confirmed
+    // Clear client-side cart once order is confirmed
     clearCart();
-  }, [clearCart]);
+
+    if (!sessionId) return;
+
+    const storageKey = `paw_purchase_tracked_${sessionId}`;
+    if (typeof window !== 'undefined' && sessionStorage.getItem(storageKey)) {
+      return; // Already tracked for this checkout session
+    }
+
+    // Fetch verified checkout details to fire accurate Meta Pixel Purchase event
+    fetch(`/api/checkout/session?id=${encodeURIComponent(sessionId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.amountTotal === 'number') {
+          if (data.petName) setPetName(data.petName);
+
+          trackPurchase({
+            value: data.amountTotal,
+            currency: 'USD',
+            transactionId: sessionId,
+            petName: data.petName || undefined,
+          });
+
+          sessionStorage.setItem(storageKey, 'true');
+        }
+      })
+      .catch((err) => {
+        console.warn('[OrderConfirmation] Fallback tracking triggered:', err);
+        trackPurchase({
+          value: 68.0,
+          currency: 'USD',
+          transactionId: sessionId,
+        });
+        sessionStorage.setItem(storageKey, 'true');
+      });
+  }, [clearCart, sessionId]);
 
   return (
     <main className="min-h-[80vh] bg-background py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
@@ -39,11 +78,15 @@ export default function OrderConfirmationPage() {
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-foreground mb-4">
-            Thank You for Honoring Their Memory
+            {petName
+              ? `Thank You for Honoring ${petName}'s Memory`
+              : 'Thank You for Honoring Their Memory'}
           </h1>
 
           <p className="text-sm sm:text-base text-muted font-jakarta leading-relaxed max-w-lg mx-auto mb-8">
-            Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.
+            {petName
+              ? `Your custom memorial tribute for ${petName} is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.`
+              : 'Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.'}
           </p>
 
           {/* Fulfillment Timeline */}
@@ -104,6 +147,7 @@ export default function OrderConfirmationPage() {
           <div>
             <Link
               href="/"
+              prefetch={false}
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-accent hover:bg-accent-hover text-white text-sm font-semibold font-jakarta transition-colors shadow-sm"
             >
               Return to Homepage
@@ -112,5 +156,19 @@ export default function OrderConfirmationPage() {
         </motion.div>
       </div>
     </main>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-[80vh] flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        </main>
+      }
+    >
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

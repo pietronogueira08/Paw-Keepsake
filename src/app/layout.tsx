@@ -5,6 +5,7 @@ import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Header } from '@/components/layout/Header';
 import { CartSlideOver } from '@/components/cart/CartSlideOver';
+import { MetaPixel } from '@/components/analytics/MetaPixel';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${fraunces.variable} ${jakarta.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground font-jakarta antialiased">
+        <MetaPixel />
         <Header />
         <div className="flex-1">
           {children}

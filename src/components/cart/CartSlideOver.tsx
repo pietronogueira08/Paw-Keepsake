@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useCartStore } from '@/store/useCartStore';
 import { formatPrice } from '@/lib/utils';
-import { trackInitiateCheckout } from '@/lib/analytics';
+import { trackAddToCart, trackInitiateCheckout } from '@/lib/analytics';
 import { Drawer } from '@/components/ui/Drawer';
 import { FreeShippingBar } from '@/components/cart/FreeShippingBar';
 import { InCartOrderBump } from '@/components/cart/InCartOrderBump';
@@ -238,6 +238,12 @@ export function CartSlideOver() {
           ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($22.90)!`
           : `Cart updated to ${petName}'s Keepsake Keyring ($19.90)!`
       );
+      trackAddToCart({
+        value: type === 'mug' ? 22.9 : 19.9,
+        currency: 'USD',
+        productType: type === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',
+        petName,
+      });
       // Re-open cart with the selected downsell item and updated shipping
       setTimeout(() => {
         useCartStore.getState().openCart();
@@ -275,7 +281,16 @@ export function CartSlideOver() {
     setIsCheckingOut(true);
 
     try {
-      trackInitiateCheckout({ value: total, currency: 'USD' });
+      trackInitiateCheckout({
+        value: total,
+        currency: 'USD',
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.productTitle,
+          price: i.unitPrice,
+          quantity: i.quantity,
+        })),
+      });
 
       const res = await fetch('/api/checkout', {
         method: 'POST',

@@ -10,7 +10,7 @@ import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraf
 import { AiTributeModal } from '@/components/customizer/AiTributeModal';
 import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
-import { trackAddToCart } from '@/lib/analytics';
+import { trackAddToCart, trackViewContent } from '@/lib/analytics';
 import { generateId, formatPrice, cn } from '@/lib/utils';
 import type { CartItem } from '@/types/ecommerce';
 import { BREEDS } from '@/lib/breeds-data';
@@ -67,6 +67,16 @@ export function HeroCustomizer() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Track product view content on initial customizer load
+  useEffect(() => {
+    trackViewContent({
+      value: store.unitPrice || 68,
+      currency: 'USD',
+      petName: store.petName || undefined,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const filteredBreeds = useMemo(() => {
     const q = breedSearch.trim().toLowerCase();
     if (!q) return [];
@@ -118,6 +128,7 @@ export function HeroCustomizer() {
     trackAddToCart({
       value: store.unitPrice,
       currency: 'USD',
+      petName: store.petName.trim() || undefined,
       items: [{ id: item.id, name: `${store.breed.name} Memorial Canvas`, price: store.unitPrice, quantity: 1 }],
     });
     
