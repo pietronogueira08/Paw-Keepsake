@@ -98,6 +98,17 @@ export async function uploadImageToPrintify(fileUrl: string, fileName: string): 
  */
 export async function createPrintifyOrder(params: CreatePrintifyOrderParams) {
   const { externalId, shippingAddress, items, autoSubmit = false } = params;
+
+  // 🛑 Defense-in-depth: Never send test orders to Printify
+  if (
+    externalId.startsWith('cs_test_') ||
+    process.env.STRIPE_MODE === 'test' ||
+    process.env.NODE_ENV === 'development'
+  ) {
+    console.info(`[printify] 🛑 Blocked Printify order creation for test/dev session: ${externalId}`);
+    return { id: 'test_order_blocked', status: 'blocked_in_test' };
+  }
+
   const shopId = PRINTIFY_CONFIG.shopId;
 
   const lineItems = items.map((item) => {

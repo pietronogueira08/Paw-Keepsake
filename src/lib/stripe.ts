@@ -6,8 +6,33 @@ import Stripe from 'stripe';
  * STRIPE_SECRET_KEY is absent from the build environment.
  */
 let _stripe: Stripe | null = null;
+let _testStripe: Stripe | null = null;
 
 export function getStripe(): Stripe {
+  const isDev = process.env.NODE_ENV === 'development';
+  const isExplicitTestMode = process.env.STRIPE_MODE === 'test';
+
+  // In local development or explicit test mode, ONLY allow test keys!
+  // Strictly forbids fallback to sk_live_ to guarantee zero accidental charges on localhost.
+  if (isDev || isExplicitTestMode) {
+    const testKey =
+      process.env.STRIPE_TEST_SECRET_KEY ||
+      (process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_')
+        ? process.env.STRIPE_SECRET_KEY
+        : null);
+
+    if (!testKey) {
+      throw new Error(
+        '[Stripe Guard] O ambiente local está configurado para operar EXCLUSIVAMENTE com chaves de teste. Adicione STRIPE_SECRET_KEY=sk_test_... no arquivo .env.development.local. O uso de chaves de produção (sk_live_...) em localhost está bloqueado para sua total segurança.'
+      );
+    }
+
+    if (!_testStripe) {
+      _testStripe = new Stripe(testKey, { typescript: true });
+    }
+    return _testStripe;
+  }
+
   if (_stripe) return _stripe;
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) {
@@ -15,6 +40,38 @@ export function getStripe(): Stripe {
   }
   _stripe = new Stripe(key, { typescript: true });
   return _stripe;
+}
+
+/**
+ * Returns a Stripe client appropriate for the given session ID.
+ * In development or when checking cs_test_ sessions, strictly requires test keys.
+ */
+export function getStripeForSession(sessionId: string): Stripe {
+  const isDev = process.env.NODE_ENV === 'development';
+  const isExplicitTestMode = process.env.STRIPE_MODE === 'test';
+
+  if (sessionId.startsWith('cs_test_') || isDev || isExplicitTestMode) {
+    const testKey =
+      process.env.STRIPE_TEST_SECRET_KEY ||
+      (process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_')
+        ? process.env.STRIPE_SECRET_KEY
+        : null);
+
+    if (!testKey) {
+      throw new Error(
+        '[Stripe Guard] Sessão de teste detectada (' +
+          sessionId +
+          '), mas nenhuma chave de teste (sk_test_...) foi configurada em .env.development.local.'
+      );
+    }
+
+    if (!_testStripe) {
+      _testStripe = new Stripe(testKey, { typescript: true });
+    }
+    return _testStripe;
+  }
+
+  return getStripe();
 }
 
 /**

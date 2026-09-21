@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -12,6 +12,7 @@ function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [petName, setPetName] = useState<string | null>(null);
+  const hasTrackedRef = useRef(false);
 
   useEffect(() => {
     // Clear client-side cart once order is confirmed
@@ -20,8 +21,14 @@ function OrderConfirmationContent() {
     if (!sessionId) return;
 
     const storageKey = `paw_purchase_tracked_${sessionId}`;
-    if (typeof window !== 'undefined' && sessionStorage.getItem(storageKey)) {
-      return; // Already tracked for this checkout session — prevents duplicate on refresh
+    const clientAlreadyTracked =
+      typeof window !== 'undefined' &&
+      (sessionStorage.getItem(storageKey) === 'true' ||
+        localStorage.getItem(storageKey) === 'true');
+
+    if (clientAlreadyTracked || hasTrackedRef.current) {
+      console.info('[OrderConfirmation] Purchase already tracked for session:', sessionId);
+      return;
     }
 
     // Fetch verified checkout details from the server to fire accurate Meta Pixel Purchase event
@@ -40,6 +47,9 @@ function OrderConfirmationContent() {
           return;
         }
 
+        if (hasTrackedRef.current) return;
+        hasTrackedRef.current = true;
+
         if (data.petName) setPetName(data.petName);
 
         // Dispatches standard Purchase event ONLY with confirmed Stripe amount & currency
@@ -56,8 +66,9 @@ function OrderConfirmationContent() {
           { eventID: data.eventId }
         );
 
-        // Prevents duplicate firing on subsequent page refreshes
+        // Prevents duplicate firing across tab refreshes, tab closures and reopens
         sessionStorage.setItem(storageKey, 'true');
+        localStorage.setItem(storageKey, 'true');
       })
       .catch((err) => {
         console.error('[OrderConfirmation] Error verifying payment with server:', err);

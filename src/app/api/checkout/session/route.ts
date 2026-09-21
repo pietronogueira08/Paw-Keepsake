@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripeForSession } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
 
 /**
- * Validates Stripe Checkout session strictly on the server.
+ * Validates Stripe Checkout session strictly on the server by querying the Stripe API.
  * Ensures the order is confirmed as PAID by Stripe before any Purchase event is dispatched.
+ * Note: This endpoint is completely stateless and read-only; it does not mark or assume
+ * tracking has happened, leaving client-side dispatch confirmation to the browser Pixel.
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -20,7 +22,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     // Retrieve verified session details directly from Stripe API
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const stripeClient = getStripeForSession(sessionId);
+    const session = await stripeClient.checkout.sessions.retrieve(sessionId);
 
     // Strict validation: Must be 'paid'
     const isPaid = session.payment_status === 'paid';

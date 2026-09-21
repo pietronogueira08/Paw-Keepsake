@@ -38,6 +38,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           session.customer_details?.email,
         );
 
+        // In test mode (livemode === false) or local development, NEVER dispatch orders to Printify
+        if (!session.livemode || process.env.NODE_ENV === 'development') {
+          console.info(
+            `[stripe-webhook] 🧪 Test/dev mode session detected (${session.id}). Skipping Printify order dispatch.`,
+          );
+          break;
+        }
+
         // Automatically dispatch order to Printify
         const sessionAny = session as unknown as {
           collected_information?: { shipping_details?: { name?: string; address?: Stripe.Address } };
