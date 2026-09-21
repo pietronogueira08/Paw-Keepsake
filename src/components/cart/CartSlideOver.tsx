@@ -202,6 +202,8 @@ export function CartSlideOver() {
 
   // ─── Exit Intent & Close Interception ───────────────────────────────────────
   const handleAttemptClose = useCallback(() => {
+    closeCart(); // Always close the cart drawer cleanly!
+
     const hasCanvas = items.some(
       (item) => item.productType === 'museum-canvas' || item.productType === 'framed-print'
     );
@@ -210,11 +212,10 @@ export function CartSlideOver() {
       sessionStorage.getItem('paw_exit_downsell_dismissed') === 'true';
 
     if (hasCanvas && !alreadyDismissed) {
-      setShowDownsell(true);
-      return;
+      setTimeout(() => {
+        setShowDownsell(true);
+      }, 250);
     }
-
-    closeCart();
   }, [items, closeCart]);
 
   const handleCloseDownsell = useCallback(() => {
@@ -222,8 +223,7 @@ export function CartSlideOver() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('paw_exit_downsell_dismissed', 'true');
     }
-    closeCart();
-  }, [closeCart]);
+  }, []);
 
   const handleAcceptDownsell = useCallback(
     (type: OrderBumpType) => {
@@ -238,6 +238,10 @@ export function CartSlideOver() {
           ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($22.90)!`
           : `Cart updated to ${petName}'s Keepsake Keyring ($19.90)!`
       );
+      // Re-open cart with the selected downsell item and updated shipping
+      setTimeout(() => {
+        useCartStore.getState().openCart();
+      }, 200);
     },
     [items, switchToDownsellItem],
   );
@@ -256,6 +260,7 @@ export function CartSlideOver() {
           sessionStorage.getItem('paw_exit_downsell_dismissed') === 'true';
 
         if (hasCanvas && !alreadyDismissed) {
+          closeCart();
           setShowDownsell(true);
         }
       }
@@ -263,7 +268,7 @@ export function CartSlideOver() {
 
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
-  }, [isOpen, items]);
+  }, [isOpen, items, closeCart]);
 
   const handleCheckout = useCallback(async () => {
     if (isCheckingOut) return;
@@ -306,7 +311,7 @@ export function CartSlideOver() {
 
   return (
     <>
-      <Drawer isOpen={isOpen} onClose={handleAttemptClose} title="Your Order">
+      <Drawer isOpen={isOpen} onClose={handleAttemptClose} title="Your Order" hideHeader>
         {/* ── Header ── */}
         <header className="flex items-center justify-between px-4 py-3.5 border-b border-border bg-surface">
           <div className="flex items-center gap-2.5">

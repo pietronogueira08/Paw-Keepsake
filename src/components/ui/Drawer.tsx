@@ -19,6 +19,8 @@ export interface DrawerProps {
   width?: string;
   /** Additional classes applied to the drawer panel. */
   className?: string;
+  /** If true, hides the default drawer header so children can provide their own */
+  hideHeader?: boolean;
 }
 
 // ─── Close icon ──────────────────────────────────────────────────────────────
@@ -48,6 +50,7 @@ function DrawerContent({
   children,
   width = '420px',
   className,
+  hideHeader = false,
 }: DrawerProps) {
   const titleId = React.useId();
   const panelRef = React.useRef<HTMLDivElement>(null);
@@ -146,29 +149,36 @@ function DrawerContent({
             )}
           >
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
-              <h2
-                id={titleId}
-                className="font-fraunces text-xl font-semibold text-foreground"
-              >
-                {title}
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close drawer"
-                className={cn(
-                  'rounded-lg p-1 text-muted',
-                  'transition-colors hover:bg-surface-subtle hover:text-foreground',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                )}
-              >
-                <CloseIcon />
-              </button>
-            </div>
+            {!hideHeader && (
+              <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
+                <h2
+                  id={titleId}
+                  className="font-fraunces text-xl font-semibold text-foreground"
+                >
+                  {title}
+                </h2>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close drawer"
+                  className={cn(
+                    'rounded-lg p-1 text-muted',
+                    'transition-colors hover:bg-surface-subtle hover:text-foreground',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                  )}
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+            )}
 
-            {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 font-jakarta text-sm text-foreground">
+            {/* Body */}
+            <div
+              className={cn(
+                'flex-1 flex flex-col min-h-0 font-jakarta text-sm text-foreground',
+                !hideHeader && 'overflow-y-auto px-6 py-5',
+              )}
+            >
               {children}
             </div>
           </motion.div>
