@@ -21,34 +21,47 @@ function OrderConfirmationContent() {
 
     const storageKey = `paw_purchase_tracked_${sessionId}`;
     if (typeof window !== 'undefined' && sessionStorage.getItem(storageKey)) {
-      return; // Already tracked for this checkout session
+      return; // Already tracked for this checkout session — prevents duplicate on refresh
     }
 
-    // Fetch verified checkout details to fire accurate Meta Pixel Purchase event
+    // Fetch verified checkout details from the server to fire accurate Meta Pixel Purchase event
     fetch(`/api/checkout/session?id=${encodeURIComponent(sessionId)}`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.warn('[OrderConfirmation] Stripe verification failed:', err);
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (data && typeof data.amountTotal === 'number') {
-          if (data.petName) setPetName(data.petName);
+        if (!data || !data.isPaid || data.paymentStatus !== 'paid') {
+          console.warn('[OrderConfirmation] Order is not confirmed as paid by Stripe. Purchase event skipped.');
+          return;
+        }
 
-          trackPurchase({
+        if (data.petName) setPetName(data.petName);
+
+        // Dispatches standard Purchase event ONLY with confirmed Stripe amount & currency
+        trackPurchase(
+          {
             value: data.amountTotal,
-            currency: 'USD',
+            currency: data.currency || 'USD',
             transactionId: sessionId,
             petName: data.petName || undefined,
-          });
+            content_ids: data.contentIds || ['museum-canvas'],
+            content_type: 'product',
+            eventID: data.eventId,
+          },
+          { eventID: data.eventId }
+        );
 
-          sessionStorage.setItem(storageKey, 'true');
-        }
+        // Prevents duplicate firing on subsequent page refreshes
+        sessionStorage.setItem(storageKey, 'true');
       })
       .catch((err) => {
-        console.warn('[OrderConfirmation] Fallback tracking triggered:', err);
-        trackPurchase({
-          value: 68.0,
-          currency: 'USD',
-          transactionId: sessionId,
-        });
-        sessionStorage.setItem(storageKey, 'true');
+        console.error('[OrderConfirmation] Error verifying payment with server:', err);
+        // Do NOT simulate purchase if server check fails
       });
   }, [clearCart, sessionId]);
 

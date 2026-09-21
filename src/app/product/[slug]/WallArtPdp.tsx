@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { Product } from '@/types/ecommerce';
 import { formatPrice } from '@/lib/utils';
+import { trackViewContent } from '@/lib/analytics';
 import { FaqAccordion } from '@/components/sections/FaqAccordion';
 
 interface Props {
@@ -11,6 +13,16 @@ interface Props {
 }
 
 export function WallArtPdp({ product }: Props) {
+  useEffect(() => {
+    trackViewContent({
+      content_name: product.title,
+      content_category: 'Wall Art',
+      content_ids: [product.slug],
+      content_type: 'product',
+      value: product.basePrice,
+      currency: 'USD',
+    });
+  }, [product]);
   return (
     <>
       {/* Hero */}

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useCartStore } from '@/store/useCartStore';
 import { APPAREL_COLORS, APPAREL_SIZES } from '@/lib/products-data';
 import { getTopBreeds } from '@/lib/breeds-data';
 import { generateId, formatPrice, cn } from '@/lib/utils';
+import { trackViewContent, trackAddToCart } from '@/lib/analytics';
 import type { Product, ApparelSize, ApparelColor, CartItem, Breed } from '@/types/ecommerce';
 import { FaqAccordion } from '@/components/sections/FaqAccordion';
 
@@ -27,6 +28,17 @@ export function ApparelPdp({ product }: Props) {
   const [color,     setColor]     = useState<ApparelColor>('sand');
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    trackViewContent({
+      content_name: product.title,
+      content_category: 'Apparel',
+      content_ids: [product.slug],
+      content_type: 'product',
+      value: product.basePrice,
+      currency: 'USD',
+    });
+  }, [product]);
 
   function handleAddToCart() {
     if (!size) { toast.error('Please select a size.'); return; }
@@ -49,6 +61,15 @@ export function ApparelPdp({ product }: Props) {
       unitPrice: product.basePrice,
     };
     addItem(item);
+    trackAddToCart({
+      content_name: `${petName || 'Memorial'} ${product.title}`,
+      content_category: 'Apparel',
+      content_ids: [product.slug],
+      content_type: 'product',
+      value: product.basePrice,
+      currency: 'USD',
+      petName: petName.trim(),
+    });
     toast.success(`${petName || 'Memorial'} ${product.title} added to your bag 🐾`);
     openCart();
     setTimeout(() => setAdding(false), 600);

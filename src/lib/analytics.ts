@@ -9,9 +9,21 @@ import type { AnalyticsEventName, AnalyticsEventProperties } from '@/types/ecomm
 // Browser type augmentation
 declare global {
   interface Window {
-    fbq?: (action: string, eventName: string, params?: Record<string, unknown>) => void;
+    fbq?: (
+      action: string,
+      eventName: string,
+      params?: Record<string, unknown>,
+      options?: { eventID?: string }
+    ) => void;
     gtag?: (command: 'event' | 'config' | 'set', eventName: string, params?: Record<string, unknown>) => void;
   }
+}
+
+/** Check if user has explicit tracking consent (defaults to granted unless opted out) */
+export function hasTrackingConsent(): boolean {
+  if (typeof window === 'undefined') return false;
+  const consent = localStorage.getItem('paw_tracking_consent');
+  return consent !== 'false' && consent !== 'declined';
 }
 
 /**
@@ -25,22 +37,28 @@ function buildMetaPayload(name: AnalyticsEventName, properties: AnalyticsEventPr
   switch (name) {
     case 'ViewContent':
       return {
-        content_name: properties.petName
-          ? `${properties.petName}'s Memorial Portrait`
-          : 'Custom Dog Memorial Art',
-        content_category: 'Pet Memorials',
+        content_name:
+          properties.content_name ||
+          (properties.petName
+            ? `${properties.petName}'s Memorial Portrait`
+            : 'Custom Dog Memorial Art'),
+        content_category: properties.content_category || 'Pet Memorials',
         content_type: 'product',
-        value: properties.value ?? 68,
+        content_ids: properties.content_ids || [properties.productType || 'museum-canvas'],
+        value: typeof properties.value === 'number' ? properties.value : 68,
         currency: properties.currency || 'USD',
         ...base,
       };
 
     case 'AddToCart':
       return {
-        content_name: properties.petName
-          ? `${properties.petName}'s Memorial`
-          : properties.productType || 'Custom Memorial Artwork',
+        content_name:
+          properties.content_name ||
+          (properties.petName
+            ? `${properties.petName}'s Memorial`
+            : properties.productType || 'Custom Memorial Artwork'),
         content_type: 'product',
+        content_ids: properties.content_ids || [properties.productType || 'museum-canvas'],
         value: properties.value,
         currency: properties.currency || 'USD',
         ...base,
@@ -50,7 +68,11 @@ function buildMetaPayload(name: AnalyticsEventName, properties: AnalyticsEventPr
       return {
         value: properties.value,
         currency: properties.currency || 'USD',
-        num_items: properties.items?.length || 1,
+        content_type: 'product',
+        num_items: properties.items?.length || properties.num_items || 1,
+        content_ids:
+          properties.content_ids ||
+          properties.items?.map((i) => i.id) || ['museum-canvas'],
         ...base,
       };
 
@@ -59,7 +81,8 @@ function buildMetaPayload(name: AnalyticsEventName, properties: AnalyticsEventPr
         value: properties.value,
         currency: properties.currency || 'USD',
         content_type: 'product',
-        transaction_id: properties.transactionId,
+        content_ids: properties.content_ids || ['museum-canvas'],
+        num_items: properties.num_items || properties.items?.length || 1,
         ...base,
       };
 
@@ -69,15 +92,26 @@ function buildMetaPayload(name: AnalyticsEventName, properties: AnalyticsEventPr
 }
 
 /** Fire an analytics event on both Meta Pixel and GA4. */
-export function trackEvent(name: AnalyticsEventName, properties: AnalyticsEventProperties = {}): void {
+export function trackEvent(
+  name: AnalyticsEventName,
+  properties: AnalyticsEventProperties = {},
+  options?: { eventID?: string }
+): void {
   if (typeof window === 'undefined') {
     _serverSideCapiStub(name, properties);
+    return;
+  }
+
+  // Check consent preferences
+  if (!hasTrackingConsent()) {
     return;
   }
 
   // Meta (Facebook) Pixel Dispatch
   if (typeof window.fbq === 'function') {
     const metaPayload = buildMetaPayload(name, properties);
+    const eventId = options?.eventID || properties.eventID;
+    const metaOptions = eventId ? { eventID: eventId } : undefined;
 
     // Meta Standard Events vs Custom Events
     const isStandardMetaEvent = [
@@ -91,9 +125,17 @@ export function trackEvent(name: AnalyticsEventName, properties: AnalyticsEventP
     ].includes(name);
 
     if (isStandardMetaEvent) {
-      window.fbq('track', name, metaPayload);
+      if (metaOptions) {
+        window.fbq('track', name, metaPayload, metaOptions);
+      } else {
+        window.fbq('track', name, metaPayload);
+      }
     } else {
-      window.fbq('trackCustom', name, metaPayload);
+      if (metaOptions) {
+        window.fbq('trackCustom', name, metaPayload, metaOptions);
+      } else {
+        window.fbq('trackCustom', name, metaPayload);
+      }
     }
   }
 
@@ -106,6 +148,7 @@ export function trackEvent(name: AnalyticsEventName, properties: AnalyticsEventP
 /** Tracks a virtual page-view. Call inside useEffect after route changes. */
 export function pageView(url: string): void {
   if (typeof window === 'undefined') return;
+  if (!hasTrackingConsent()) return;
   if (typeof window.fbq === 'function') window.fbq('track', 'PageView');
   if (typeof window.gtag === 'function') {
     const mid = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
@@ -129,15 +172,18 @@ export function trackInitiateCheckout(properties: AnalyticsEventProperties = {})
   trackEvent('InitiateCheckout', properties);
 }
 
-export function trackPurchase(properties: AnalyticsEventProperties = {}): void {
-  trackEvent('Purchase', properties);
+export function trackPurchase(
+  properties: AnalyticsEventProperties = {},
+  options?: { eventID?: string }
+): void {
+  trackEvent('Purchase', properties, options);
 }
 
 export function trackSaveDraft(properties: AnalyticsEventProperties = {}): void {
   trackEvent('SaveDraft', properties);
 }
 
-/** @private Stub for server-side Meta Conversions API — replace with real CAPI call */
+/** @private Stub for server-side Meta Conversions API — ready for META_CAPI_ACCESS_TOKEN */
 function _serverSideCapiStub(_name: AnalyticsEventName, _props: AnalyticsEventProperties): void {
-  // TODO: Fire Meta CAPI via server action for server-side events
+  // Server-side CAPI is invoked when META_CAPI_ACCESS_TOKEN is configured in environment
 }

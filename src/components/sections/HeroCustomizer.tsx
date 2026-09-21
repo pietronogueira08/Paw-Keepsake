@@ -70,6 +70,10 @@ export function HeroCustomizer() {
   // Track product view content on initial customizer load
   useEffect(() => {
     trackViewContent({
+      content_name: 'Custom Memorial Canvas',
+      content_category: 'Wall Art',
+      content_ids: ['museum-canvas'],
+      content_type: 'product',
       value: store.unitPrice || 68,
       currency: 'USD',
       petName: store.petName || undefined,
@@ -126,6 +130,10 @@ export function HeroCustomizer() {
     addItem(item);
     openCart();
     trackAddToCart({
+      content_name: `${store.breed.name} Memorial Canvas`,
+      content_category: 'Wall Art',
+      content_ids: [item.id],
+      content_type: 'product',
       value: store.unitPrice,
       currency: 'USD',
       petName: store.petName.trim() || undefined,

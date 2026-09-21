@@ -3,25 +3,44 @@
 import { useEffect, useRef, Suspense } from 'react';
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { hasTrackingConsent } from '@/lib/analytics';
 
 export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1543383894501429';
 
 /**
  * Tracks route changes in Next.js App Router (Single Page Application transitions).
- * Standard pixel snippet only fires on hard refresh, so this component fires
- * 'PageView' whenever client-side navigation occurs.
+ * - Fires standard 'PageView' only on REAL route/query changes.
+ * - Prevents duplicate triggers from component re-renders or StrictMode double mounts.
+ * - Respects user tracking consent preferences.
  */
 function MetaPixelRouteTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isFirstRender = useRef(true);
+  const lastTrackedUrl = useRef<string>('');
 
   useEffect(() => {
-    // Skip initial mount because base script immediately fires PageView
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    const search = searchParams?.toString();
+    const currentUrl = search ? `${pathname}?${search}` : pathname;
+
+    // Respect consent if user has declined tracking
+    if (!hasTrackingConsent()) {
       return;
     }
+
+    // Skip the initial mount because the inline base script already tracks the initial PageView
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      lastTrackedUrl.current = currentUrl;
+      return;
+    }
+
+    // Guard against component re-renders that do not change the URL
+    if (currentUrl === lastTrackedUrl.current) {
+      return;
+    }
+
+    lastTrackedUrl.current = currentUrl;
 
     if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
@@ -33,7 +52,8 @@ function MetaPixelRouteTracker() {
 
 /**
  * Intelligent Meta (Facebook) Pixel integration.
- * - Loads asynchronously without blocking page render (afterInteractive).
+ * - Loads asynchronously without blocking page render (strategy="afterInteractive").
+ * - Single initialization guard.
  * - Fires standard 'PageView' on initial load.
  * - Tracks SPA route transitions automatically.
  * - Includes <noscript> fallback.

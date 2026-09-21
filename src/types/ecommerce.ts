@@ -170,7 +170,13 @@ export interface AnalyticsEventProperties {
   productType?: AnyProductType;
   petName?: string;
   value?: number;
-  currency?: 'USD';
+  currency?: 'USD' | string;
   items?: Array<{ id: string; name: string; price: number; quantity: number }>;
   transactionId?: string;
+  content_name?: string;
+  content_category?: string;
+  content_ids?: string[];
+  content_type?: 'product';
+  num_items?: number;
+  eventID?: string;
 }

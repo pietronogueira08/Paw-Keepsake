@@ -52,7 +52,15 @@ export function StickyMobileAddToCart() {
 
     addItem(item);
     openCart();
-    trackAddToCart({ value: store.unitPrice, currency: 'USD' });
+    trackAddToCart({
+      content_name: `${store.breed.name} Memorial Canvas`,
+      content_category: 'Wall Art',
+      content_ids: [item.id],
+      content_type: 'product',
+      value: store.unitPrice,
+      currency: 'USD',
+      petName: store.petName.trim() || undefined,
+    });
     toast.success('Added to your order 🐾');
   };
 

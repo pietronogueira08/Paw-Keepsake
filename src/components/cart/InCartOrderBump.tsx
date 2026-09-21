@@ -5,6 +5,7 @@ import { Check, Sparkles, Shield, Key, Coffee } from 'lucide-react';
 import { useCartStore, ORDER_BUMP_OPTIONS } from '@/store/useCartStore';
 import { useCustomizerStore } from '@/store/useCustomizerStore';
 import { formatPrice, cn } from '@/lib/utils';
+import { trackAddToCart } from '@/lib/analytics';
 import type { OrderBumpType } from '@/types/ecommerce';
 
 export function InCartOrderBump() {
@@ -51,6 +52,15 @@ export function InCartOrderBump() {
       removeOrderBump();
     } else {
       addOrderBump(effectiveBumpType);
+      trackAddToCart({
+        content_name: currentOption.name,
+        content_category: 'Merchandise',
+        content_ids: [currentOption.id],
+        content_type: 'product',
+        value: currentOption.salePrice,
+        currency: 'USD',
+        petName,
+      });
     }
   }
 
