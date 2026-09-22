@@ -179,7 +179,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       metadata: {
         source: 'paw-keepsake-web',
         item_count: String(validated.items.length),
+        product_type: validated.items[0]?.productType || 'museum-canvas',
         has_order_bump: String(validated.hasOrderBump),
+        order_bump_type: validated.hasOrderBump ? (validated.orderBumpType || 'keyring') : 'none',
         canvas_size: validated.items[0]?.size || '12x16',
         pet_name: validated.items[0]?.petName || '',
         breed_name: validated.items[0]?.breed?.name || '',

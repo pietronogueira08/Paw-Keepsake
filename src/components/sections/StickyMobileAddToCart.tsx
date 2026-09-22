@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { generateId, formatPrice, cn } from '@/lib/utils';
 import { trackAddToCart } from '@/lib/analytics';
 import { MEMORIAL_QUOTES } from '@/lib/breeds-data';
+import { useAbTest } from '@/lib/ab-testing';
 import type { CartItem } from '@/types/ecommerce';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ export function StickyMobileAddToCart() {
   const [isVisible, setIsVisible] = useState(false);
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
+  const { ctaVariant } = useAbTest();
 
   useEffect(() => {
     const sentinel = document.getElementById('hero-cta-sentinel');
@@ -131,7 +133,7 @@ export function StickyMobileAddToCart() {
                   aria-label="Add to cart"
                 >
                 <ShoppingBag size={13} aria-hidden="true" />
-                Order Now
+                {ctaVariant === 'create-portrait' ? 'Create Portrait' : 'Add to Cart'}
               </motion.button>
             </div>
           </motion.div>

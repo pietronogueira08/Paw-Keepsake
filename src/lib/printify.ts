@@ -9,6 +9,8 @@ export const PRINTIFY_CONFIG = {
   shopId: process.env.PRINTIFY_SHOP_ID || '28881871',
   canvasProductId: process.env.PRINTIFY_CANVAS_PRODUCT_ID || '6aa481666de8ba75bb0c008d',
   tshirtProductId: process.env.PRINTIFY_TSHIRT_PRODUCT_ID || '6aa4834fd72c2d45ea019c86',
+  mugProductId: process.env.PRINTIFY_MUG_PRODUCT_ID || '6aa99b44ead8310cb609f28b',
+  keyringProductId: process.env.PRINTIFY_KEYRING_PRODUCT_ID || '6aa82176daf1f92447016f0f',
 };
 
 // Exact Variant IDs from user's Printify store
@@ -21,6 +23,22 @@ export const PRINTIFY_CANVAS_VARIANTS: Record<string, number> = {
   '8x10': 93707,
   '18x24': 93711,
   '24x36': 93711,
+};
+
+// Ceramic Mug variant IDs (Accent Coffee Mug Black)
+export const PRINTIFY_MUG_VARIANTS: Record<string, number> = {
+  '11oz': 72180,
+  '11 oz': 72180,
+  '15oz': 105883,
+  '15 oz': 105883,
+};
+
+// Keepsake Keyring Tag variant IDs
+export const PRINTIFY_KEYRING_VARIANTS: Record<string, number> = {
+  'One Size': 72762,
+  'one-size': 72762,
+  'One size': 72762,
+  'default': 72762,
 };
 
 // T-shirt variant IDs (Next Level 6210 CVC Black / White)
@@ -62,7 +80,7 @@ export interface CreatePrintifyOrderParams {
   externalId: string; // Stripe checkout session ID
   shippingAddress: PrintifyShippingAddress;
   items: Array<{
-    productType: 'museum-canvas' | 'framed-print' | 'apparel';
+    productType: 'museum-canvas' | 'framed-print' | 'apparel' | 'ceramic-mug' | 'keepsake-keyring';
     size: string;
     quantity: number;
     printFileUrl?: string;
@@ -112,6 +130,35 @@ export async function createPrintifyOrder(params: CreatePrintifyOrderParams) {
   const shopId = PRINTIFY_CONFIG.shopId;
 
   const lineItems = items.map((item) => {
+    // 1. Ceramic Mug (11oz / 15oz)
+    if (item.productType === 'ceramic-mug') {
+      const variantId = PRINTIFY_MUG_VARIANTS[item.size] || PRINTIFY_MUG_VARIANTS['11oz'];
+      const lineItem: Record<string, unknown> = {
+        product_id: PRINTIFY_CONFIG.mugProductId,
+        variant_id: variantId,
+        quantity: item.quantity,
+      };
+      if (item.printFileUrl) {
+        lineItem.print_areas = { front: item.printFileUrl };
+      }
+      return lineItem;
+    }
+
+    // 2. Keepsake Keyring Tag
+    if (item.productType === 'keepsake-keyring') {
+      const variantId = PRINTIFY_KEYRING_VARIANTS[item.size] || PRINTIFY_KEYRING_VARIANTS['One Size'];
+      const lineItem: Record<string, unknown> = {
+        product_id: PRINTIFY_CONFIG.keyringProductId,
+        variant_id: variantId,
+        quantity: item.quantity,
+      };
+      if (item.printFileUrl) {
+        lineItem.print_areas = { front: item.printFileUrl };
+      }
+      return lineItem;
+    }
+
+    // 3. Apparel (T-shirt / Crewneck)
     if (item.productType === 'apparel') {
       const variantId = PRINTIFY_TSHIRT_VARIANTS[item.apparelSize || 'L'] || PRINTIFY_TSHIRT_VARIANTS['L'];
       return {
@@ -121,6 +168,7 @@ export async function createPrintifyOrder(params: CreatePrintifyOrderParams) {
       };
     }
 
+    // 4. Stretched Canvas
     const variantId = PRINTIFY_CANVAS_VARIANTS[item.size] || PRINTIFY_CANVAS_VARIANTS['12x16'];
     const lineItem: Record<string, unknown> = {
       product_id: PRINTIFY_CONFIG.canvasProductId,

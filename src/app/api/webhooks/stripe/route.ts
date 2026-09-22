@@ -63,31 +63,66 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           try {
             const { createPrintifyOrder } = await import('@/lib/printify');
             const canvasSize = (session.metadata?.canvas_size as string) || '12x16';
+            const primaryProductType = (session.metadata?.product_type as string) || 'museum-canvas';
             const hasOrderBump = session.metadata?.has_order_bump === 'true';
-            const bumpSize = (session.metadata?.bump_size as string) || 'L';
+            const bumpType = session.metadata?.order_bump_type || 'keyring';
 
             const printifyItems: Array<{
-              productType: 'museum-canvas' | 'framed-print' | 'apparel';
+              productType: 'museum-canvas' | 'framed-print' | 'apparel' | 'ceramic-mug' | 'keepsake-keyring';
               size: string;
               quantity: number;
               printFileUrl?: string;
               apparelSize?: string;
-            }> = [
-              {
+            }> = [];
+
+            // Primary purchased product
+            if (primaryProductType === 'ceramic-mug') {
+              printifyItems.push({
+                productType: 'ceramic-mug',
+                size: '11oz',
+                quantity: 1,
+                printFileUrl: session.metadata?.print_file_url,
+              });
+            } else if (primaryProductType === 'keepsake-keyring') {
+              printifyItems.push({
+                productType: 'keepsake-keyring',
+                size: 'One Size',
+                quantity: 1,
+                printFileUrl: session.metadata?.print_file_url,
+              });
+            } else if (primaryProductType === 'memorial-crewneck' || primaryProductType === 'memorial-tshirt') {
+              printifyItems.push({
+                productType: 'apparel',
+                size: (session.metadata?.apparel_size as string) || 'L',
+                quantity: 1,
+                apparelSize: (session.metadata?.apparel_size as string) || 'L',
+              });
+            } else {
+              printifyItems.push({
                 productType: 'museum-canvas',
                 size: canvasSize,
                 quantity: 1,
                 printFileUrl: session.metadata?.print_file_url,
-              },
-            ];
-
-            if (hasOrderBump) {
-              printifyItems.push({
-                productType: 'apparel',
-                size: bumpSize,
-                quantity: 1,
-                apparelSize: bumpSize,
               });
+            }
+
+            // Order Bump item (Ceramic Mug or Keepsake Keyring)
+            if (hasOrderBump) {
+              if (bumpType === 'mug') {
+                printifyItems.push({
+                  productType: 'ceramic-mug',
+                  size: '11oz',
+                  quantity: 1,
+                  printFileUrl: session.metadata?.print_file_url,
+                });
+              } else {
+                printifyItems.push({
+                  productType: 'keepsake-keyring',
+                  size: 'One Size',
+                  quantity: 1,
+                  printFileUrl: session.metadata?.print_file_url,
+                });
+              }
             }
 
             await createPrintifyOrder({
@@ -105,7 +140,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 zip: addr.postal_code || '',
               },
               items: printifyItems,
-              autoSubmit: false, // Saves as Draft in Printify for instant review & 1-click fulfillment
+              autoSubmit: process.env.PRINTIFY_AUTO_SUBMIT === 'true', // Defaults to Draft for safety & 1-click approval
             });
             console.info('[stripe-webhook] ✅ Printify order dispatched successfully for session:', session.id);
           } catch (printifyErr) {

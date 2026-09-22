@@ -108,7 +108,7 @@ function Footer() {
           <div>
             <h4 className="text-xs uppercase tracking-widest text-white/40 font-jakarta mb-3">Support</h4>
             <ul className="flex flex-col gap-2 text-sm font-jakarta">
-              <li><a href="mailto:hello@pawandkeepsake.com" className="hover:text-white transition-colors">hello@pawandkeepsake.com</a></li>
+              <li><a href="mailto:pawkeepsake@gmail.com" className="hover:text-white transition-colors underline underline-offset-4 decoration-white/30">pawkeepsake@gmail.com</a></li>
               <li><span className="text-white/50">Response within 12 hours</span></li>
             </ul>
           </div>

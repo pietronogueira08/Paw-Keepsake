@@ -91,8 +91,8 @@ export default function PrivacyPage() {
           </ul>
           <p className="text-muted text-sm mt-3">
             To exercise any of these rights, email us at{' '}
-            <a href="mailto:hello@pawandkeepsake.com" className="text-accent underline underline-offset-2">
-              hello@pawandkeepsake.com
+            <a href="mailto:pawkeepsake@gmail.com" className="text-accent underline underline-offset-2">
+              pawkeepsake@gmail.com
             </a>
             .
           </p>
@@ -120,8 +120,8 @@ export default function PrivacyPage() {
           <h2 className="font-fraunces text-xl text-foreground font-normal mb-3">Contact</h2>
           <p className="text-muted">
             Questions about this Privacy Policy? Contact us at:{' '}
-            <a href="mailto:hello@pawandkeepsake.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
-              hello@pawandkeepsake.com
+            <a href="mailto:pawkeepsake@gmail.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
+              pawkeepsake@gmail.com
             </a>
           </p>
         </section>

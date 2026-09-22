@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, ShoppingBag, ChevronDown, X, Sparkles, Loader2 } from 'lucide-react';
+import { MapPin, PackageCheck, ShieldCheck, Search, Check, AlertCircle, ShoppingBag, ChevronDown, X, Sparkles, Loader2, Clock } from 'lucide-react';
 import { LivePreviewCanvas } from '@/components/customizer/LivePreviewCanvas';
 import { PackageSelector } from '@/components/customizer/PackageSelector';
 import { SaveMemorialDraftModal } from '@/components/customizer/SaveMemorialDraftModal';
@@ -12,6 +12,7 @@ import { useCustomizerStore, getPackageSize } from '@/store/useCustomizerStore';
 import { useCartStore } from '@/store/useCartStore';
 import { trackAddToCart, trackViewContent } from '@/lib/analytics';
 import { generateId, formatPrice, cn } from '@/lib/utils';
+import { useAbTest } from '@/lib/ab-testing';
 import type { CartItem } from '@/types/ecommerce';
 import { BREEDS } from '@/lib/breeds-data';
 
@@ -35,6 +36,7 @@ const TOP_5_BREED_IDS = TOP_5_BREEDS.map((b) => b.id);
 export function HeroCustomizer() {
   const store = useCustomizerStore();
   const { addItem, openCart } = useCartStore();
+  const { ctaVariant, tributeVariant } = useAbTest();
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [isAiTributeOpen, setIsAiTributeOpen] = useState(false);
   const [breedSearch, setBreedSearch] = useState('');
@@ -176,8 +178,16 @@ export function HeroCustomizer() {
           {/* ── Right Column: Single-Column Customization Panel ────── */}
           <div className="lg:col-span-7 flex flex-col">
             
-            {/* Editorial Heading */}
+            {/* Editorial Heading & Above-The-Fold Fulfillment Urgency */}
             <div className="mb-6 lg:mb-8">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF6F0] border border-[#E8DEC8] text-[#8B6834] text-xs font-semibold font-jakarta mb-3.5 shadow-2xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Artisan Studio Active • Orders placed today ship within 48h</span>
+              </div>
+
               <h1 className="font-fraunces text-3xl sm:text-4xl lg:text-5xl text-[--text-primary] font-normal leading-[1.25] tracking-tight mb-3">
                 Create Their{' '}
                 <span className="italic font-normal text-[--accent] inline-block ml-1">
@@ -464,15 +474,17 @@ export function HeroCustomizer() {
                     <label htmlFor="memorial-quote-select" className="text-[12px] font-bold uppercase tracking-[0.06em] text-[--text-primary] block font-jakarta">
                       Memorial Quote
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleWriteWithAiClick}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/12 text-[#B88A58] hover:bg-[#B88A58] hover:text-white transition-all text-[11px] font-semibold font-jakarta cursor-pointer border border-[#B88A58]/35 shadow-2xs group"
-                      title="Generate personalized memorial quotes with AI"
-                    >
-                      <Sparkles size={12} className="text-[#B88A58] group-hover:text-white transition-colors" />
-                      <span>✨ Write with AI</span>
-                    </button>
+                    {tributeVariant === 'visible' && (
+                      <button
+                        type="button"
+                        onClick={handleWriteWithAiClick}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A58]/12 text-[#B88A58] hover:bg-[#B88A58] hover:text-white transition-all text-[11px] font-semibold font-jakarta cursor-pointer border border-[#B88A58]/35 shadow-2xs group"
+                        title="Find gentle, comforting words for your memorial"
+                      >
+                        <Sparkles size={12} className="text-[#B88A58] group-hover:text-white transition-colors" />
+                        <span>✨ Find Words of Comfort</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="relative">
@@ -543,7 +555,11 @@ export function HeroCustomizer() {
                   aria-disabled={hasTriedSubmit && !isValid}
                 >
                   <ShoppingBag size={18} aria-hidden="true" />
-                  <span>Add to Keepsakes •</span>
+                  <span>
+                    {ctaVariant === 'create-portrait'
+                      ? (store.petName.trim() ? `Create ${store.petName.trim()}'s Portrait •` : 'Create My Portrait •')
+                      : 'Add to Cart •'}
+                  </span>
                   <AnimatePresence mode="popLayout">
                     <motion.span
                       key={store.unitPrice}
@@ -562,7 +578,11 @@ export function HeroCustomizer() {
                 <div id="hero-cta-sentinel" className="sr-only" aria-hidden="true" />
 
                 {/* Trust Line */}
-                <div className="grid grid-cols-3 gap-2 mt-1 pt-2 border-t border-[--border-default]/50">
+                <div className="grid grid-cols-4 gap-2 mt-1 pt-2 border-t border-[--border-default]/50">
+                  <div className="flex flex-col items-center justify-center gap-1 text-center text-[11px] sm:text-xs text-[--text-secondary] font-jakarta">
+                    <Clock size={15} strokeWidth={1.5} className="text-[#B88A58]" />
+                    <span>Ships in 48h</span>
+                  </div>
                   <div className="flex flex-col items-center justify-center gap-1 text-center text-[11px] sm:text-xs text-[--text-secondary] font-jakarta">
                     <MapPin size={15} strokeWidth={1.5} />
                     <span>Made in USA</span>

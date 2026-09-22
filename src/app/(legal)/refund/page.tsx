@@ -64,7 +64,7 @@ export default function RefundPage() {
           <h2 className="font-fraunces text-xl text-foreground font-normal mb-3">How to Request a Refund or Replacement</h2>
           <ol className="list-none space-y-3">
             {[
-              'Email us at hello@pawandkeepsake.com with your order number',
+              'Email us at pawkeepsake@gmail.com with your order number',
               'Briefly describe your concern (no detailed explanation required)',
               'We will respond within 12 hours with confirmation',
               'Your refund will be processed to your original payment method within 3-5 business days',
@@ -81,8 +81,8 @@ export default function RefundPage() {
           <h2 className="font-fraunces text-xl text-foreground font-normal mb-3">Contact Us</h2>
           <p className="text-muted">
             Email:{' '}
-            <a href="mailto:hello@pawandkeepsake.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
-              hello@pawandkeepsake.com
+            <a href="mailto:pawkeepsake@gmail.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
+              pawkeepsake@gmail.com
             </a>
             <br />
             Response time: Within 12 hours, Monday–Sunday

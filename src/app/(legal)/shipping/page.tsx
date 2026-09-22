@@ -69,8 +69,8 @@ export default function ShippingPage() {
           <p className="text-muted">
             Once your order ships, you will receive an email with your tracking number. You can track
             your package directly on the USPS or UPS website. For support, email us at{' '}
-            <a href="mailto:hello@pawandkeepsake.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
-              hello@pawandkeepsake.com
+            <a href="mailto:pawkeepsake@gmail.com" className="text-accent hover:text-accent-hover underline underline-offset-2">
+              pawkeepsake@gmail.com
             </a>
             .
           </p>
