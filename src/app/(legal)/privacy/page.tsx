@@ -25,7 +25,7 @@ export default function PrivacyPage() {
               'Name and email address (when placing an order or saving a draft)',
               'Shipping address (required to fulfill your order)',
               'Phone number (required by shipping carriers)',
-              'Payment information (processed securely by Stripe — we never store card data)',
+              'Payment information (processed securely by certified payment processors — we never store card data)',
               'Customization details (pet name, breed, dates, memorial quote)',
             ].map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm text-muted">
@@ -58,8 +58,6 @@ export default function PrivacyPage() {
           <h2 className="font-fraunces text-xl text-foreground font-normal mb-3">Third-Party Services</h2>
           <div className="space-y-4">
             {[
-              { name: 'Stripe', desc: 'Payment processing. Your card information is handled directly by Stripe and is never stored on our servers. Stripe is PCI DSS Level 1 certified.' },
-              { name: 'Meta Pixel / Conversions API', desc: 'We use Meta\'s advertising tools to measure the effectiveness of our ads and to show relevant advertising. You can opt out via your Facebook ad settings.' },
               { name: 'Google Analytics 4', desc: 'We use Google Analytics to understand how visitors use our site. Data is anonymized and aggregated. You can opt out using the Google Analytics opt-out browser add-on.' },
               { name: 'Cloudflare R2', desc: 'We store generated print files (your personalized art) securely on Cloudflare\'s infrastructure. Files are retained for 90 days post-order.' },
             ].map(({ name, desc }) => (

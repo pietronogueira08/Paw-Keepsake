@@ -1,80 +1,17 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
-import { trackPurchase } from '@/lib/analytics';
 
 function OrderConfirmationContent() {
   const clearCart = useCartStore((s) => s.clearCart);
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
-  const [petName, setPetName] = useState<string | null>(null);
-  const hasTrackedRef = useRef(false);
 
   useEffect(() => {
     // Clear client-side cart once order is confirmed
     clearCart();
-
-    if (!sessionId) return;
-
-    const storageKey = `paw_purchase_tracked_${sessionId}`;
-    const clientAlreadyTracked =
-      typeof window !== 'undefined' &&
-      (sessionStorage.getItem(storageKey) === 'true' ||
-        localStorage.getItem(storageKey) === 'true');
-
-    if (clientAlreadyTracked || hasTrackedRef.current) {
-      console.info('[OrderConfirmation] Purchase already tracked for session:', sessionId);
-      return;
-    }
-
-    // Fetch verified checkout details from the server to fire accurate Meta Pixel Purchase event
-    fetch(`/api/checkout/session?id=${encodeURIComponent(sessionId)}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          console.warn('[OrderConfirmation] Stripe verification failed:', err);
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (!data || !data.isPaid || data.paymentStatus !== 'paid') {
-          console.warn('[OrderConfirmation] Order is not confirmed as paid by Stripe. Purchase event skipped.');
-          return;
-        }
-
-        if (hasTrackedRef.current) return;
-        hasTrackedRef.current = true;
-
-        if (data.petName) setPetName(data.petName);
-
-        // Dispatches standard Purchase event ONLY with confirmed Stripe amount & currency
-        trackPurchase(
-          {
-            value: data.amountTotal,
-            currency: data.currency || 'USD',
-            transactionId: sessionId,
-            petName: data.petName || undefined,
-            content_ids: data.contentIds || ['museum-canvas'],
-            content_type: 'product',
-            eventID: data.eventId,
-          },
-          { eventID: data.eventId }
-        );
-
-        // Prevents duplicate firing across tab refreshes, tab closures and reopens
-        sessionStorage.setItem(storageKey, 'true');
-        localStorage.setItem(storageKey, 'true');
-      })
-      .catch((err) => {
-        console.error('[OrderConfirmation] Error verifying payment with server:', err);
-        // Do NOT simulate purchase if server check fails
-      });
-  }, [clearCart, sessionId]);
+  }, [clearCart]);
 
   return (
     <main className="min-h-[80vh] bg-background py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
@@ -102,15 +39,11 @@ function OrderConfirmationContent() {
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-foreground mb-4">
-            {petName
-              ? `Thank You for Honoring ${petName}'s Memory`
-              : 'Thank You for Honoring Their Memory'}
+            Thank You for Honoring Their Memory
           </h1>
 
           <p className="text-sm sm:text-base text-muted font-jakarta leading-relaxed max-w-lg mx-auto mb-8">
-            {petName
-              ? `Your custom memorial tribute for ${petName} is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.`
-              : 'Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.'}
+            Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.
           </p>
 
           {/* Fulfillment Timeline */}

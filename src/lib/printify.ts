@@ -1,6 +1,6 @@
 /**
  * Paw & Keepsake — Printify API Client
- * Automatically creates print orders when Stripe payments succeed.
+ * Manages live catalog verification and automated fulfillment order creation.
  */
 
 const PRINTIFY_BASE_URL = 'https://api.printify.com/v1';
@@ -77,7 +77,7 @@ export interface PrintifyShippingAddress {
 }
 
 export interface CreatePrintifyOrderParams {
-  externalId: string; // Stripe checkout session ID
+  externalId: string; // Unique order ID
   shippingAddress: PrintifyShippingAddress;
   items: Array<{
     productType: 'museum-canvas' | 'framed-print' | 'apparel' | 'ceramic-mug' | 'keepsake-keyring';
@@ -119,8 +119,9 @@ export async function createPrintifyOrder(params: CreatePrintifyOrderParams) {
 
   // 🛑 Defense-in-depth: Never send test orders to Printify
   if (
+    externalId.startsWith('test_') ||
     externalId.startsWith('cs_test_') ||
-    process.env.STRIPE_MODE === 'test' ||
+    process.env.PRINTIFY_TEST_MODE === 'true' ||
     process.env.NODE_ENV === 'development'
   ) {
     console.info(`[printify] 🛑 Blocked Printify order creation for test/dev session: ${externalId}`);

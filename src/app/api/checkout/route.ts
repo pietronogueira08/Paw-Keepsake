@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -38,75 +36,10 @@ const CheckoutRequestSchema = z.object({
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = await req.json() as unknown;
+    const body = (await req.json()) as unknown;
     const validated = CheckoutRequestSchema.parse(body);
 
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
-      validated.items.map((item) => {
-        // Build a nice description for the Stripe invoice
-        const features = [];
-        if (item.breed) features.push(item.breed.name);
-        features.push(`Size: ${item.size}`);
-        if (item.selectedCoat) features.push(`Coat: ${item.selectedCoat}`);
-        if (item.color) features.push(`Color: ${item.color}`);
-        if (item.dateRange) features.push(item.dateRange);
-
-        return {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${item.petName ? item.petName + "'s " : ''}${item.productTitle}`,
-              description: features.join(' · '),
-              metadata: {
-                cart_item_id: item.id,
-                product_type: item.productType,
-                breed_id: item.breed?.id || '',
-                breed_name: item.breed?.name || '',
-                selected_coat: item.selectedCoat || '',
-                pet_name: item.petName,
-                date_range: item.dateRange,
-                quote: item.quote.slice(0, 500),
-                size: item.size,
-                frame_style: item.frameStyle || '',
-                color: item.color || '',
-              },
-            },
-            unit_amount: Math.round(item.unitPrice * 100),
-          },
-          quantity: item.quantity,
-        };
-      });
-
-    const bumpType = validated.orderBumpType || 'keyring';
-    const bumpPrice = 24.9;
-    const bumpAmount = 2490;
-
-    if (validated.hasOrderBump) {
-      const firstPet = validated.items[0]?.petName || 'Beloved Pet';
-      lineItems.push({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name:
-              bumpType === 'mug'
-                ? `Matching Memorial Ceramic Mug (11 oz) — ${firstPet}`
-                : `Matching Memorial Keepsake Keyring — ${firstPet}`,
-            description:
-              bumpType === 'mug'
-                ? `Premium 11 oz glossy ceramic mug with black accent handle featuring ${firstPet}'s custom watercolor portrait`
-                : `Polished stainless steel medallion keyring featuring ${firstPet}'s custom watercolor portrait`,
-            metadata: {
-              product_type: bumpType === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',
-              pet_name: firstPet,
-            },
-          },
-          unit_amount: bumpAmount,
-        },
-        quantity: 1,
-      });
-    }
-
-    // Verify real-time inventory from Printify before charging the customer
+    // Verify real-time inventory from Printify
     const { getPrintifyInventory } = await import('@/lib/printify');
     const inventory = await getPrintifyInventory();
 
@@ -123,76 +56,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // Calculate total merchandise to determine Free Shipping ($50+ threshold)
-    const itemsSubtotal = validated.items.reduce(
-      (sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1),
-      0,
+    // Stripe gateway is decommissioned while transitioning to owner's new account
+    return NextResponse.json(
+      {
+        error:
+          'Our payment gateway is currently undergoing an account update. Please reach out to pawkeepsake@gmail.com for priority order processing or check back shortly!',
+        status: 'gateway_transition',
+      },
+      { status: 503 },
     );
-    const merchandiseTotal = itemsSubtotal + (validated.hasOrderBump ? bumpPrice : 0);
-    const isFreeShipping = merchandiseTotal >= 50;
-
-    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = isFreeShipping
-      ? [
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 0, currency: 'usd' },
-              display_name: 'Free Insured Tracked Shipping (Orders $50+)',
-              delivery_estimate: {
-                minimum: { unit: 'business_day', value: 3 },
-                maximum: { unit: 'business_day', value: 5 },
-              },
-            },
-          },
-        ]
-      : [
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 946, currency: 'usd' }, // $9.46 standard shipping
-              display_name: 'Standard Insured Shipping',
-              delivery_estimate: {
-                minimum: { unit: 'business_day', value: 3 },
-                maximum: { unit: 'business_day', value: 5 },
-              },
-            },
-          },
-        ];
-
-    const session = await stripe.checkout.sessions.create({
-      locale: 'en',
-      line_items: lineItems,
-      mode: 'payment',
-      shipping_options: shippingOptions,
-      success_url: validated.successUrl,
-      cancel_url: validated.cancelUrl,
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA'],
-      },
-      billing_address_collection: 'auto',
-      phone_number_collection: { enabled: true },
-      custom_text: {
-        submit: {
-          message: 'Your memorial will be carefully crafted and shipped within 1-2 business days.',
-        },
-      },
-      metadata: {
-        source: 'paw-keepsake-web',
-        item_count: String(validated.items.length),
-        product_type: validated.items[0]?.productType || 'museum-canvas',
-        has_order_bump: String(validated.hasOrderBump),
-        order_bump_type: validated.hasOrderBump ? (validated.orderBumpType || 'keyring') : 'none',
-        canvas_size: validated.items[0]?.size || '12x16',
-        pet_name: validated.items[0]?.petName || '',
-        breed_name: validated.items[0]?.breed?.name || '',
-        breed_id: validated.items[0]?.breed?.id || '',
-        selected_coat: validated.items[0]?.selectedCoat || '',
-        quote: (validated.items[0]?.quote || '').slice(0, 200),
-        date_range: validated.items[0]?.dateRange || '',
-      },
-    });
-
-    return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -200,11 +72,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
-    const message = error instanceof Error ? error.message : 'Failed to create checkout session';
+    const message =
+      error instanceof Error ? error.message : 'Failed to process checkout request';
     console.error('Checkout error:', error);
-    return NextResponse.json(
-      { error: message },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
