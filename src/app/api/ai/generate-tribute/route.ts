@@ -185,11 +185,12 @@ Rules:
       totalLimit: MAX_USES_PER_USER,
     });
 
-    // Set quota cookie for 7 days
     res.cookies.set('paw_ai_quota', JSON.stringify({ count: nextCount, resetAt: quota.resetAt }), {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     });
 
     return res;

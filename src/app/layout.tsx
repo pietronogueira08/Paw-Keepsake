@@ -5,6 +5,7 @@ import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Header } from '@/components/layout/Header';
 import { CartSlideOver } from '@/components/cart/CartSlideOver';
+import { CookieConsentBanner } from '@/components/layout/CookieConsentBanner';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -102,6 +103,7 @@ function Footer() {
               <li><Link href="/shipping" prefetch={false} className="hover:text-white transition-colors">Shipping & Delivery</Link></li>
               <li><Link href="/refund" prefetch={false} className="hover:text-white transition-colors">Refund & Replacement</Link></li>
               <li><Link href="/privacy" prefetch={false} className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" prefetch={false} className="hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
           <div>
@@ -133,6 +135,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
         <Footer />
         <CartSlideOver />
+        <CookieConsentBanner />
         <Toaster
           position="top-right"
           toastOptions={{

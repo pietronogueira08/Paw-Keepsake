@@ -36,7 +36,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     //   html: buildPreviewEmailHtml(data),
     // });
 
-    console.info('[save-draft] Saved for:', data.email, '| Pet:', data.petName, '| Breed:', data.breedName);
+    const maskedEmail = data.email.replace(/^(.)(.*)(@.*)$/, (_match, a, _b, c) => `${a}***${c}`);
+    console.info('[save-draft] Draft saved for:', maskedEmail, '| Breed:', data.breedName);
 
     return NextResponse.json({
       success: true,

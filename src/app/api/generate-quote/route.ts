@@ -161,6 +161,8 @@ Constraints:
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     });
 
     return res;
