@@ -21,6 +21,7 @@ interface MemorialReview {
   imageSrc: string;
   imageAlt: string;
   memorialSetup: string;
+  imagePosition?: string;
 }
 
 const REVIEWS: MemorialReview[] = [
@@ -57,6 +58,7 @@ const REVIEWS: MemorialReview[] = [
     imageSrc: '/images/reviews/review-jake-piano.webp',
     imageAlt: 'Beagle Jake memorial canvas on piano next to his leather collar',
     memorialSetup: 'Piano Keepsake with Collar',
+    imagePosition: 'center top',
   },
   {
     id: 'r3',
@@ -74,6 +76,7 @@ const REVIEWS: MemorialReview[] = [
     imageSrc: '/images/reviews/review-clark-wall.webp',
     imageAlt: 'Custom Weimaraner Clark memorial canvas hanging above wooden console table in living room',
     memorialSetup: 'Living Room Memorial Wall',
+    imagePosition: 'center 15%',
   },
   {
     id: 'r4',
@@ -108,6 +111,7 @@ const REVIEWS: MemorialReview[] = [
     imageSrc: '/images/reviews/review-charlie-mantel.webp',
     imageAlt: 'Golden Retriever Charlie memorial portrait on rustic mantel with collar and amber candle',
     memorialSetup: 'Memorial Mantel with Candle & Collar',
+    imagePosition: 'center 15%',
   },
   {
     id: 'r6',
@@ -125,6 +129,7 @@ const REVIEWS: MemorialReview[] = [
     imageSrc: '/images/reviews/review-max-fireplace.webp',
     imageAlt: 'German Shepherd Max memorial canvas hanging on living room wall above sofa',
     memorialSetup: 'Living Room Wall Memorial',
+    imagePosition: 'center 15%',
   },
 ];
 
@@ -207,6 +212,7 @@ export function EmotionalReviewsWall() {
                     alt={review.imageAlt}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                    style={{ objectPosition: review.imagePosition || 'center' }}
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                     loading="lazy"
                   />
