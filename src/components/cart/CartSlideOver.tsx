@@ -226,22 +226,18 @@ export function CartSlideOver() {
   }, []);
 
   const handleAcceptDownsell = useCallback(
-    (type: OrderBumpType) => {
+    () => {
       setShowDownsell(false);
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('paw_exit_downsell_dismissed', 'true');
       }
-      switchToDownsellItem(type);
+      switchToDownsellItem('mug');
       const petName = items[0]?.petName || 'your pet';
-      toast.success(
-        type === 'mug'
-          ? `Cart updated to ${petName}'s Memorial Ceramic Mug ($24.90)!`
-          : `Cart updated to ${petName}'s Keepsake Keyring ($24.90)!`
-      );
+      toast.success(`Cart updated to ${petName}'s Memorial Ceramic Mug ($24.90)!`);
       trackAddToCart({
         value: 24.9,
         currency: 'USD',
-        productType: type === 'mug' ? 'ceramic-mug' : 'keepsake-keyring',
+        productType: 'ceramic-mug',
         petName,
       });
       // Re-open cart with the selected downsell item and updated shipping
@@ -298,7 +294,7 @@ export function CartSlideOver() {
         body: JSON.stringify({
           items,
           hasOrderBump,
-          orderBumpType: orderBump?.type || 'keyring',
+          orderBumpType: 'mug',
           successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: window.location.href,
         }),
@@ -328,7 +324,7 @@ export function CartSlideOver() {
     <>
       <Drawer isOpen={isOpen} onClose={handleAttemptClose} title="Your Order" hideHeader>
         {/* ── Header ── */}
-        <header className="flex items-center justify-between px-4 py-3.5 border-b border-border bg-surface">
+        <header className="flex shrink-0 items-center justify-between px-4 py-3.5 border-b border-border bg-surface">
           <div className="flex items-center gap-2.5">
             <h2 className="text-base font-bold text-foreground font-fraunces tracking-tight">
               Your Order
@@ -349,43 +345,43 @@ export function CartSlideOver() {
         </header>
 
         {/* ── Free Shipping Bar ── */}
-        {hasItems && <FreeShippingBar />}
+        {hasItems && <div className="shrink-0"><FreeShippingBar /></div>}
 
-      {/* ── Body ── */}
-      {hasItems ? (
-        <>
-          {/* Cart items */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4">
-            <AnimatePresence initial={false}>
-              {items.map((item) => (
-                <CartItemRow key={item.id} item={item} />
-              ))}
-            </AnimatePresence>
-          </div>
+        {/* ── Body ── */}
+        {hasItems ? (
+          <>
+            {/* Scrollable container with both items and order bump */}
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 min-h-0 space-y-3">
+              <AnimatePresence initial={false}>
+                {items.map((item) => (
+                  <CartItemRow key={item.id} item={item} />
+                ))}
+              </AnimatePresence>
 
-          {/* Order bump */}
-          <InCartOrderBump />
+              {/* Order bump inside scroll container */}
+              <InCartOrderBump />
+            </div>
 
-          {/* ── Footer ── */}
-          <div className="border-t border-border bg-surface px-4 pt-4 pb-5 space-y-3">
-            {/* Price breakdown */}
-            <div className="space-y-1.5 py-1 text-sm font-jakarta">
-              <div className="flex items-center justify-between text-muted text-xs sm:text-sm">
-                <span>Canvas Subtotal</span>
-                <span>{formatPrice(subtotal)}</span>
-              </div>
-
-              {hasOrderBump && orderBump && (
-                <div className="flex items-center justify-between text-[--accent] font-medium text-xs sm:text-sm">
-                  <span className="flex items-center gap-1.5">
-                    <span>{orderBump.type === 'mug' ? '☕ Memorial Ceramic Mug' : '🔑 Keepsake Keyring'}</span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[--accent] bg-[--accent]/10 px-1.5 py-0.5 rounded border border-[--accent]/20">
-                      {orderBump.type === 'mug' ? '11 oz' : 'Memorial'}
-                    </span>
-                  </span>
-                  <span>{formatPrice(orderBump.salePrice)}</span>
+            {/* ── Sticky Footer ── */}
+            <div className="shrink-0 border-t border-border bg-surface px-4 pt-3.5 pb-4 space-y-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
+              {/* Price breakdown */}
+              <div className="space-y-1.5 py-1 text-sm font-jakarta">
+                <div className="flex items-center justify-between text-muted text-xs sm:text-sm">
+                  <span>Canvas Subtotal</span>
+                  <span className="text-foreground font-medium">{formatPrice(subtotal)}</span>
                 </div>
-              )}
+
+                {hasOrderBump && orderBump && (
+                  <div className="flex items-center justify-between text-[--accent] font-medium text-xs sm:text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <span>☕ Memorial Ceramic Mug</span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-[--accent] bg-[--accent]/10 px-1.5 py-0.5 rounded border border-[--accent]/20">
+                        11 oz
+                      </span>
+                    </span>
+                    <span className="font-bold">{formatPrice(orderBump.salePrice)}</span>
+                  </div>
+                )}
 
               <div className="flex items-center justify-between text-muted text-xs sm:text-sm">
                 <span className="flex items-center gap-1.5">

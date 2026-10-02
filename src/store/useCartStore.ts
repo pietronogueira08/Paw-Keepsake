@@ -31,7 +31,7 @@ export const ORDER_BUMP_OPTIONS: Record<OrderBumpType, OrderBumpItem> = {
   },
 };
 
-const DEFAULT_ORDER_BUMP = ORDER_BUMP_OPTIONS.keyring;
+const DEFAULT_ORDER_BUMP = ORDER_BUMP_OPTIONS.mug;
 
 export type OrderBumpColor = 'silver' | 'black' | 'grey' | 'white';
 export type OrderBumpSize = 'One Size' | 'S' | 'M' | 'L' | 'XL' | '2XL';
@@ -112,7 +112,7 @@ export const useCartStore = create<CartStore>()(
       items: [],
       orderBump: null,
       hasOrderBump: false,
-      activeBumpType: 'keyring',
+      activeBumpType: 'mug',
       orderBumpColor: 'silver',
       orderBumpSize: 'One Size',
       isOpen: false,
@@ -170,7 +170,7 @@ export const useCartStore = create<CartStore>()(
 
       addOrderBump: (type?: OrderBumpType) =>
         set((state) => {
-          const bumpType = type || state.activeBumpType || 'keyring';
+          const bumpType = type || 'mug';
           const bumpItem = ORDER_BUMP_OPTIONS[bumpType];
           return {
             activeBumpType: bumpType,
@@ -245,7 +245,7 @@ export const useCartStore = create<CartStore>()(
           items: [],
           orderBump: null,
           hasOrderBump: false,
-          activeBumpType: 'keyring',
+          activeBumpType: 'mug',
           isOpen: false,
           subtotal: 0,
           itemCount: 0,
@@ -263,6 +263,17 @@ export const useCartStore = create<CartStore>()(
         ) as Omit<CartStore, 'isOpen'>,
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // If the user previously had an old keyring bump or outdated price, sanitize directly to Mug
+          if (state.hasOrderBump) {
+            const mugItem = ORDER_BUMP_OPTIONS.mug;
+            if (state.orderBump?.type !== 'mug' || state.orderBump?.salePrice !== mugItem.salePrice) {
+              state.orderBump = mugItem;
+              state.activeBumpType = 'mug';
+            }
+          } else {
+            state.activeBumpType = 'mug';
+          }
+
           const totals = computeTotals(
             state.items || [],
             Boolean(state.hasOrderBump),
