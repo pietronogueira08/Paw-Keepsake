@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
 import { z } from 'zod';
-import { getLocaleConfig, getCanvasPrice, toStripeAmount, type SupportedCurrency } from '@/lib/locale';
+import {
+  getLocaleConfig,
+  getCanvasPrice,
+  toStripeAmount,
+  type SupportedCurrency,
+} from '@/lib/locale';
 
 export const runtime = 'nodejs';
 
@@ -41,9 +48,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const validated = CheckoutRequestSchema.parse(body);
 
     // ── Locale / Currency Detection ──────────────────────────────────────────
-    // Read the country from the header set by proxy.ts (Vercel geo-detection).
-    // Falls back to 'US' if running locally without the Vercel header.
-    const countryHeader = req.headers.get('x-pk-country') ??
+    // Detect visitor country from Vercel header or cookie set by proxy.ts
+    const countryHeader =
+      req.headers.get('x-pk-country') ??
       req.cookies.get('pk-country')?.value ??
       'US';
 
@@ -51,115 +58,179 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const currency: SupportedCurrency = localeConfig.currency;
     const isUK = currency === 'gbp';
 
-    // Verify real-time inventory from Printify
-    const { getPrintifyInventory } = await import('@/lib/printify');
-    const inventory = await getPrintifyInventory();
+    // ── Real-time inventory check from Printify ───────────────────────────────
+    try {
+      const { getPrintifyInventory } = await import('@/lib/printify');
+      const inventory = await getPrintifyInventory();
 
-    for (const item of validated.items) {
-      const sizeStock = inventory.canvas[item.size];
-      if (sizeStock && !sizeStock.available) {
-        return NextResponse.json(
-          {
-            error: `The ${item.size}" canvas is temporarily out of stock at our print facility. Please choose a different size.`,
-            outOfStockSize: item.size,
-          },
-          { status: 409 },
-        );
+      for (const item of validated.items) {
+        const sizeStock = inventory.canvas[item.size];
+        if (sizeStock && !sizeStock.available) {
+          return NextResponse.json(
+            {
+              error: `The ${item.size}" canvas is temporarily out of stock at our print facility. Please choose a different size.`,
+              outOfStockSize: item.size,
+            },
+            { status: 409 },
+          );
+        }
       }
+    } catch (invErr) {
+      // Don't block checkout completely if inventory check network fails
+      console.warn('[checkout] Inventory check skipped due to error:', invErr);
     }
 
-    // ── Stripe gateway is decommissioned while transitioning to owner's new account ─
-    // Remove this block and uncomment the Stripe code below once the new account is connected.
-    return NextResponse.json(
-      {
-        error:
-          'Our payment gateway is currently undergoing an account update. Please reach out to pawkeepsake@gmail.com for priority order processing or check back shortly!',
-        status: 'gateway_transition',
-        currency, // expose so client can show correct currency symbol
-        locale: localeConfig.locale,
-      },
-      { status: 503 },
-    );
+    // ── Build Line Items ──────────────────────────────────────────────────────
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+      validated.items.map((item) => {
+        const localizedPrice = getCanvasPrice(item.size, localeConfig);
+        const unitAmount = toStripeAmount(localizedPrice || item.unitPrice);
 
-    /* ── Uncomment when new Stripe account is connected ─────────────────────────
-    const { stripe } = await import('@/lib/stripe');
+        const features: string[] = [];
+        if (item.breed?.name) features.push(item.breed.name);
+        features.push(`Size: ${item.size}"`);
+        if (item.selectedCoat) features.push(`Coat: ${item.selectedCoat}`);
+        if (item.dateRange) features.push(item.dateRange);
 
-    const lineItems = validated.items.map((item) => {
-      // Use locale-aware price if available, otherwise fall back to unitPrice
-      const localizedPrice = getCanvasPrice(item.size, localeConfig);
-      const unitAmount = toStripeAmount(localizedPrice || item.unitPrice);
-
-      return {
-        price_data: {
-          currency,
-          product_data: {
-            name: `Custom Memorial Canvas — ${item.petName}`,
-            description: `${item.breed?.name ?? 'Pet'} • ${item.size}" • ${item.dateRange}`,
-            metadata: {
-              breed_id: item.breed?.id ?? '',
-              breed_name: item.breed?.name ?? '',
-              pet_name: item.petName,
-              date_range: item.dateRange,
-              quote: item.quote,
-              size: item.size,
-              frame_style: item.frameStyle ?? '',
-              product_type: item.productType,
+        return {
+          price_data: {
+            currency,
+            product_data: {
+              name: `Custom Memorial Canvas — ${item.petName}`,
+              description: features.join(' · '),
+              metadata: {
+                cart_item_id: item.id,
+                product_type: item.productType || 'museum-canvas',
+                breed_id: item.breed?.id || '',
+                breed_name: item.breed?.name || '',
+                selected_coat: item.selectedCoat || '',
+                pet_name: item.petName,
+                date_range: item.dateRange,
+                quote: (item.quote || '').slice(0, 500),
+                size: item.size,
+                frame_style: item.frameStyle || '',
+              },
             },
+            unit_amount: unitAmount,
           },
-          unit_amount: unitAmount,
-        },
-        quantity: item.quantity,
-      };
-    });
+          quantity: item.quantity,
+        };
+      });
 
-    // Add mug order bump if present
-    if (validated.hasOrderBump && validated.orderBumpType === 'mug') {
-      const mugPrice = toStripeAmount(localeConfig.prices.mug);
+    // ── Add Order Bump (Ceramic Mug) if selected ──────────────────────────────
+    const firstPetName = validated.items[0]?.petName || 'Beloved Pet';
+    let bumpTotal = 0;
+
+    if (validated.hasOrderBump) {
+      const bumpPrice = localeConfig.prices.mug;
+      bumpTotal = bumpPrice;
+      const unitAmount = toStripeAmount(bumpPrice);
+
       lineItems.push({
         price_data: {
           currency,
           product_data: {
-            name: isUK ? 'Memorial Ceramic Mug — 11oz' : 'Memorial Ceramic Mug — 11oz',
-            description: "Premium ceramic mug with your pet's watercolor art",
-            metadata: { product_type: 'order-bump-mug' },
+            name: `Matching Memorial Ceramic Mug (11 oz) — ${firstPetName}`,
+            description: `Glossy ceramic mug with black accent handle featuring ${firstPetName}'s custom watercolor portrait`,
+            metadata: {
+              product_type: 'ceramic-mug',
+              pet_name: firstPetName,
+              size: '11oz',
+            },
           },
-          unit_amount: mugPrice,
+          unit_amount: unitAmount,
         },
         quantity: 1,
       });
     }
 
+    // ── Calculate Shipping (Free if threshold met) ────────────────────────────
+    const merchandiseSubtotal =
+      validated.items.reduce(
+        (sum, item) =>
+          sum +
+          (getCanvasPrice(item.size, localeConfig) || item.unitPrice) *
+            (item.quantity || 1),
+        0,
+      ) + bumpTotal;
+
+    const qualifiesForFreeShipping =
+      merchandiseSubtotal >= localeConfig.freeShippingThreshold;
+
+    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] =
+      qualifiesForFreeShipping
+        ? [
+            {
+              shipping_rate_data: {
+                type: 'fixed_amount',
+                fixed_amount: { amount: 0, currency },
+                display_name: isUK
+                  ? `Free Tracked UK Delivery (Orders £${localeConfig.freeShippingThreshold}+)`
+                  : `Free Insured USA Shipping (Orders $${localeConfig.freeShippingThreshold}+)`,
+                delivery_estimate: {
+                  minimum: { unit: 'business_day', value: 3 },
+                  maximum: { unit: 'business_day', value: 5 },
+                },
+              },
+            },
+          ]
+        : [
+            {
+              shipping_rate_data: {
+                type: 'fixed_amount',
+                fixed_amount: {
+                  amount: toStripeAmount(localeConfig.shippingCost),
+                  currency,
+                },
+                display_name: isUK
+                  ? 'Standard Tracked UK Delivery'
+                  : 'Standard Insured USA Shipping',
+                delivery_estimate: {
+                  minimum: { unit: 'business_day', value: 3 },
+                  maximum: { unit: 'business_day', value: 5 },
+                },
+              },
+            },
+          ];
+
+    // ── Create Stripe Checkout Session ────────────────────────────────────────
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'link'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: validated.successUrl,
-      cancel_url: validated.cancelUrl,
-      currency,
+      shipping_options: shippingOptions,
       shipping_address_collection: {
-        // Support US domestic + UK. Add more as you expand.
         allowed_countries: ['US', 'CA', 'GB'],
       },
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
+      success_url: validated.successUrl,
+      cancel_url: validated.cancelUrl,
       custom_text: {
         submit: {
           message: isUK
-            ? 'Your memorial will be printed and fulfilled in the UK within 1 business day.'
-            : 'Your memorial will be printed and shipped within 1 business day.',
+            ? 'Your tribute is prepared with care and fulfilled in the UK within 1–2 working days.'
+            : 'Your tribute is prepared with care and shipped within 1–2 business days.',
         },
       },
       metadata: {
         source: 'paw-keepsake-web',
         item_count: String(validated.items.length),
+        has_order_bump: String(validated.hasOrderBump),
+        bump_type: validated.hasOrderBump ? 'mug' : '',
+        canvas_size: validated.items[0]?.size || '12x16',
+        pet_name: firstPetName,
+        breed_name: validated.items[0]?.breed?.name || '',
+        breed_id: validated.items[0]?.breed?.id || '',
+        selected_coat: validated.items[0]?.selectedCoat || '',
+        quote: (validated.items[0]?.quote || '').slice(0, 200),
+        date_range: validated.items[0]?.dateRange || '',
         locale: localeConfig.locale,
+        currency,
         country: countryHeader,
       },
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
-    ─────────────────────────────────────────────────────────────────────────── */
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -168,8 +239,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
     const message =
-      error instanceof Error ? error.message : 'Failed to process checkout request';
-    console.error('Checkout error:', error);
+      error instanceof Error ? error.message : 'Failed to create checkout session';
+    console.error('[checkout] Error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,17 +1,34 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
 
 function OrderConfirmationContent() {
   const clearCart = useCartStore((s) => s.clearCart);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const [petName, setPetName] = useState<string | null>(null);
 
   useEffect(() => {
     // Clear client-side cart once order is confirmed
     clearCart();
-  }, [clearCart]);
+
+    if (!sessionId) return;
+
+    fetch(`/api/checkout/session?id=${encodeURIComponent(sessionId)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.petName) {
+          setPetName(data.petName);
+        }
+      })
+      .catch((err) => {
+        console.warn('[OrderConfirmation] Could not fetch session details:', err);
+      });
+  }, [clearCart, sessionId]);
 
   return (
     <main className="min-h-[80vh] bg-background py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
@@ -39,11 +56,15 @@ function OrderConfirmationContent() {
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-bold font-fraunces text-foreground mb-4">
-            Thank You for Honoring Their Memory
+            {petName
+              ? `Thank You for Honoring ${petName}'s Memory`
+              : 'Thank You for Honoring Their Memory'}
           </h1>
 
           <p className="text-sm sm:text-base text-muted font-jakarta leading-relaxed max-w-lg mx-auto mb-8">
-            Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our USA workshop.
+            {petName
+              ? `Your custom memorial tribute for ${petName} is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our workshop.`
+              : 'Your custom tribute is now queued with our artisans. Every canvas is individually printed, hand-stretched over solid wood bars, and inspected before leaving our workshop.'}
           </p>
 
           {/* Fulfillment Timeline */}
@@ -88,7 +109,7 @@ function OrderConfirmationContent() {
                   4
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground font-jakarta">Insured USA Delivery (4–6 Business Days)</p>
+                  <p className="text-sm font-semibold text-foreground font-jakarta">Tracked Insured Delivery (3–6 Days)</p>
                   <p className="text-xs text-muted font-jakarta">Tracking number emailed the moment your package departs.</p>
                 </div>
               </div>
